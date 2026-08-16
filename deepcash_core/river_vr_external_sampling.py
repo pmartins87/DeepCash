@@ -18,6 +18,7 @@ from .river_lab import (
     _actions,
     _all_infosets,
     _bet_amount,
+    _policy_deal_value,
     _regret_strategy,
     _terminal_showdown,
     p0_vs_bet_node,
@@ -31,6 +32,67 @@ class VRBaselineMode(str, Enum):
     ZERO = "ZERO"
     INFOSET_EXACT = "INFOSET_EXACT"
     PERFECT_HISTORY = "PERFECT_HISTORY"
+
+
+def _pure_fixed_history_child_value(
+    spec: RiverGameSpec,
+    *,
+    i: int,
+    j: int,
+    strategies: Mapping[InfoKey, tuple[float, ...]],
+    player: int,
+    node: str,
+    action: str,
+) -> float:
+    """Exact fixed-deal continuation for one action with no training side effects.
+
+    This helper exists specifically for privileged PERFECT_HISTORY control
+    variates.  It may inspect the complete fixed private deal `(i, j)`, but it
+    must never mutate regret deltas, strategy sums, counters or PRNG state.
+    """
+    if player == 0 and node == ROOT:
+        if action == "CHECK":
+            return _policy_deal_value(
+                spec, i, j, strategies, node=P1_AFTER_CHECK, player=1
+            )
+        return _policy_deal_value(
+            spec,
+            i,
+            j,
+            strategies,
+            node=p1_vs_bet_node(_bet_amount(action)),
+            player=1,
+        )
+
+    if player == 1 and node == P1_AFTER_CHECK:
+        if action == "CHECK":
+            return _terminal_showdown(spec, i, j)
+        return _policy_deal_value(
+            spec,
+            i,
+            j,
+            strategies,
+            node=p0_vs_bet_node(_bet_amount(action)),
+            player=0,
+        )
+
+    if player == 1 and node.startswith("P1_VS_BET_"):
+        amount = int(node.rsplit("_", 1)[1])
+        return (
+            float(spec.pot) / 2.0
+            if action == "FOLD"
+            else _terminal_showdown(spec, i, j, amount)
+        )
+
+    if player == 0 and node.startswith("P0_VS_BET_"):
+        amount = int(node.rsplit("_", 1)[1])
+        return (
+            -float(spec.pot) / 2.0
+            if action == "FOLD"
+            else _terminal_showdown(spec, i, j, amount)
+        )
+
+    raise AssertionError((player, node, action))  # pragma: no cover
 
 
 def _vr_external_traverse(
@@ -133,9 +195,8 @@ def _vr_external_traverse(
 
     if baseline_mode == VRBaselineMode.INFOSET_EXACT:
         # The sampled child follows the realized hidden history as ordinary
-        # external sampling does.  The control variate, however, may use only
-        # the traverser's private combo plus public history/current policy.  The
-        # baseline API deliberately has no realized-opponent-hand parameter.
+        # external sampling does. The control variate may use only the
+        # traverser's private combo plus public history/current policy.
         sampled_child = descend(actions[sampled])
         own_hand_index = i if traverser == 0 else j
         baselines = exact_infoset_action_baselines_v2(
@@ -155,16 +216,30 @@ def _vr_external_traverse(
         )
 
     if baseline_mode == VRBaselineMode.PERFECT_HISTORY:
-        # Deliberately privileged oracle: full hidden history (i,j) is known here,
-        # and every action continuation is enumerated. It is a variance lower
-        # bound / implementation oracle, never a legal production baseline.
-        exact_children = tuple(descend(action) for action in actions)
+        # The actual sampled path is the only path allowed to update traverser
+        # regrets. Counterfactual baseline branches are evaluated by a pure
+        # fixed-deal policy evaluator, otherwise the privileged oracle would
+        # silently update regrets on unsampled opponent branches and cease to be
+        # a valid external-sampling control variate.
+        sampled_child = descend(actions[sampled])
+        exact_children = tuple(
+            _pure_fixed_history_child_value(
+                spec,
+                i=i,
+                j=j,
+                strategies=strategies,
+                player=player,
+                node=node,
+                action=action,
+            )
+            for action in actions
+        )
         return baseline_enhanced_node_value(
             target_policy=sigma,
             sampling_policy=sigma,
             baselines=exact_children,
             sampled_action=sampled,
-            sampled_child_value=exact_children[sampled],
+            sampled_child_value=sampled_child,
         )
 
     raise AssertionError(baseline_mode)  # pragma: no cover
@@ -181,7 +256,8 @@ def advance_vr_external_sampling(
 
     ZERO is the exact ordinary-external-sampling identity control. INFOSET_EXACT
     is the expensive no-private-leak conditional oracle. PERFECT_HISTORY is a
-    privileged hidden-state lower bound and is never production eligible.
+    privileged hidden-state variance lower-bound oracle and is never production
+    eligible.
     """
     import random
 
