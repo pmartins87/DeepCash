@@ -3,74 +3,25 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from fractions import Fraction
-from itertools import combinations
 from pathlib import Path
 
-from deepcash_core.cards import card_from_str, full_deck
-from deepcash_core.evaluator import evaluate_best
-from deepcash_core.river_lab import RangeCombo, materialize_bet_sizes
+from deepcash_core.river_benchmark_fixtures import (
+    ONE_RAISE_OPEN_CANDIDATES,
+    ONE_RAISE_OPEN_REFERENCE_FRACTIONS,
+    RIVER_BOARDS,
+    parse_cards,
+    parse_checkpoints,
+    parse_names,
+    quantile_range,
+    restriction_loss_bounds,
+)
+from deepcash_core.river_lab import materialize_bet_sizes
 from deepcash_core.river_raise_reference_lab import AsymmetricRiverRaiseGameSpec
 from deepcash_core.river_raise_reference_training import (
     advance_cfr_plus,
     init_cfr_plus,
     result_from_state,
 )
-
-BOARDS = {
-    "A_high_dry": "Ah Kd 9c 7s 2h",
-    "paired": "Qs Qd 9h 7c 2s",
-    "four_straight": "9h 8d 7c 6s 2h",
-    "four_flush": "Ah Jh 8h 4h 2c",
-}
-
-# Opening-size controls for the first one-raise common-reference battery.
-# They are deliberately nested so each candidate is a literal subset of R.
-REFERENCE_OPEN_FRACTIONS = (
-    Fraction(1, 4), Fraction(1, 2), Fraction(3, 4), Fraction(1, 1)
-)
-CANDIDATES = {
-    "O1_50": (Fraction(1, 2),),
-    "O2_25_75": (Fraction(1, 4), Fraction(3, 4)),
-    "O3_25_50_100": (Fraction(1, 4), Fraction(1, 2), Fraction(1, 1)),
-}
-
-
-def parse_cards(text: str) -> tuple[int, ...]:
-    return tuple(card_from_str(x) for x in text.split())
-
-
-def quantile_range(board: tuple[int, ...], count: int, phase: float) -> tuple[RangeCombo, ...]:
-    remaining = [c for c in full_deck() if c not in set(board)]
-    combos = list(combinations(remaining, 2))
-    combos.sort(key=lambda h: (evaluate_best((*h, *board)), h))
-    out = []
-    used = set()
-    for k in range(count):
-        q = min(0.999999, max(0.000001, (k + 0.5 + phase) / count))
-        idx = round(q * (len(combos) - 1))
-        while combos[idx] in used:
-            idx = min(len(combos) - 1, idx + 1)
-        used.add(combos[idx])
-        out.append(RangeCombo(tuple(combos[idx])))
-    return tuple(out)
-
-
-def parse_names(text: str, available: dict[str, object]) -> tuple[str, ...]:
-    if text == "all":
-        return tuple(available)
-    names = tuple(x.strip() for x in text.split(",") if x.strip())
-    unknown = set(names) - set(available)
-    if unknown:
-        raise ValueError(f"unknown names: {sorted(unknown)}")
-    return names
-
-
-def parse_checkpoints(text: str) -> tuple[int, ...]:
-    values = tuple(sorted({int(x.strip()) for x in text.split(",") if x.strip()}))
-    if not values or values[0] <= 0:
-        raise ValueError("checkpoints must be positive integers")
-    return values
 
 
 def pot_raise_targets(
@@ -83,9 +34,9 @@ def pot_raise_targets(
 
     Facing a bet `b` into starting pot `P`, pot after calling is `P+2b`.
     A pot-sized raise adds that amount over the call, so total contribution is
-    `b + (P+2b) = P+3b`. We cap at stack; this control deliberately requires the
-    resulting target to exceed the opening bet. Geometries in which the opener
-    is already all-in are a separate later gate because no HU raise exists there.
+    `b + (P+2b) = P+3b`. We cap at stack. This v1 gate deliberately requires
+    the resulting target to exceed the opening bet; all-in/no-raise openings are
+    a separate low-SPR extension rather than being silently misrepresented.
     """
     out = []
     for bet in opening_sizes:
@@ -104,22 +55,6 @@ def subset_map(full_map, sizes):
     return tuple((b, mapping[b]) for b in sizes)
 
 
-def loss_bounds(reference, p0r, p1r, pot: int) -> dict:
-    p0_lower = reference.br1_value - p0r.br0_value
-    p0_upper = reference.br0_value - p0r.br1_value
-    p1_lower = p1r.br1_value - reference.br0_value
-    p1_upper = p1r.br0_value - reference.br1_value
-    worst_upper = max(0.0, p0_upper, p1_upper)
-    return {
-        "p0_loss_lower": p0_lower,
-        "p0_loss_upper": p0_upper,
-        "p1_loss_lower": p1_lower,
-        "p1_loss_upper": p1_upper,
-        "worst_loss_upper": worst_upper,
-        "worst_loss_upper_per_pot": worst_upper / float(pot),
-    }
-
-
 def main() -> None:
     ap = argparse.ArgumentParser(
         description="Cumulative common-reference opening-size restriction in a one-raise river tree"
@@ -135,13 +70,13 @@ def main() -> None:
     args = ap.parse_args()
 
     checkpoints = parse_checkpoints(args.checkpoints)
-    board_names = parse_names(args.boards, BOARDS)
-    candidate_names = parse_names(args.candidates, CANDIDATES)
+    board_names = parse_names(args.boards, RIVER_BOARDS)
+    candidate_names = parse_names(args.candidates, ONE_RAISE_OPEN_CANDIDATES)
     reference_sizes = materialize_bet_sizes(
         pot=args.pot,
         stack=args.stack,
         min_bet=args.min_bet,
-        fractions=REFERENCE_OPEN_FRACTIONS,
+        fractions=ONE_RAISE_OPEN_REFERENCE_FRACTIONS,
     )
     reference_raise_map = pot_raise_targets(
         pot=args.pot, stack=args.stack, opening_sizes=reference_sizes
@@ -149,7 +84,7 @@ def main() -> None:
     rows = []
 
     for board_name in board_names:
-        board = parse_cards(BOARDS[board_name])
+        board = parse_cards(RIVER_BOARDS[board_name])
         p0_range = quantile_range(board, args.range_combos, 0.00)
         p1_range = quantile_range(board, args.range_combos, 0.27)
         ref_spec = AsymmetricRiverRaiseGameSpec(
@@ -171,7 +106,7 @@ def main() -> None:
                 pot=args.pot,
                 stack=args.stack,
                 min_bet=args.min_bet,
-                fractions=CANDIDATES[name],
+                fractions=ONE_RAISE_OPEN_CANDIDATES[name],
             )
             if not set(sizes).issubset(reference_sizes):
                 raise RuntimeError("candidate opening sizes escaped reference action set")
@@ -241,7 +176,7 @@ def main() -> None:
                 p1r = result_from_state(item["p1_spec"], item["p1_state"])
                 p1_eval_seconds = time.perf_counter() - started
 
-                bounds = loss_bounds(reference, p0r, p1r, args.pot)
+                bounds = restriction_loss_bounds(reference, p0r, p1r, args.pot)
                 interval_width = max(
                     reference.br0_value - reference.br1_value,
                     p0r.br0_value - p0r.br1_value,
