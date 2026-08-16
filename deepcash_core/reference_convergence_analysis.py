@@ -126,6 +126,20 @@ def _latest_checkpoint(payload: dict) -> int:
     return max(checkpoints)
 
 
+def _source_geometry(payload: dict) -> dict:
+    """Carry stable experiment coordinates into the analysis artifact.
+
+    Keeping geometry here lets separate matrix jobs be aggregated later without
+    reopening or reparsing their larger raw convergence files. Missing fields
+    remain absent so older one-bet payloads stay backward compatible.
+    """
+    geometry = {}
+    for key in ("pot", "stack", "spr", "range_combos", "restriction_dimension"):
+        if key in payload:
+            geometry[key] = payload[key]
+    return geometry
+
+
 def analyze(payload: dict) -> dict:
     source_schema = payload.get("schema")
     if source_schema not in _SUPPORTED_SCHEMAS:
@@ -140,6 +154,7 @@ def analyze(payload: dict) -> dict:
         "schema": _SUPPORTED_SCHEMAS[source_schema],
         "source_schema": source_schema,
         "source_checkpoints": list(payload.get("checkpoints", [])),
+        "source_geometry": _source_geometry(payload),
         "latest_checkpoint": latest,
         "methodology_note": (
             "No arbitrary strategic acceptance threshold is applied here. "
