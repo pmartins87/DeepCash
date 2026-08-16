@@ -30,41 +30,59 @@ Implement and independently validate:
 - [x] deterministic full-hand replay and fingerprints;
 - [x] exhaustive five-card distribution audit;
 - [x] independent evaluator parity against pinned PokerKit;
-- [ ] independent full-game lifecycle/rules oracle parity;
-- [~] adversarial/property fuzzing — deterministic randomized legal-hand and multiway all-in coverage exists; deeper corner-case battery remains.
+- [~] independent full-game lifecycle/rules oracle parity — fixed traces plus 100 deterministic randomized three-handed full-game traces have exact final-stack parity against pinned PokerKit; broader 2–6 handed/adversarial coverage remains;
+- [~] adversarial/property fuzzing — deterministic randomized legal-hand, multiway all-in and side-pot coverage exists; deeper corner-case battery remains.
 
 Current evidence: `docs/R1_VALIDATION_STATUS.md`.
 
 Exit gate: exhaustive/sampled parity against independent oracles plus property/fuzz tests, with target-site-dependent rules explicitly frozen or parameterized from evidence.
 
 ## R2 — Canonical state and invariances
-Status: **FOUNDATION STARTED**
+Status: **PASS**
 
 Mandatory by construction, not learned by the network:
 
-- hole-card order invariance;
-- flop simultaneous-card order invariance;
-- global suit-permutation invariance;
-- relative-chair/button rotation invariance;
-- action-history equivalence where semantics are identical;
-- no loss of exact pot/call/stack/SPR geometry at the canonical-state boundary.
+- [x] exact `HandState -> DecisionSnapshot` boundary;
+- [x] hole-card order invariance;
+- [x] flop simultaneous-card order invariance;
+- [x] all 24 global suit permutations;
+- [x] relative-chair/Button physical-seat invariance;
+- [x] actor-aware ordered action history retained;
+- [x] exact action monetary geometry retained (`paid`, pot/call/current-bet/commitment/min-full-raise context);
+- [x] exact pot/call/stack/commitment geometry retained at the canonical-state boundary;
+- [x] hidden opponent cards are not exposed to the decision representation;
+- [x] deterministic randomized 2–6 handed metamorphic battery across preflop, flop, turn and river;
+- [x] anti-alias tests prove one-chip strategic changes remain distinguishable.
 
-Exit gate: metamorphic tests prove equivalent states receive identical canonical keys/features.
+R2 does **not** freeze the future neural/private-state encoder. Lossy representation remains an R4 problem and must be justified experimentally.
+
+Exit gate: metamorphic tests prove equivalent physical states receive identical canonical keys while strategically different geometry remains distinct. **PASSED** — see `docs/R2_VALIDATION_STATUS.md`.
 
 ## R3 — Action abstraction laboratory
-Status: **PENDING**
+Status: **IN PROGRESS**
 
 Benchmark progressively richer action sets per street and geometry:
 
-- fold/check/call;
-- 1–4 bet sizes;
-- 1–4 raise sizes;
-- all-in as explicit terminal sizing where strategically distinct;
-- later: multiple raise depths.
+- [x] exact HU river one-bet microgame with exact combo card removal;
+- [x] synchronous full-chance CFR+ control;
+- [x] exact pure-plan best response on the tractable river tree;
+- [x] exact exploitability/pot, infoset count and action-slot metrics;
+- [x] candidate 1–4 bet-size smoke battery over multiple river board families;
+- [x] CI smoke + archived benchmark artifact;
+- [ ] cumulative/resumable CFR+ checkpoints;
+- [ ] equal-wall-clock comparison so optimization error is separated from abstraction error;
+- [ ] multiple pot/stack/SPR geometries and larger held-out board/range battery;
+- [ ] one-raise river tree with exact-BR validation;
+- [ ] later: richer raise depths only if the measured gain justifies cost;
+- [ ] final Pareto/action-family precommit and freeze.
 
-Candidate sizes should be expressed primarily as pot fractions and geometrically clipped by stack/min-raise rules. Preflop may require blind-denominated raise-to abstractions.
+Candidate sizes are expressed primarily as pot fractions and geometrically clipped by stack/min-bet rules in the laboratory. Preflop will likely require blind-denominated raise-to abstractions.
 
-Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory cost across a multi-board/multi-SPR benchmark battery.
+The first 120-iteration smoke is **not a sizing-selection result**. Richer trees were less converged at the same tiny iteration count, so choosing the smallest tree from that snapshot would confuse optimization difficulty with strategic quality.
+
+Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md` and `docs/R3_VALIDATION_STATUS.md`.
+
+Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence.
 
 ## R4 — Private/public state abstraction laboratory
 Status: **PENDING**
@@ -259,9 +277,10 @@ Only this gate may set:
 
 ```text
 R0 PASS
--> R1 exact cash engine + full-game oracle
--> R2 invariance gates
--> R3/R4 action + state abstraction benchmarks
+-> R1 exact cash engine release debt (parallel)
+-> R2 PASS
+-> R3 action-abstraction convergence/equal-compute + raise-depth gates
+-> R4 state abstraction benchmarks
 -> R5 solver selection
 -> R6 street resolving
 -> R7 full blueprint prototype
@@ -273,6 +292,8 @@ R0 PASS
 -> R15 homologation
 -> READY FOR TABLES
 ```
+
+R1 site/economy debt may be closed in parallel with R3/R4 engineering, but **R9 remains blocked until every required R1–R8 exit gate passes**.
 
 ## North-star metric
 
