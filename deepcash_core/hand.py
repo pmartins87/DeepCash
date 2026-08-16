@@ -40,8 +40,11 @@ class HandSetup:
             raise ValueError("hole cards must match occupied seats")
         if self.small_blind <= 0 or self.big_blind <= self.small_blind:
             raise ValueError("invalid blind structure")
-        if any(int(v) < self.big_blind for v in self.stacks.values()):
-            raise ValueError("v1 requires every dealt stack to cover a full big blind")
+        # A dealt cash-game stack may be shorter than a nominal blind. Forced
+        # blinds are posted up to the player's available stack in HandState.new.
+        # Zero-stack seats are not dealt into a new hand.
+        if any(int(v) <= 0 for v in self.stacks.values()):
+            raise ValueError("every dealt stack must be positive")
         if len(self.board) != 5:
             raise ValueError("board must contain five cards")
         all_cards: list[int] = list(self.board)
@@ -58,7 +61,7 @@ class HandActionRecord:
     """Exact action plus the monetary geometry visible when it was chosen.
 
     Recording only ``CALL`` or only a raise target is not enough for later
-    strategic representation work.  These fields preserve the action's exact
+    strategic representation work. These fields preserve the action's exact
     context without introducing any bucket at the game-engine boundary.
     """
 
@@ -106,15 +109,22 @@ class HandState:
 
         sb = plan.small_blind
         bb = plan.big_blind
-        remaining[sb] -= setup.small_blind
-        contributed[sb] += setup.small_blind
-        remaining[bb] -= setup.big_blind
-        contributed[bb] += setup.big_blind
+        # Forced blinds are capped by the player's available stack. The actual
+        # posted amount establishes the current preflop price; the nominal BB
+        # remains the minimum full raise increment. This matches the pinned
+        # PokerKit control: a short BB of 60 in a 50/100 game is callable for 60,
+        # while the first full raise-to is 160 (= 60 current + 100 increment).
+        sb_post = min(remaining[sb], setup.small_blind)
+        bb_post = min(remaining[bb], setup.big_blind)
+        remaining[sb] -= sb_post
+        contributed[sb] += sb_post
+        remaining[bb] -= bb_post
+        contributed[bb] += bb_post
 
         betting = BettingRoundState.create(
             order=plan.preflop_order,
             stacks=remaining,
-            committed={sb: setup.small_blind, bb: setup.big_blind},
+            committed={sb: sb_post, bb: bb_post},
             min_bet=setup.big_blind,
             config=setup.betting_config,
         )
