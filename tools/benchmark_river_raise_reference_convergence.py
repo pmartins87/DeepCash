@@ -60,7 +60,11 @@ def main() -> None:
     ap.add_argument("--pot", type=int, default=100)
     ap.add_argument("--stack", type=int, default=400)
     ap.add_argument("--min-bet", type=int, default=20)
-    ap.add_argument("--board-set", choices=("control", "heldout", "all"), default="control")
+    ap.add_argument(
+        "--board-set",
+        choices=("control", "heldout", "heldout_v2", "all"),
+        default="control",
+    )
     ap.add_argument("--boards", default="A_high_dry")
     ap.add_argument("--p0-phase", type=float, default=0.00)
     ap.add_argument("--p1-phase", type=float, default=0.27)
