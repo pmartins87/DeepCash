@@ -121,8 +121,8 @@ def test_api_has_no_realized_opponent_hand_dependency():
 
 
 def test_no_leak_baseline_preserves_hole_card_order_invariance():
-    normal = fixture_spec(False)
-    reversed_spec = fixture_spec(True)
+    normal = fixture_spec(reverse_holes=False)
+    reversed_spec = fixture_spec(reverse_holes=True)
     normal_policy = uniform_policy(normal)
     reversed_policy = uniform_policy(reversed_spec)
     fixtures = (
