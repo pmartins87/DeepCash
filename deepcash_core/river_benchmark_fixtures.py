@@ -26,6 +26,22 @@ ONE_BET_REFERENCE_FRACTIONS = (
     Fraction(2, 1),
 )
 
+# Opening-size controls for the one-raise common-reference river battery.
+# Candidates are literal subsets of the rich reference so restriction loss can
+# be bounded without remapping actions between different trees.
+ONE_RAISE_OPEN_CANDIDATES = {
+    "O1_50": (Fraction(1, 2),),
+    "O2_25_75": (Fraction(1, 4), Fraction(3, 4)),
+    "O3_25_50_100": (Fraction(1, 4), Fraction(1, 2), Fraction(1, 1)),
+}
+
+ONE_RAISE_OPEN_REFERENCE_FRACTIONS = (
+    Fraction(1, 4),
+    Fraction(1, 2),
+    Fraction(3, 4),
+    Fraction(1, 1),
+)
+
 RIVER_BOARDS = {
     "A_high_dry": "Ah Kd 9c 7s 2h",
     "paired": "Qs Qd 9h 7c 2s",
