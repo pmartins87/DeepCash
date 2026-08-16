@@ -5,10 +5,10 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months after pretraining gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R0",
+  "current_gate": "R1",
   "status": {
-    "R0": "IN_PROGRESS",
-    "R1": "PENDING",
+    "R0": "PASS",
+    "R1": "IN_PROGRESS",
     "R2": "FOUNDATION_STARTED",
     "R3": "PENDING",
     "R4": "PENDING",
@@ -24,6 +24,36 @@
     "R14": "PENDING",
     "R15": "PENDING"
   },
+  "validated_evidence": {
+    "r0_clean_ci": {
+      "run_id": 31948882362,
+      "head_sha": "acd390baa75cd4f94b7bf8894ef075c1cc691152",
+      "conclusion": "success"
+    },
+    "r1_evaluator_oracles": {
+      "run_id": 31948656185,
+      "head_sha": "7022abd66bd57b9a7fea103b38596f18ab6d60cc",
+      "conclusion": "success",
+      "checks": [
+        "exhaustive 2,598,960 five-card category distribution",
+        "pinned PokerKit StandardHighHand cross-check"
+      ]
+    },
+    "r1_state_machine_ci": {
+      "run_id": 31948857753,
+      "head_sha": "45c4e03d42d068df5371f604f5b77edefaf3c1d4",
+      "conclusion": "success"
+    }
+  },
+  "r1_open_items": [
+    "independent full-game oracle parity beyond evaluator parity",
+    "deeper property/fuzz coverage for side pots and complex multi-all-in lines",
+    "target-site short-all-in/reopen confirmation",
+    "target-site odd-chip ordering confirmation",
+    "target-site rake eligibility/cap/rounding evidence",
+    "incomplete blind/straddle/ante policy if required by target economy",
+    "cross-language/native evaluator parity before performance-critical production use"
+  ],
   "open_decisions": [
     "authoritative poker site and cash-game economy",
     "target stack-depth distribution",

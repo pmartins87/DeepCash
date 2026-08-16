@@ -3,33 +3,39 @@
 Final endpoint: **READY FOR TABLES = YES** only after every gate below passes. Intermediate progress never authorizes live use.
 
 ## R0 — Project foundation
-Status: **IN PROGRESS**
+Status: **PASS**
 
 - [x] Canonical repository `pmartins87/DeepCash`.
 - [x] Project principles and hardware budget documented.
 - [x] Finite roadmap established.
-- [ ] CI and deterministic test harness.
-- [ ] Version/status manifests.
+- [x] CI and deterministic test harness.
+- [x] Version/status manifests.
 
-Exit gate: repository can reproduce tests from a clean checkout.
+Exit gate: repository can reproduce tests from a clean checkout. **PASSED** — clean GitHub Actions evidence is recorded in `STATUS.json` and `docs/R1_VALIDATION_STATUS.md`.
 
 ## R1 — Exact 52-card NLHE cash engine
-Status: **PENDING**
+Status: **IN PROGRESS**
 
 Implement and independently validate:
 
-- 52-card codec/evaluator;
-- 2–6 handed seating/button/blinds;
-- arbitrary effective stacks;
-- NLHE betting with minimum raise/reopen rules;
-- fold/check/call/bet/raise/all-in legality;
-- multiway pots and side pots;
-- uncalled-bet return;
-- showdown/ties/odd chips;
-- rake interface with exact units/rounding separated from rules;
-- deterministic full-hand replay.
+- [x] 52-card codec/evaluator;
+- [x] 2–6 handed seating/button/blinds for stacks covering a full BB;
+- [~] arbitrary effective stacks — variable stacks work; incomplete forced-blind edge cases remain deliberately gated;
+- [x] NLHE betting with minimum full raise and configurable short-all-in reopen semantics;
+- [x] fold/check/call/bet/raise/all-in legality, including dry-side-pot raise prevention;
+- [x] multiway pots and side pots;
+- [x] uncalled-bet return;
+- [~] showdown/ties/odd chips — deterministic settlement exists; target-site odd-chip order remains unconfirmed;
+- [~] rake interface with exact units/rounding separated from rules — exact model exists; target economy remains unconfirmed;
+- [x] deterministic full-hand replay and fingerprints;
+- [x] exhaustive five-card distribution audit;
+- [x] independent evaluator parity against pinned PokerKit;
+- [ ] independent full-game lifecycle/rules oracle parity;
+- [~] adversarial/property fuzzing — deterministic randomized legal-hand and multiway all-in coverage exists; deeper corner-case battery remains.
 
-Exit gate: exhaustive/sampled parity against an independent oracle plus property/fuzz tests.
+Current evidence: `docs/R1_VALIDATION_STATUS.md`.
+
+Exit gate: exhaustive/sampled parity against independent oracles plus property/fuzz tests, with target-site-dependent rules explicitly frozen or parameterized from evidence.
 
 ## R2 — Canonical state and invariances
 Status: **FOUNDATION STARTED**
@@ -252,8 +258,8 @@ Only this gate may set:
 ## Immediate critical path
 
 ```text
-R0 finish CI/status
--> R1 exact cash engine
+R0 PASS
+-> R1 exact cash engine + full-game oracle
 -> R2 invariance gates
 -> R3/R4 action + state abstraction benchmarks
 -> R5 solver selection
