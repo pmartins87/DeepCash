@@ -7,13 +7,13 @@ from pathlib import Path
 
 from deepcash_core.river_benchmark_fixtures import (
     ONE_BET_REFERENCE_FRACTIONS,
-    RIVER_BOARDS,
     parse_cards,
     parse_names,
     quantile_range,
     restriction_loss_bounds,
 )
 from deepcash_core.river_lab import RiverGameSpec, materialize_bet_sizes
+from deepcash_core.river_representation_fixtures import representation_board_registry
 from deepcash_core.river_representation_lab import (
     RIVER_REPRESENTATION_CANDIDATES,
     candidate_bucket_maps,
@@ -30,7 +30,8 @@ def main() -> None:
             "an exact-combo common reference while keeping cards/payoffs/actions exact"
         )
     )
-    ap.add_argument("--boards", default="A_high_dry")
+    ap.add_argument("--board-set", default="dev", choices=("dev", "heldout_v1"))
+    ap.add_argument("--boards", default="all")
     ap.add_argument("--candidates", default="all")
     ap.add_argument("--range-combos", type=int, default=6)
     ap.add_argument("--p0-phase", type=float, default=0.00)
@@ -49,7 +50,8 @@ def main() -> None:
     if args.range_combos <= 0 or args.iterations <= 0:
         raise ValueError("range-combos and iterations must be positive")
 
-    board_names = parse_names(args.boards, RIVER_BOARDS)
+    board_registry = representation_board_registry(args.board_set)
+    board_names = parse_names(args.boards, board_registry)
     available = {name: name for name in RIVER_REPRESENTATION_CANDIDATES}
     candidate_names = parse_names(args.candidates, available)
     bet_sizes = materialize_bet_sizes(
@@ -61,7 +63,7 @@ def main() -> None:
 
     rows = []
     for board_name in board_names:
-        board = parse_cards(RIVER_BOARDS[board_name])
+        board = parse_cards(board_registry[board_name])
         p0_range = quantile_range(board, args.range_combos, args.p0_phase)
         p1_range = quantile_range(board, args.range_combos, args.p1_phase)
         spec = RiverGameSpec(board, p0_range, p1_range, args.pot, bet_sizes)
@@ -108,6 +110,7 @@ def main() -> None:
             exact_buckets = len(p0_range) + len(p1_range)
             materialized_buckets = candidate.p0_bucket_count + candidate.p1_bucket_count
             row = {
+                "board_set": args.board_set,
                 "board": board_name,
                 "candidate": candidate_name,
                 "iterations": args.iterations,
@@ -136,7 +139,7 @@ def main() -> None:
             }
             rows.append(row)
             print(
-                f"{board_name:16s} {candidate_name:20s} "
+                f"{args.board_set:10s} {board_name:24s} {candidate_name:20s} "
                 f"buckets={materialized_buckets:2d}/{exact_buckets:2d} "
                 f"upper/pot={bounds['worst_loss_upper_per_pot']:.6f} "
                 f"joint_exp/pot={joint.exploitability_per_pot:.6f} "
@@ -155,6 +158,7 @@ def main() -> None:
             "held-out boards, tighter convergence where needed, invariance tests and physical "
             "Ryzen equal-wall-clock evidence"
         ),
+        "board_set": args.board_set,
         "boards": list(board_names),
         "candidates": list(candidate_names),
         "range_combos_per_player": args.range_combos,
