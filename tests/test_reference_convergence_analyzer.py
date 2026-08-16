@@ -65,3 +65,13 @@ def test_curve_can_report_nonmonotonic_noise_without_failing_or_relaxing_it():
     assert curve["interval_width_nonincreasing"] is False
     # Final point still tightened versus the first; diagnostic and acceptance are separate.
     assert curve["last_interval_width_per_pot"] < curve["first_interval_width_per_pot"]
+
+
+def test_same_analyzer_accepts_one_raise_reference_schema_without_reinterpreting_rows():
+    raised = payload()
+    raised["schema"] = "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_V1"
+    result = analyze(raised)
+    assert result["source_schema"] == "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_V1"
+    assert result["schema"] == "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_ANALYSIS_V1"
+    assert result["latest_checkpoint"] == 200
+    assert len(result["latest_checkpoint_aggregate"]) == 2
