@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Mapping
 
-from .river_external_sampling import _accumulate_exact_average
 from .river_lab import (
+    P1_AFTER_CHECK,
+    ROOT,
     RiverGameSpec,
     RiverSolveResult,
     _actions,
@@ -17,6 +18,8 @@ from .river_lab import (
     _valid_deals,
     evaluate_policy,
     exact_best_response_values,
+    p0_vs_bet_node,
+    p1_vs_bet_node,
 )
 from .river_training import river_spec_signature
 
@@ -121,6 +124,7 @@ def dcfr_regret_factor(t: int, exponent: float) -> float:
 
 
 def dcfr_average_factor(t: int, gamma: float = 2.0) -> float:
+    """Multiplicative form equivalent to relative t**gamma output weighting."""
     if t <= 0:
         raise ValueError("DCFR iteration must be positive")
     return (float(t) / float(t + 1)) ** gamma
@@ -148,33 +152,59 @@ def _apply_player_update(
             values[a] = updated
 
 
-def _accumulate_post_alternation_average(
+def _average_iteration_weight(variant: AlternatingVariant, iteration: int) -> float:
+    if iteration <= 0:
+        raise ValueError("average iteration must be positive")
+    if variant == AlternatingVariant.ALT_CFR_PLUS_LINEAR:
+        return float(iteration)
+    # Quadratic CFR+ and both DCFR controls use gamma=2 output weighting.
+    return float(iteration * iteration)
+
+
+def _accumulate_player_average(
     spec: RiverGameSpec,
     state: AlternatingRiverState,
     strategies: Mapping[InfoKey, tuple[float, ...]],
     *,
+    player: int,
     iteration: int,
 ) -> None:
-    if state.variant == AlternatingVariant.ALT_CFR_PLUS_LINEAR:
-        _accumulate_exact_average(
-            spec, strategies, state.strategy_sum, weight=float(iteration)
-        )
-        return
-    if state.variant == AlternatingVariant.ALT_CFR_PLUS_QUADRATIC:
-        _accumulate_exact_average(
-            spec, strategies, state.strategy_sum, weight=float(iteration * iteration)
-        )
+    """Accumulate only the alternating player's current-profile average.
+
+    This mirrors the player-local timing of alternating CFR: P0 contributes its
+    policy before P0's regret refresh; P1 contributes after P0's refresh but
+    before P1's own refresh. Fixed private/chance mass per infoset cancels under
+    normalization, so only the player's own realization reach is required.
+    """
+    if player not in (0, 1):
+        raise ValueError("player must be 0 or 1")
+    weight = _average_iteration_weight(state.variant, iteration)
+
+    if player == 0:
+        root_actions = _actions(spec, 0, ROOT)
+        check_index = root_actions.index("CHECK")
+        for i in range(len(spec.p0_range)):
+            root = (0, ROOT, i)
+            root_sigma = strategies[root]
+            for a, probability in enumerate(root_sigma):
+                state.strategy_sum[root][a] += weight * probability
+            check_reach = root_sigma[check_index]
+            for bet in spec.bet_sizes:
+                key = (0, p0_vs_bet_node(bet), i)
+                for a, probability in enumerate(strategies[key]):
+                    state.strategy_sum[key][a] += (
+                        weight * check_reach * probability
+                    )
         return
 
-    # DCFR: add the current contribution, then discount the complete accumulated
-    # average. This makes iteration t's eventual relative weight proportional
-    # to t^gamma, matching the paper's multiplicative formulation up to a common
-    # scale factor that cancels during per-infoset normalization.
-    _accumulate_exact_average(spec, strategies, state.strategy_sum, weight=1.0)
-    factor = dcfr_average_factor(iteration, 2.0)
-    for values in state.strategy_sum.values():
-        for a in range(len(values)):
-            values[a] *= factor
+    for j in range(len(spec.p1_range)):
+        key = (1, P1_AFTER_CHECK, j)
+        for a, probability in enumerate(strategies[key]):
+            state.strategy_sum[key][a] += weight * probability
+        for bet in spec.bet_sizes:
+            key = (1, p1_vs_bet_node(bet), j)
+            for a, probability in enumerate(strategies[key]):
+                state.strategy_sum[key][a] += weight * probability
 
 
 def advance_alternating_solver(
@@ -193,18 +223,22 @@ def advance_alternating_solver(
     for offset in range(1, additional_iterations + 1):
         iteration = state.iterations + offset
 
+        # P0 average/regret use the same pre-P0-update profile.
         strategies = {key: _regret_strategy(state.regrets[key]) for key in infosets}
+        _accumulate_player_average(
+            spec, state, strategies, player=0, iteration=iteration
+        )
         delta0 = _full_regret_delta(spec, strategies)
         _apply_player_update(state, delta0, player=0, iteration=iteration)
 
+        # P1 sees the refreshed P0 strategy; its average is recorded before P1's
+        # own regret refresh, exactly matching alternating traversal semantics.
         strategies = {key: _regret_strategy(state.regrets[key]) for key in infosets}
+        _accumulate_player_average(
+            spec, state, strategies, player=1, iteration=iteration
+        )
         delta1 = _full_regret_delta(spec, strategies)
         _apply_player_update(state, delta1, player=1, iteration=iteration)
-
-        strategies = {key: _regret_strategy(state.regrets[key]) for key in infosets}
-        _accumulate_post_alternation_average(
-            spec, state, strategies, iteration=iteration
-        )
 
     state.iterations += additional_iterations
     state.validate(spec)
