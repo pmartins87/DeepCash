@@ -4,6 +4,16 @@ on:
   push:
   pull_request:
 
+# DeepCash is evolving quickly and every push used to enqueue a full pytest run.
+# For the generic regression suite only the newest commit on a ref matters: the
+# newest tree contains all previous main-branch changes. Cancelling stale CI
+# prevents ordinary regression runs from starving long, evidence-bearing R1/R3
+# oracle workflows in the Actions queue. Dedicated benchmark/oracle workflows
+# intentionally keep their own independent execution semantics.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python-tests:
     runs-on: ubuntu-latest
