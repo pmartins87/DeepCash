@@ -1,0 +1,52 @@
+name: DeepCash R5 VR mode benchmark v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_vr_external_sampling.py'
+      - 'tests/test_river_vr_external_sampling.py'
+      - 'tests/test_river_vr_external_sampling_infoset.py'
+      - 'tools/benchmark_river_vr_modes.py'
+      - 'docs/R5_VR_MODE_BENCHMARK_PLAN_20260816.md'
+      - 'docs/R5_VR_MODE_BENCHMARK_V1_INVALIDATED_20260816.md'
+      - '.github/workflows/r5-vr-mode-benchmark-v2.yml'
+
+jobs:
+  vr-mode-benchmark-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Gate corrected VR integration before benchmark
+        run: >-
+          python -m pytest -q
+          tests/test_vr_mccfr_baseline.py
+          tests/test_river_vr_infoset_baseline.py
+          tests/test_river_vr_infoset_baseline_v2.py
+          tests/test_river_vr_external_sampling.py
+          tests/test_river_vr_external_sampling_infoset.py
+      - name: Replay frozen ZERO vs INFOSET_EXACT vs PERFECT_HISTORY battery
+        run: >-
+          python tools/benchmark_river_vr_modes.py
+          --boards all
+          --range-combos 8
+          --p0-phase 0.13
+          --p1-phase 0.61
+          --pot 100
+          --bet-sizes 25,50,100
+          --iterations 2000
+          --seeds 101,211,307,401,503
+          --modes ZERO,INFOSET_EXACT,PERFECT_HISTORY
+          --out r5_vr_modes_v2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-vr-mode-benchmark-v2
+          path: r5_vr_modes_v2.json
+          if-no-files-found: error
