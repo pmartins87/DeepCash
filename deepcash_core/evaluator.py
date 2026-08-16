@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from functools import lru_cache
 from itertools import combinations
 from typing import Iterable
 
@@ -63,8 +64,15 @@ def evaluate_five(cards: Iterable[int]) -> HandValue:
     return (0, *sorted(ranks, reverse=True))
 
 
+@lru_cache(maxsize=200_000)
+def _evaluate_best_cached(vals: tuple[int, ...]) -> HandValue:
+    return max(evaluate_five(combo) for combo in combinations(vals, 5))
+
+
 def evaluate_best(cards: Iterable[int]) -> HandValue:
     vals = require_distinct(cards)
     if not 5 <= len(vals) <= 7:
         raise ValueError("evaluate_best requires five, six, or seven cards")
-    return max(evaluate_five(combo) for combo in combinations(vals, 5))
+    # Ordering of known cards is strategically irrelevant; sort once so repeated
+    # river/CFR evaluations hit the same cache entry regardless of source order.
+    return _evaluate_best_cached(tuple(sorted(vals)))
