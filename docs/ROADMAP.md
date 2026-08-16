@@ -77,34 +77,39 @@ Benchmark progressively richer action sets per street and geometry:
 - [x] exact one-raise river tree;
 - [x] dynamic exact one-raise best response gated against independent enumeration on tractable fixtures;
 - [x] package-safe shared benchmark fixtures and convergence analyzer;
-- [x] multi-SPR one-bet benchmark infrastructure;
-- [x] one-raise common-reference opening-size restriction smoke;
-- [x] four-board one-raise common-reference battery at SPR 4 with checkpoints 250/1000/3000 and archived artifact;
-- [~] opening-size candidate evidence — `O3_25_50_100` is the leading engineering candidate on the current bounded SPR-4 control battery, but is **not** frozen for production;
+- [x] exact all-in opening semantics: opening retained, response fold/call, no fabricated raise branch;
+- [x] one-raise opening-size common-reference control across SPR 0.5, 1, 2 and 4;
+- [x] automatic geometric clipping proven to collapse nominal candidates when their materialized action sets become identical at low SPR;
+- [x] independent raise-size restriction laboratory with fixed opening sizes;
+- [x] raise-size single-board convergence smoke — useful as wiring/convergence evidence but too uncertain for selection;
+- [x] separate held-out board registry and alternate deterministic range phases precommitted before accepting held-out results;
+- [~] opening-size candidate evidence — `O3_25_50_100` is the leading engineering candidate on the four-board control SPR range, but is **not** frozen for production;
+- [~] multi-board raise-size evidence — full control battery launched; pending successful completion and inspection;
+- [~] held-out opening-size evidence — six new boards × alternate ranges at SPR 1 and 4 launched from a recorded precommit; pending successful completion and inspection;
 - [~] equal-wall-clock comparison — infrastructure works in CI, but decisive timing must be measured on the physical Ryzen 9;
-- [ ] allow all-in opening nodes in the one-raise reference game to correctly have no legal raise response, enabling low-SPR one-raise tests without misrepresenting the tree;
-- [ ] one-raise common-reference battery across multiple SPRs, approximately 0.5, 1, 2 and 4;
-- [ ] larger held-out board/range battery;
-- [ ] benchmark raise-size restriction independently from opening-size restriction;
 - [ ] tighten difficult-board exact-BR intervals where necessary;
-- [ ] later: richer raise depths only if measured gain justifies cost;
-- [ ] final strategic-error/compute selection-rule precommit and action-family freeze.
+- [ ] expand held-out evidence only if the precommitted battery exposes unresolved geometry-specific behavior;
+- [ ] future-evidence selection procedure and final action-family freeze;
+- [ ] later: richer raise depths only if measured gain justifies cost.
 
-Current one-raise SPR-4 battery (`31960177760`) at 3000 iterations reported conservative mean/worst opening-restriction upper bounds per pot:
+Accepted multi-SPR opening-size control (`31960758207`) at the 3000-iteration checkpoint:
 
-| Candidate | Mean upper | Worst upper | Worst exact-BR interval width |
-|---|---:|---:|---:|
-| O1 50% | 0.026688 | 0.033807 | 0.001966 |
-| O2 25/75% | 0.011250 | 0.013843 | 0.001966 |
-| O3 25/50/100% | 0.001295 | 0.003167 | 0.001966 |
+| SPR | O1 mean/worst upper | O2 mean/worst upper | O3 mean/worst upper | worst exact-BR interval |
+|---:|---:|---:|---:|---:|
+| 0.5 | 0.001768 / 0.004225 | 0.000839 / 0.000900 | 0.000839 / 0.000900 | 0.001154 |
+| 1 | 0.018995 / 0.023405 | 0.008197 / 0.010410 | 0.001510 / 0.001630 | 0.001860 |
+| 2 | 0.026965 / 0.033987 | 0.011181 / 0.013935 | 0.001587 / 0.003729 | 0.002940 |
+| 4 | 0.026688 / 0.033807 | 0.011250 / 0.013843 | 0.001295 / 0.003167 | 0.001966 |
 
-This is strategically informative but still insufficient for a freeze: it covers only SPR 4, deliberately tiny exact ranges, four control boards and opening-size restriction with richer raise geometry held fixed. Hosted-CI timing is also not Ryzen timing.
+At SPR 0.5, `O2` and `O3` clip to the same materialized action set and therefore produce identical results. At SPR >= 1, O3 is materially closer to the richer opening reference than O1/O2 on the control battery. This is useful evidence but not a production freeze because the remaining hard-board interval widths, held-out generalization, raise-size abstraction and target-Ryzen cost are still open.
+
+The held-out precommit is persisted in `docs/R3_HELDOUT_PRECOMMIT_20260816.md`: six board families distinct from controls, 6 combos/player, range phases `0.13/0.61`, SPR 1 and 4, checkpoints 250/1000/3000. These coordinates were fixed before held-out results are accepted.
 
 Candidate sizes are expressed primarily as pot fractions and geometrically clipped by stack/min-bet rules in the laboratory. Preflop will likely require blind-denominated raise-to abstractions.
 
-Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md`, `docs/R3_VALIDATION_STATUS.md` and `STATUS.json`.
+Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md`, `docs/R3_VALIDATION_STATUS.md`, `docs/R3_HELDOUT_PRECOMMIT_20260816.md` and `STATUS.json`.
 
-Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence on the target hardware and a precommitted selection rule.
+Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across control + held-out multi-board/multi-SPR batteries, with converged exact-BR intervals, independent opening/raise-size evidence, and equal-compute evidence on target hardware. No action family may be frozen merely because it led the development controls.
 
 ## R4 — Private/public state abstraction laboratory
 Status: **PENDING**
@@ -301,7 +306,7 @@ Only this gate may set:
 R0 PASS
 -> R1 exact cash engine target-site/release debt (parallel)
 -> R2 PASS
--> R3 one-raise low-SPR + multi-SPR + raise-size abstraction + Ryzen equal-compute gates
+-> R3 accept raise-size + held-out evidence -> tighten hard intervals -> Ryzen equal-compute -> action freeze
 -> R4 state abstraction benchmarks
 -> R5 solver selection
 -> R6 street resolving
