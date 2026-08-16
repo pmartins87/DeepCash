@@ -23,11 +23,13 @@ from .river_lab import (
     p0_vs_bet_node,
     p1_vs_bet_node,
 )
+from .river_vr_infoset_baseline_v2 import exact_infoset_action_baselines_v2
 from .vr_mccfr_baseline import baseline_enhanced_node_value
 
 
 class VRBaselineMode(str, Enum):
     ZERO = "ZERO"
+    INFOSET_EXACT = "INFOSET_EXACT"
     PERFECT_HISTORY = "PERFECT_HISTORY"
 
 
@@ -124,13 +126,33 @@ def _vr_external_traverse(
 
     sampled = _weighted_choice_index(rng, sigma)
     if baseline_mode == VRBaselineMode.ZERO:
-        # The ZERO control is not merely algebraically equivalent to ordinary
-        # external sampling; it is the identity control and is therefore
-        # required to preserve the exact floating-point/RNG path.  Routing a
-        # zero baseline through the generic importance-weighted estimator adds
-        # mathematically cancelling multiply/divide operations and can move the
-        # last few IEEE-754 bits.  Return the sampled child directly instead.
+        # ZERO is the identity control, not merely an algebraically equivalent
+        # formulation. Returning the sampled child directly preserves the exact
+        # IEEE-754/RNG path of ordinary external sampling.
         return descend(actions[sampled])
+
+    if baseline_mode == VRBaselineMode.INFOSET_EXACT:
+        # The sampled child follows the realized hidden history as ordinary
+        # external sampling does.  The control variate, however, may use only
+        # the traverser's private combo plus public history/current policy.  The
+        # baseline API deliberately has no realized-opponent-hand parameter.
+        sampled_child = descend(actions[sampled])
+        own_hand_index = i if traverser == 0 else j
+        baselines = exact_infoset_action_baselines_v2(
+            spec,
+            traverser=traverser,
+            own_hand_index=own_hand_index,
+            player=player,
+            node=node,
+            policy=strategies,
+        )
+        return baseline_enhanced_node_value(
+            target_policy=sigma,
+            sampling_policy=sigma,
+            baselines=baselines,
+            sampled_action=sampled,
+            sampled_child_value=sampled_child,
+        )
 
     if baseline_mode == VRBaselineMode.PERFECT_HISTORY:
         # Deliberately privileged oracle: full hidden history (i,j) is known here,
@@ -157,10 +179,9 @@ def advance_vr_external_sampling(
 ) -> RiverExternalSamplingState:
     """Advance an existing ES CFR state using the chosen VR baseline oracle.
 
-    ZERO mode is required to be state/RNG bit-identical to the accepted ordinary
-    external sampler. PERFECT_HISTORY deliberately changes regret estimates by
-    removing opponent-action sampling residuals while preserving the exact game
-    and private-deal sampling stream.
+    ZERO is the exact ordinary-external-sampling identity control. INFOSET_EXACT
+    is the expensive no-private-leak conditional oracle. PERFECT_HISTORY is a
+    privileged hidden-state lower bound and is never production eligible.
     """
     import random
 
