@@ -1,0 +1,43 @@
+{
+  "project": "DeepCash",
+  "date": "2026-08-16",
+  "ready_for_tables": false,
+  "hardware_target": "single Ryzen 9",
+  "production_training_envelope": "approximately three months after pretraining gates pass",
+  "canonical_roadmap": "docs/ROADMAP.md",
+  "current_gate": "R0",
+  "status": {
+    "R0": "IN_PROGRESS",
+    "R1": "PENDING",
+    "R2": "FOUNDATION_STARTED",
+    "R3": "PENDING",
+    "R4": "PENDING",
+    "R5": "PENDING",
+    "R6": "PENDING",
+    "R7": "PENDING",
+    "R8": "PENDING",
+    "R9": "BLOCKED",
+    "R10": "PENDING",
+    "R11": "PENDING",
+    "R12": "PENDING",
+    "R13": "PENDING",
+    "R14": "PENDING",
+    "R15": "PENDING"
+  },
+  "open_decisions": [
+    "authoritative poker site and cash-game economy",
+    "target stack-depth distribution",
+    "production action abstraction",
+    "production private/public representation",
+    "production solver algorithm",
+    "runtime resolving latency budget"
+  ],
+  "non_negotiable_invariants": [
+    "hole-card order invariance",
+    "simultaneous flop-card order invariance",
+    "global suit permutation invariance",
+    "relative chair/button rotation invariance",
+    "exact pot/call/stack geometry retained at game-state boundary",
+    "no long production training before rule/representation/action/solver gates pass"
+  ]
+}
