@@ -2,6 +2,11 @@ from __future__ import annotations
 
 from collections import defaultdict
 
+_SUPPORTED_SCHEMAS = {
+    "DEEPCASH_RIVER_REFERENCE_CONVERGENCE_V1": "DEEPCASH_RIVER_REFERENCE_CONVERGENCE_ANALYSIS_V1",
+    "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_V1": "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_ANALYSIS_V1",
+}
+
 
 def _finite_nonnegative(value: float, *, name: str) -> float:
     x = float(value)
@@ -122,7 +127,8 @@ def _latest_checkpoint(payload: dict) -> int:
 
 
 def analyze(payload: dict) -> dict:
-    if payload.get("schema") != "DEEPCASH_RIVER_REFERENCE_CONVERGENCE_V1":
+    source_schema = payload.get("schema")
+    if source_schema not in _SUPPORTED_SCHEMAS:
         raise ValueError("unsupported reference convergence schema")
 
     grouped = _group_rows(payload)
@@ -131,7 +137,8 @@ def analyze(payload: dict) -> dict:
     latest_aggregate = aggregate_checkpoint(payload, latest)
 
     return {
-        "schema": "DEEPCASH_RIVER_REFERENCE_CONVERGENCE_ANALYSIS_V1",
+        "schema": _SUPPORTED_SCHEMAS[source_schema],
+        "source_schema": source_schema,
         "source_checkpoints": list(payload.get("checkpoints", [])),
         "latest_checkpoint": latest,
         "methodology_note": (
