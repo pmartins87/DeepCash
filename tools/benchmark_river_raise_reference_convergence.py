@@ -8,7 +8,7 @@ from pathlib import Path
 from deepcash_core.river_benchmark_fixtures import (
     ONE_RAISE_OPEN_CANDIDATES,
     ONE_RAISE_OPEN_REFERENCE_FRACTIONS,
-    RIVER_BOARDS,
+    board_registry,
     parse_cards,
     parse_checkpoints,
     parse_names,
@@ -60,13 +60,17 @@ def main() -> None:
     ap.add_argument("--pot", type=int, default=100)
     ap.add_argument("--stack", type=int, default=400)
     ap.add_argument("--min-bet", type=int, default=20)
+    ap.add_argument("--board-set", choices=("control", "heldout", "all"), default="control")
     ap.add_argument("--boards", default="A_high_dry")
+    ap.add_argument("--p0-phase", type=float, default=0.00)
+    ap.add_argument("--p1-phase", type=float, default=0.27)
     ap.add_argument("--candidates", default="all")
     ap.add_argument("--out", type=Path, default=Path("river_raise_reference_convergence.json"))
     args = ap.parse_args()
 
     checkpoints = parse_checkpoints(args.checkpoints)
-    board_names = parse_names(args.boards, RIVER_BOARDS)
+    boards = board_registry(args.board_set)
+    board_names = parse_names(args.boards, boards)
     candidate_names = parse_names(args.candidates, ONE_RAISE_OPEN_CANDIDATES)
     reference_sizes = materialize_bet_sizes(
         pot=args.pot,
@@ -80,9 +84,9 @@ def main() -> None:
     rows = []
 
     for board_name in board_names:
-        board = parse_cards(RIVER_BOARDS[board_name])
-        p0_range = quantile_range(board, args.range_combos, 0.00)
-        p1_range = quantile_range(board, args.range_combos, 0.27)
+        board = parse_cards(boards[board_name])
+        p0_range = quantile_range(board, args.range_combos, args.p0_phase)
+        p1_range = quantile_range(board, args.range_combos, args.p1_phase)
         ref_spec = AsymmetricRiverRaiseGameSpec(
             board,
             p0_range,
@@ -180,6 +184,7 @@ def main() -> None:
                 ) / float(args.pot)
                 row = {
                     "board": board_name,
+                    "board_set": args.board_set,
                     "candidate": name,
                     "reference_open_sizes": list(reference_sizes),
                     "candidate_open_sizes": list(item["sizes"]),
@@ -188,6 +193,8 @@ def main() -> None:
                     ],
                     "checkpoint": checkpoint,
                     "range_combos": args.range_combos,
+                    "p0_phase": args.p0_phase,
+                    "p1_phase": args.p1_phase,
                     "pot": args.pot,
                     "stack": args.stack,
                     "spr": args.stack / args.pot,
@@ -206,7 +213,7 @@ def main() -> None:
                 }
                 rows.append(row)
                 print(
-                    f"{board_name:16s} {name:16s} iter={checkpoint:5d} "
+                    f"{board_name:28s} {name:16s} iter={checkpoint:5d} "
                     f"upper/pot={bounds['worst_loss_upper_per_pot']:.6f} "
                     f"interval/pot={interval_width:.6f}"
                 )
@@ -219,8 +226,12 @@ def main() -> None:
             "all-in openings retain fold/call with an empty raise set; "
             "dynamic exact BR intervals propagated"
         ),
+        "restriction_dimension": "opening_size",
+        "board_set": args.board_set,
         "checkpoints": list(checkpoints),
         "range_combos": args.range_combos,
+        "p0_phase": args.p0_phase,
+        "p1_phase": args.p1_phase,
         "pot": args.pot,
         "stack": args.stack,
         "spr": args.stack / args.pot,
