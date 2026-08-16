@@ -10,8 +10,8 @@ from .river_lab import (
     _regret_strategy,
     _valid_deals,
     evaluate_policy,
-    exact_best_response_values,
 )
+from .river_representation_br import bucket_constrained_best_response_values
 from .river_representation_lab import (
     RiverBucketMaps,
     _abstract_infosets,
@@ -124,6 +124,15 @@ def representation_result_from_state(
     maps: RiverBucketMaps,
     state: RiverRepresentationCFRState,
 ) -> RiverSolveResult:
+    """Evaluate the trained abstract game with BRs respecting the same buckets.
+
+    The policy is expanded to exact combos for exact payoff evaluation, while
+    each best responder is constrained to one pure action pattern per private
+    bucket.  This makes `br0_value - br1_value` a convergence interval for the
+    actual representation-restricted game instead of mixing abstraction loss
+    into the interval by granting the responder information the solver did not
+    have.
+    """
     state.validate(spec, maps)
     if state.iterations <= 0:
         raise ValueError("cannot evaluate an untrained representation CFR state")
@@ -133,7 +142,7 @@ def representation_result_from_state(
     )
     policy = _expand_policy(spec, maps, abstract_policy)
     policy_ev = evaluate_policy(spec, policy)
-    br0, br1 = exact_best_response_values(spec, policy)
+    br0, br1 = bucket_constrained_best_response_values(spec, maps, policy)
     exploitability = max(0.0, (br0 - br1) / 2.0)
     slots = sum(len(_actions(spec, key[0], key[1])) for key in infosets)
     return RiverSolveResult(
