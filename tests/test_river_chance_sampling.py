@@ -11,7 +11,15 @@ from deepcash_core.river_chance_sampling import (
     chance_sampling_state_to_dict,
     init_chance_sampling,
 )
-from deepcash_core.river_lab import RangeCombo, RiverGameSpec
+from deepcash_core.river_lab import (
+    RangeCombo,
+    RiverGameSpec,
+    _actions,
+    _all_infosets,
+    _regret_strategy,
+    _traverse_cfr,
+    _valid_deals,
+)
 
 
 def c(text: str) -> int:
@@ -101,3 +109,64 @@ def test_terminal_visit_count_matches_full_action_tree_per_sampled_deal():
     result = chance_sampling_result(spec, state)
     assert result.br1_value <= result.policy_ev + 1e-9
     assert result.policy_ev <= result.br0_value + 1e-9
+
+
+def test_one_step_chance_sample_regret_estimator_is_unbiased_exactly():
+    """Expected sampled regret delta must equal the full chance-tree delta.
+
+    This analytical oracle is stronger than a many-seed convergence smoke test:
+    it enumerates every compatible private deal and proves that sampling a deal
+    from its true chance probability while traversing it with chance weight 1
+    has exactly the same expected regret update as the synchronous full-tree
+    traversal. It guards against a subtle missing/double importance-weight bug.
+    """
+    spec = fixture_spec()
+    infosets = _all_infosets(spec)
+    zero_regrets = {
+        key: [0.0] * len(_actions(spec, key[0], key[1])) for key in infosets
+    }
+    strategies = {key: _regret_strategy(zero_regrets[key]) for key in infosets}
+    deals = _valid_deals(spec)
+    total_chance = sum(weight for _, _, weight in deals)
+
+    exact_delta = {key: [0.0] * len(zero_regrets[key]) for key in infosets}
+    exact_strategy_dummy = {key: [0.0] * len(zero_regrets[key]) for key in infosets}
+    for i, j, raw_weight in deals:
+        _traverse_cfr(
+            spec,
+            i=i,
+            j=j,
+            chance=raw_weight / total_chance,
+            strategies=strategies,
+            regret_delta=exact_delta,
+            strategy_delta=exact_strategy_dummy,
+            average_weight=0.0,
+        )
+
+    expected_sample_delta = {
+        key: [0.0] * len(zero_regrets[key]) for key in infosets
+    }
+    for i, j, raw_weight in deals:
+        sample_delta = {key: [0.0] * len(zero_regrets[key]) for key in infosets}
+        sample_strategy_dummy = {
+            key: [0.0] * len(zero_regrets[key]) for key in infosets
+        }
+        _traverse_cfr(
+            spec,
+            i=i,
+            j=j,
+            chance=1.0,
+            strategies=strategies,
+            regret_delta=sample_delta,
+            strategy_delta=sample_strategy_dummy,
+            average_weight=0.0,
+        )
+        probability = raw_weight / total_chance
+        for key in infosets:
+            for a, value in enumerate(sample_delta[key]):
+                expected_sample_delta[key][a] += probability * value
+
+    for key in infosets:
+        assert expected_sample_delta[key] == pytest.approx(
+            exact_delta[key], rel=1e-12, abs=1e-12
+        )
