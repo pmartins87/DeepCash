@@ -30,6 +30,7 @@ from deepcash_core.hand import Street
 
 SEED = v2.SEED
 CASES_PER_PLAYER_COUNT = v2.CASES_PER_PLAYER_COUNT
+_V2_ASSERT_RAISE_BOUNDARY = v2._assert_raise_boundary
 
 _expected_blind_epoch_divergences = 0
 
@@ -116,14 +117,15 @@ def _assert_raise_boundary_v3(ours, oracle, *, context: str) -> None:
             f"pk={x._oracle_debug(oracle)}"
         )
 
-    # Reuse every lower/upper-bound and one-chip probe from v2 when availability
-    # agrees. Only the structurally recognized mismatch above is exempted.
-    v2._assert_raise_boundary(ours, oracle, context=context)
+    # Reuse every lower/upper-bound and one-chip probe from the immutable v2
+    # helper when availability agrees. Only the structurally recognized mismatch
+    # above is exempted.
+    _V2_ASSERT_RAISE_BOUNDARY(ours, oracle, context=context)
 
 
 def main() -> None:
-    # v2.assert_legal_parity resolves this module global at call time, so replace
-    # only its raise-boundary helper for the duration of this deterministic run.
+    # v2.assert_legal_parity resolves its module-global raise helper at call time,
+    # so replace only that hook for the duration of this deterministic run.
     original = v2._assert_raise_boundary
     v2._assert_raise_boundary = _assert_raise_boundary_v3
     try:
