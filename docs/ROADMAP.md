@@ -69,8 +69,10 @@ Benchmark progressively richer action sets per street and geometry:
 - [x] exact exploitability/pot, infoset count and action-slot metrics;
 - [x] candidate 1–4 bet-size smoke battery over multiple river board families;
 - [x] CI smoke + archived benchmark artifact;
-- [ ] cumulative/resumable CFR+ checkpoints;
-- [ ] equal-wall-clock comparison so optimization error is separated from abstraction error;
+- [x] cumulative/resumable CFR+ checkpoints with exact staged-vs-monolithic equivalence;
+- [x] JSON checkpoint roundtrip with exact future-path equivalence;
+- [x] convergence analyzer with mean/worst exploitability, Pareto frontier and equal-compute snapshots;
+- [~] equal-wall-clock comparison — infrastructure works in CI, but decisive timing must be measured on the physical Ryzen 9;
 - [ ] multiple pot/stack/SPR geometries and larger held-out board/range battery;
 - [ ] one-raise river tree with exact-BR validation;
 - [ ] later: richer raise depths only if the measured gain justifies cost;
@@ -78,11 +80,11 @@ Benchmark progressively richer action sets per street and geometry:
 
 Candidate sizes are expressed primarily as pot fractions and geometrically clipped by stack/min-bet rules in the laboratory. Preflop will likely require blind-denominated raise-to abstractions.
 
-The first 120-iteration smoke is **not a sizing-selection result**. Richer trees were less converged at the same tiny iteration count, so choosing the smallest tree from that snapshot would confuse optimization difficulty with strategic quality.
+Neither the first 120-iteration smoke nor the hosted-CI Pareto frontier is a sizing-selection result. Richer trees are harder to optimize, hosted timing is not Ryzen timing, and the current ranges/tree are deliberately tiny controls.
 
 Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md` and `docs/R3_VALIDATION_STATUS.md`.
 
-Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence.
+Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence on the target hardware.
 
 ## R4 — Private/public state abstraction laboratory
 Status: **PENDING**
