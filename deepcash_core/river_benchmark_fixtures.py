@@ -44,11 +44,11 @@ ONE_RAISE_OPEN_REFERENCE_FRACTIONS = (
 
 # Exhaustive non-empty proper subset lattice of the same four-size opening
 # reference. The first candidate set intentionally sampled only one singleton,
-# one pair and one triple. Held-out evidence showed that the triple remained far
-# better than those smaller controls but still had measurable residual loss on
-# some boards. Before adding any new arbitrary size, enumerate every existing
-# reference subset so we know whether the earlier candidate choice itself left
-# easy EV on the table.
+# one pair and one triple. Held-out-v1 evidence showed that the triple remained
+# far better than those smaller controls but still had measurable residual loss
+# on some boards. Before adding any new arbitrary size, enumerate every existing
+# reference subset so we know whether the original candidate choice left easy EV
+# on the table.
 ONE_RAISE_OPEN_SUBSET_LATTICE = {
     "L1_25": (Fraction(1, 4),),
     "L1_50": (Fraction(1, 2),),
@@ -91,9 +91,8 @@ RIVER_BOARDS = {
     "four_flush": "Ah Jh 8h 4h 2c",
 }
 
-# Precommitted held-out board families. They are kept separate from RIVER_BOARDS
-# so adding them never silently changes the historical `--boards all` control
-# battery. Held-out workflows must opt into this set explicitly.
+# Held-out v1 was precommitted before its first run, but those results have now
+# informed candidate engineering and therefore this set is no longer unseen.
 HELDOUT_RIVER_BOARDS = {
     "K_high_dry_heldout": "Kc 8d 5s 3h 2c",
     "double_paired_heldout": "Js Jd 6c 6h 2s",
@@ -103,18 +102,33 @@ HELDOUT_RIVER_BOARDS = {
     "trips_board_heldout": "9s 9h 9d 4c 2h",
 }
 
+# Held-out v2 is frozen before the exhaustive opening-subset lattice result is
+# accepted. It must remain unseen until the precommitted cardinality champions
+# have been selected from control + heldout-v1 engineering evidence.
+HELDOUT2_RIVER_BOARDS = {
+    "ace_wheel_connected_v2": "Ac 7d 4c 3s 2h",
+    "straight_on_board_v2": "Tc 9d 8s 7h 6c",
+    "five_flush_v2": "Qc 9c 7c 4c 2c",
+    "full_house_board_v2": "Ts Th Td 4s 4d",
+    "paired_connected_v2": "8s 8c 7d 6h 5s",
+    "ace_broadway_wet_v2": "Ah Qh Tc 8d 3h",
+}
+
 
 def board_registry(name: str) -> dict[str, str]:
     if name == "control":
         return dict(RIVER_BOARDS)
     if name == "heldout":
         return dict(HELDOUT_RIVER_BOARDS)
+    if name == "heldout_v2":
+        return dict(HELDOUT2_RIVER_BOARDS)
     if name == "all":
-        overlap = set(RIVER_BOARDS).intersection(HELDOUT_RIVER_BOARDS)
-        if overlap:
-            raise RuntimeError(f"control/heldout board names overlap: {sorted(overlap)}")
-        return {**RIVER_BOARDS, **HELDOUT_RIVER_BOARDS}
-    raise ValueError("board set must be control, heldout, or all")
+        registries = (RIVER_BOARDS, HELDOUT_RIVER_BOARDS, HELDOUT2_RIVER_BOARDS)
+        all_names = [key for registry in registries for key in registry]
+        if len(set(all_names)) != len(all_names):
+            raise RuntimeError("control/heldout board names overlap")
+        return {**RIVER_BOARDS, **HELDOUT_RIVER_BOARDS, **HELDOUT2_RIVER_BOARDS}
+    raise ValueError("board set must be control, heldout, heldout_v2, or all")
 
 
 def parse_cards(text: str) -> tuple[int, ...]:
