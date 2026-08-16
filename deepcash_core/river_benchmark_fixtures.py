@@ -42,6 +42,22 @@ ONE_RAISE_OPEN_REFERENCE_FRACTIONS = (
     Fraction(1, 1),
 )
 
+# Raise-size controls. Fractions are measured against the pot *after calling*
+# the faced opening bet. A 1.0 fraction therefore means a pot-sized raise over
+# the call. Candidates are strict subsets of the rich 0.5/1.0/1.5 reference.
+ONE_RAISE_SIZE_CANDIDATES = {
+    "Q1_100": (Fraction(1, 1),),
+    "Q2_50_100": (Fraction(1, 2), Fraction(1, 1)),
+    "Q2_100_150": (Fraction(1, 1), Fraction(3, 2)),
+    "Q3_50_100_150": (Fraction(1, 2), Fraction(1, 1), Fraction(3, 2)),
+}
+
+ONE_RAISE_SIZE_REFERENCE_FRACTIONS = (
+    Fraction(1, 2),
+    Fraction(1, 1),
+    Fraction(3, 2),
+)
+
 RIVER_BOARDS = {
     "A_high_dry": "Ah Kd 9c 7s 2h",
     "paired": "Qs Qd 9h 7c 2s",
