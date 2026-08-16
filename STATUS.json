@@ -232,9 +232,20 @@
       "accept_only_if": "workflow completes successfully and independent raise-size held-out intervals/results are inspected"
     },
     "r4_development_numeric_battery": {
-      "status": "NOT_RUN",
+      "run_id": 31964142661,
+      "head_sha": "8ee5f704a24e5ca169671a917556990f8f316efa",
+      "status_last_checked": "in_progress",
       "board_set": "development controls only",
-      "rule": "freeze a deterministic development selection procedure before running R4 heldout_v1"
+      "configuration": {
+        "boards": 4,
+        "range_combos_per_player": 6,
+        "range_phase_pairs": [[0.0, 0.27], [0.11, 0.54]],
+        "sprs": [1.0, 2.0, 4.0],
+        "checkpoints": [100, 400, 1200],
+        "candidates": ["category", "strength4", "equity4", "equity8", "category_equity4", "equity4_blocker2", "equity8_blocker2"]
+      },
+      "selection_precommit": "docs/R4_DEV_SELECTION_PRECOMMIT_20260816.md",
+      "accept_only_if": "workflow completes successfully and results are inspected under the frozen Pareto/complexity procedure"
     },
     "r4_heldout_v1": {
       "status": "PRECOMMITTED_NOT_RUN",
@@ -264,9 +275,9 @@
     "production action-family freeze"
   ],
   "r4_open_items": [
-    "run development-only deterministic representation battery",
-    "freeze deterministic selection procedure before heldout-v1",
+    "accept/reject development-only deterministic representation battery",
     "global suit-permutation representation-level metamorphic tests",
+    "record up to three deterministic finalists under frozen Pareto/complexity rule",
     "counterfactual-value feature/clustering candidates after deterministic controls",
     "learned embeddings only if justified by measured gains",
     "heldout-v1 evaluation on the precommitted independent generation",
