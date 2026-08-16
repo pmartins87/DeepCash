@@ -1,0 +1,25 @@
+name: DeepCash one-raise reference gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_raise_lab.py'
+      - 'deepcash_core/river_raise_reference_lab.py'
+      - 'tests/test_river_raise_lab.py'
+      - 'tests/test_river_raise_reference_lab.py'
+      - '.github/workflows/river-raise-reference.yml'
+
+jobs:
+  one-raise-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Gate symmetric and asymmetric one-raise exact controls
+        run: |
+          python -m pip install -e '.[dev]'
+          pytest -q tests/test_river_raise_lab.py tests/test_river_raise_reference_lab.py
