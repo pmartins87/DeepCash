@@ -75,3 +75,25 @@ def test_same_analyzer_accepts_one_raise_reference_schema_without_reinterpreting
     assert result["schema"] == "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_ANALYSIS_V1"
     assert result["latest_checkpoint"] == 200
     assert len(result["latest_checkpoint_aggregate"]) == 2
+
+
+def test_analyzer_preserves_geometry_coordinates_for_matrix_aggregation():
+    raised = payload()
+    raised.update(
+        {
+            "schema": "DEEPCASH_RIVER_RAISE_REFERENCE_CONVERGENCE_V1",
+            "pot": 100,
+            "stack": 200,
+            "spr": 2.0,
+            "range_combos": 4,
+            "restriction_dimension": "opening_size",
+        }
+    )
+    result = analyze(raised)
+    assert result["source_geometry"] == {
+        "pot": 100,
+        "stack": 200,
+        "spr": 2.0,
+        "range_combos": 4,
+        "restriction_dimension": "opening_size",
+    }
