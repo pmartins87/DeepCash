@@ -1,0 +1,64 @@
+name: DeepCash R4 targeted convergence v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/R4_TARGETED_CONVERGENCE_PLAN_20260816.md'
+      - '.github/workflows/r4-targeted-convergence-v1.yml'
+
+jobs:
+  targeted-convergence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cell: ahigh_A
+            board: A_high_dry
+            p0_phase: '0.00'
+            p1_phase: '0.27'
+            candidates: category,equity8,equity8_blocker2
+          - cell: paired_B
+            board: paired
+            p0_phase: '0.11'
+            p1_phase: '0.54'
+            candidates: category,equity4,equity4_blocker2,equity8
+          - cell: fourflush_B
+            board: four_flush
+            p0_phase: '0.11'
+            p1_phase: '0.54'
+            candidates: category_equity4,equity4,equity4_blocker2,equity8
+          - cell: fourstraight_A
+            board: four_straight
+            p0_phase: '0.00'
+            p1_phase: '0.27'
+            candidates: category_equity4,equity4,equity8,equity8_blocker2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run frozen targeted convergence cell
+        run: >-
+          python tools/benchmark_river_representation_reference.py
+          --board-set dev
+          --boards ${{ matrix.board }}
+          --candidates ${{ matrix.candidates }}
+          --range-combos 6
+          --p0-phase ${{ matrix.p0_phase }}
+          --p1-phase ${{ matrix.p1_phase }}
+          --pot 100
+          --stack 200
+          --min-bet 20
+          --checkpoints 1200,3600
+          --out r4_target_${{ matrix.cell }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r4-targeted-${{ matrix.cell }}
+          path: r4_target_${{ matrix.cell }}.json
+          if-no-files-found: error
