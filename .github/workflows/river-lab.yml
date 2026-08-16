@@ -9,14 +9,17 @@ on:
       - 'deepcash_core/river_training.py'
       - 'deepcash_core/river_raise_lab.py'
       - 'deepcash_core/river_reference_lab.py'
+      - 'deepcash_core/river_reference_training.py'
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
       - 'tools/analyze_river_action_convergence.py'
       - 'tools/benchmark_river_reference_restriction.py'
+      - 'tools/benchmark_river_reference_convergence.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - 'tests/test_river_raise_lab.py'
       - 'tests/test_river_reference_lab.py'
+      - 'tests/test_river_reference_training.py'
       - '.github/workflows/river-lab.yml'
   pull_request:
     paths:
@@ -24,14 +27,17 @@ on:
       - 'deepcash_core/river_training.py'
       - 'deepcash_core/river_raise_lab.py'
       - 'deepcash_core/river_reference_lab.py'
+      - 'deepcash_core/river_reference_training.py'
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
       - 'tools/analyze_river_action_convergence.py'
       - 'tools/benchmark_river_reference_restriction.py'
+      - 'tools/benchmark_river_reference_convergence.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - 'tests/test_river_raise_lab.py'
       - 'tests/test_river_reference_lab.py'
+      - 'tests/test_river_reference_training.py'
       - '.github/workflows/river-lab.yml'
 
 jobs:
@@ -49,7 +55,8 @@ jobs:
             tests/test_river_lab.py \
             tests/test_river_training.py \
             tests/test_river_raise_lab.py \
-            tests/test_river_reference_lab.py
+            tests/test_river_reference_lab.py \
+            tests/test_river_reference_training.py
       - name: Small multi-board action-abstraction battery
         run: >-
           python tools/benchmark_river_action_abstraction.py
@@ -75,6 +82,14 @@ jobs:
           --boards A_high_dry
           --candidates S1_50
           --out river_reference_restriction_smoke.json
+      - name: Resumable common-reference convergence smoke
+        run: >-
+          python tools/benchmark_river_reference_convergence.py
+          --checkpoints 20,80,200
+          --range-combos 3
+          --boards A_high_dry
+          --candidates S1_50
+          --out river_reference_convergence_smoke.json
       - uses: actions/upload-artifact@v4
         with:
           name: river-action-abstraction-smoke
@@ -83,3 +98,4 @@ jobs:
             river_action_convergence_smoke.json
             river_action_convergence_analysis_smoke.json
             river_reference_restriction_smoke.json
+            river_reference_convergence_smoke.json
