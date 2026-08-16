@@ -14,11 +14,7 @@ Target-site reopen, odd-chip, rake and optional forced-bet semantics remain unre
 
 ### Opening-size complete lattice — ACCEPTED
 
-Seen engineering run `31962334355` evaluated every one-, two- and three-size proper subset of `{25,50,75,100}%`. Frozen cardinality champions from the seen set:
-
-- `L1_100`;
-- `L2_50_100`;
-- `L3_25_50_100`.
+Seen engineering run `31962334355` evaluated every one-, two- and three-size proper subset of `{25,50,75,100}%`. Frozen cardinality champions from the seen set: `L1_100`, `L2_50_100`, `L3_25_50_100`.
 
 Selector artifact `9268277521`, SHA-256 `f17838f1196564e4e30a9b622d85bd0157ce1d17b92af1cff349bb2f1427897a`.
 
@@ -42,33 +38,31 @@ At SPR 2, L3's extra 25% branch has a resolved advantage over L2. L3 is the lead
 
 ### R3 remaining gate
 
-R3 remains IN PROGRESS until:
-
-- difficult exact-BR intervals are tightened where they affect the L2/L3 decision;
-- finalists receive physical Ryzen equal-wall-clock comparison;
-- river evidence is converted into a street/SPR-dependent action contract rather than copied blindly to flop/turn/preflop.
+R3 remains IN PROGRESS until difficult exact-BR intervals are tightened where they affect the L2/L3 decision, finalists receive physical Ryzen equal-wall-clock comparison, and river evidence is converted into a street/SPR-dependent action contract rather than copied blindly to flop/turn/preflop.
 
 Current river finalists: openings 25/50/100 vs compute-efficient 50/100; raises 50/100.
 
 ## R4 — representation abstraction
 
-### Deterministic development battery — ACCEPTED
+### Development infrastructure — ACCEPTED; original selection intervals SUPERSEDED
 
 Run `31964142661`: PASS. Artifact `9270794930`, SHA-256 `2fcf9bac459126f6d2638421c5b06da5441ae14682ef0d999e80dba15473eb70`.
 
-All six frozen development cells completed: two range-phase pairs × nominal SPR 1/2/4 over the four seen control boards, 6 exact combos/player and checkpoints 100/400/1200.
+Its deterministic bucket construction, exact chance/payoff separation, CFR training paths, compression ratios, timing and invariance evidence remain valid. The original selection interval, however, used unrestricted exact best responses after expanding bucketed policies back to exact combos. That conservatively granted a bucket-restricted best responder information it did not possess and mixed representation loss into what was being treated as convergence uncertainty.
 
-At checkpoint 1200, aggregate strategic-loss upper bounds show a strong separation between eight-equity-bucket controls and the compressed four-bucket/category controls, but the latter still have wide exact-BR intervals. Key aggregate values are recorded in `docs/R4_DEV_RESULTS_20260816.md`.
+The methodology correction is documented in `docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md`.
 
-The all-24 global suit-permutation metamorphic test for every current deterministic representation is in the green general suite. Latest broad CI after the no-leak integration changes: run `31975686755`, PASS.
+### Exact bucket-constrained BR — STRUCTURAL GATE PASS
 
-No deterministic finalist has been frozen yet because solver uncertainty is concentrated in a few difficult development cells.
+`deepcash_core/river_representation_br.py` now optimizes one exact pure action pattern per private bucket while retaining exact compatible chance deals and exact opponent policy. Exact one-hand-per-bucket maps reproduce the unrestricted exact BR; merging private hands cannot improve the restricted player's BR.
 
-### Targeted convergence extension — RUNNING / UNACCEPTED
+The first replay attempt run `31976177786` failed because one old unit test still compared the new resumable evaluator against a legacy monolithic helper with the old BR semantics. Training states themselves were identical. A single canonical wrapper, `deepcash_core/river_representation_solver.py`, now routes monolithic calls through the resumable state and bucket-constrained evaluator.
 
-Plan frozen before execution in `docs/R4_TARGETED_CONVERGENCE_PLAN_20260816.md`. Run `31975623597` extends only the difficult seen cells from 1200 to 3600 iterations at one representative un-clipped geometry. It does not touch R4 held-out v1.
+Corrected replay run `31976302604`: bucket-constrained BR oracle step **PASS**; full frozen development replay is currently running. General CI at commit `292fc68...`, run `31976302695`, is PASS.
 
-R4 held-out v1 remains unopened. It may start only after targeted convergence is inspected and at most three development finalists are explicitly recorded.
+### Held-out firewall
+
+R4 held-out v1 remains **PRECOMMITTED_NOT_RUN**. It may not be consumed until the corrected development replay is inspected and at most three deterministic finalists are explicitly frozen.
 
 ## R5 — solver / traversal research
 
@@ -78,34 +72,41 @@ The exact small-game funnel includes synchronous CFR/CFR+, corrected alternating
 
 ### Chance/external sampling — ACCEPTED ENGINEERING EVIDENCE
 
-IID chance sampling is unbiased but noisy on small support. Persistent randomized golden-ratio Weyl chance allocation beat paired IID chance sampling in all 16 frozen board-seed cells at each 1k/5k/20k checkpoint in run `31966357494`.
+Persistent randomized golden-ratio Weyl chance allocation beat paired IID chance sampling in all 16 frozen board-seed cells at each 1k/5k/20k checkpoint in run `31966357494`.
 
-Sampling crossover v1 timing was invalidated after discovering that every sampled deal rebuilt the full compatible-deal support.
+Sampling crossover v1 timing was invalidated after discovering that every sampled deal rebuilt the full compatible-deal support. Corrected sampling crossover v2 run `31967392548` is PASS, artifact `9269091911`, SHA-256 `a81c3675b9cd9768a30d8ff01b34cb281fc21800765c8fabef61a2d07cb6c577`. The optimized CDF sampler preserves the exact legacy sample sequence.
 
-Sampling crossover v2 run `31967392548`: PASS, artifact `9269091911`, SHA-256 `a81c3675b9cd9768a30d8ff01b34cb281fc21800765c8fabef61a2d07cb6c577`. A 10,000-draw regression proves the optimized precomputed-CDF sampler preserves the exact legacy sampled-deal sequence and final PRNG state. Strategic outputs match v1 while timing improves sharply.
+At 48 combos/player, the first observed hosted-CI scaling crossover appears: external sampling 80k reached about `0.00454` mean exploitability/pot in about `47.5 s`, while full-tree CFR+ 100 was about `0.00848` in about `52 s`. This is evidence that a crossover exists, not a universal threshold and not physical-Ryzen timing.
 
-At 48 combos/player, the first observed scaling crossover appears: external sampling 80k reached about `0.00454` mean exploitability/pot in about `47.5 s`, while full-tree CFR+ 100 was about `0.00848` in about `52 s` on hosted CI. This is evidence that a crossover exists, **not** a universal 48-combo threshold and not Ryzen timing evidence.
+### Variance-reduced MCCFR structural gates — ACCEPTED
 
-### Variance-reduced MCCFR algebra/oracles — ACCEPTED
+The baseline-enhanced estimator passed exact unbiasedness checks including off-policy controls. The legal-information exact conditional baseline v2 passed run `31975167850`; its boundary receives traverser private combo + public history/current policy and no realized opponent private hand. `INFOSET_EXACT` integration passed run `31975535179`.
 
-The baseline-enhanced estimator passed exact unbiasedness checks, including off-policy controls. `PERFECT_HISTORY` is deliberately privileged and exists only as a zero/low-variance lower-bound oracle; it is never production eligible.
+VR benchmark v1 run `31975686749` was **invalidated** after inspection: privileged `PERFECT_HISTORY` evaluated counterfactual opponent branches through the stateful training traversal, contaminating regret deltas. The cause and invalidation are recorded in `docs/R5_VR_MODE_BENCHMARK_V1_INVALIDATED_20260816.md`.
 
-The legal-information exact conditional baseline v2 passed dedicated oracle run `31975167850`. Its API receives only the traverser's private combo, public node/history and current policy; no realized opponent private hand is accepted.
+The oracle was corrected so only the sampled opponent branch may mutate training state; counterfactual privileged baselines are evaluated with a pure fixed-deal policy evaluator. The regression explicitly starts from a non-terminal opponent node and proves unsampled branches cannot change regret deltas/counters.
 
-`INFOSET_EXACT` was then integrated into external sampling alongside `ZERO` and `PERFECT_HISTORY`. Two first-pass tests incorrectly assumed RNG-state/terminal-visit equality **across different adaptive solver modes**; those assumptions were removed, not the solver checks. The corrected dedicated integration run `31975535179` is PASS. It proves:
+### Corrected VR mode benchmark v2 — ACCEPTED
 
-- `ZERO` remains the ordinary external-sampling identity control;
-- `INFOSET_EXACT` is deterministic under same seed and checkpoint partitioning;
-- it is a real control variate rather than a ZERO alias;
-- its baseline boundary has no realized-opponent-hand input.
+Run `31975899761`: PASS. Artifact `9271052796`, SHA-256 `371737a22e72e2b4e31ea3f4b09ac24ab32b58827346b3bd555137b95e99f980`.
 
-General CI containing the corrected integration is also green (`31975686755`).
+Global 2000-iteration result over 4 boards × 5 seeds:
 
-### Legal VR mode performance battery — RUNNING / UNACCEPTED
+| mode | mean exploitability/pot | sample stdev | mean train s | time vs ZERO |
+|---|---:|---:|---:|---:|
+| ZERO | 0.03427096 | 0.00477694 | 0.62274 | 1.00x |
+| INFOSET_EXACT | 0.03311817 | 0.00359434 | 2.93230 | 4.71x |
+| PERFECT_HISTORY | **0.02969950** | 0.00441312 | 0.95958 | 1.54x |
 
-The numerical plan was frozen in `docs/R5_VR_MODE_BENCHMARK_PLAN_20260816.md` before execution. Run `31975686749` compares `ZERO`, legal `INFOSET_EXACT`, and privileged `PERFECT_HISTORY` over four development boards × five seeds at 2000 iterations. The goal is to quantify variance reduction versus CPU cost and determine whether a cheap learned/tabular legal baseline is worth building.
+Legal `INFOSET_EXACT` improves mean exploitability by about 3.36% but at ~4.71x hosted-CI training time. Privileged `PERFECT_HISTORY` improves it by about 13.34% and remains permanently production-ineligible. This shows meaningful reducible opponent-action variance exists, but exact hidden-support integration is too expensive for its observed gain. Full interpretation: `docs/R5_VR_MODE_BENCHMARK_V2_ACCEPTED_20260816.md`.
 
-No result from this workflow is accepted until the run completes and its artifact is inspected.
+### Cheap no-leak tabular baseline — STRUCTURAL GATE PASS; NUMERIC BENCHMARK RUNNING
+
+`deepcash_core/river_vr_tabular.py` implements `TABULAR_RUNNING`: running action-value baselines keyed only by traverser private combo + public opponent node + action. The baseline is frozen before the current sample is corrected and updated only afterward.
+
+Dedicated oracle run `31976450221`: **PASS**. It proves first-iteration identity with ZERO, same-seed determinism, staged=monolithic training, JSON checkpoint exact future-path equivalence, and no realized-opponent-hand component in baseline identity.
+
+The numerical comparison was frozen before execution in `docs/R5_TABULAR_VR_BENCHMARK_PLAN_20260816.md`. Run `31976572985` is currently comparing ZERO / TABULAR_RUNNING / INFOSET_EXACT at cumulative checkpoints 500/2000/10000 over the same four boards and five seeds. No result is accepted until completion and artifact inspection.
 
 ### Modern candidate funnel
 
