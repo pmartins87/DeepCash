@@ -168,6 +168,47 @@ def choose_random_action(state: HandState, rng: random.Random) -> StreetAction:
     return rng.choice(choices)
 
 
+def _action_text(chosen: StreetAction) -> str:
+    if chosen.kind == StreetActionKind.RAISE_TO:
+        return f"RAISE_TO({chosen.raise_to})"
+    return chosen.kind.value
+
+
+def _deepcash_betting_debug(state: HandState) -> dict:
+    if state.betting is None:
+        return {"betting": None, "street": state.street.value}
+    b = state.betting
+    return {
+        "street": state.street.value,
+        "actor": b.actor,
+        "current_bet": b.current_bet,
+        "last_full_raise": b.last_full_raise,
+        "pending": sorted(b.pending),
+        "players": {
+            seat: {
+                "committed": p.committed,
+                "stack": p.stack,
+                "folded": p.folded,
+                "all_in": p.all_in,
+                "last_faced_bet": p.last_faced_bet,
+            }
+            for seat, p in b.players.items()
+        },
+    }
+
+
+def _oracle_debug(state) -> dict:
+    return {
+        "actor_index": getattr(state, "actor_index", None),
+        "stacks": list(getattr(state, "stacks", ())),
+        "bets": list(getattr(state, "bets", ())),
+        "statuses": list(getattr(state, "statuses", ())),
+        "all_in_status": getattr(state, "all_in_status", None),
+        "folded_status": getattr(state, "folded_status", None),
+        "street_index": getattr(state, "street_index", None),
+    }
+
+
 def trace_three_way_checkdown() -> None:
     stacks = (1000, 1000, 1000)
     holes = (("As", "Ad"), ("Ks", "Kd"), ("Qs", "Qd"))
@@ -253,14 +294,26 @@ def randomized_trace_battery() -> None:
             oracle = setup_oracle(stacks, holes)
             dealt = 0
             action_count = 0
+            history: list[str] = []
             while not ours.terminal:
                 if action_count >= 300:
                     raise AssertionError(
                         f"random n={player_count} case={case}: action loop exceeded 300"
                     )
                 chosen = choose_random_action(ours, rng)
+                before = _deepcash_betting_debug(ours)
                 ours = ours.apply(chosen)
-                apply_oracle_action(oracle, chosen)
+                history.append(_action_text(chosen))
+                try:
+                    apply_oracle_action(oracle, chosen)
+                except Exception as exc:
+                    raise AssertionError(
+                        "oracle rejected DeepCash-legal action; "
+                        f"players={player_count} case={case} stacks={stacks} "
+                        f"holes={holes} board={board} action={_action_text(chosen)} "
+                        f"history={history} deepcash_before={before} "
+                        f"oracle_before={_oracle_debug(oracle)}"
+                    ) from exc
                 dealt = sync_oracle_board(oracle, ours, board, dealt)
                 action_count += 1
 
