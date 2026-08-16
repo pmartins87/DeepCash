@@ -35,12 +35,13 @@ def action(kind: str, raise_to: int | None = None) -> StreetAction:
 
 
 def button_for_count(player_count: int) -> int:
-    # PokerKit's Hold'em convention places the first two players in SB/BB.
-    # With 3+ players, the final player is the Button. Heads-up is the standard
-    # exception: player 0 is Button/SB and player 1 is BB.
+    # PokerKit indexes the conventional first two blind positions as players
+    # 0/1. In its heads-up example player 1 acts first preflop, so player 1 is
+    # Button/SB and player 0 is BB. Therefore the final player is the Button for
+    # every supported 2..6 handed count.
     if not 2 <= player_count <= 6:
         raise ValueError("player_count must be 2..6")
-    return 0 if player_count == 2 else player_count - 1
+    return player_count - 1
 
 
 def setup_ours(stacks, holes, board) -> HandState:
