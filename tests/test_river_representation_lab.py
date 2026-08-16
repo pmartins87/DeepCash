@@ -11,8 +11,8 @@ from deepcash_core.river_representation_lab import (
     candidate_bucket_maps,
     exact_bucket_maps,
     one_sided_bucket_maps,
-    solve_river_representation_cfr_plus,
 )
+from deepcash_core.river_representation_solver import solve_river_representation_cfr_plus
 from deepcash_core.river_representation_training import (
     advance_representation_cfr_plus,
     init_representation_cfr_plus,
