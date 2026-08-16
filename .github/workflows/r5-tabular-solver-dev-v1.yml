@@ -1,0 +1,38 @@
+name: DeepCash R5 tabular solver development v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_solver_variants.py'
+      - 'tools/benchmark_river_solver_variants.py'
+      - 'tests/test_river_solver_variants.py'
+      - 'docs/R5_TABULAR_SOLVER_PRECOMMIT_20260816.md'
+      - '.github/workflows/r5-tabular-solver-dev-v1.yml'
+
+jobs:
+  tabular-solver-control:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run exact precommitted tabular solver comparison
+        run: >-
+          python tools/benchmark_river_solver_variants.py
+          --checkpoints 100,400,1200
+          --range-combos 6
+          --pot 100
+          --stack 400
+          --p0-phase 0.00
+          --p1-phase 0.27
+          --variants CFR_UNIFORM,CFR_LINEAR,CFR_PLUS_UNIFORM,CFR_PLUS_LINEAR
+          --out r5_tabular_solver_dev_v1.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-tabular-solver-dev-v1
+          path: r5_tabular_solver_dev_v1.json
