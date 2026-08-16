@@ -30,23 +30,19 @@ def pot_raise_targets(
     stack: int,
     opening_sizes: tuple[int, ...],
 ) -> tuple[tuple[int, tuple[int, ...]], ...]:
-    """One exact reference raise target per opening bet: pot-sized raise-to.
+    """One exact reference raise target per non-all-in opening bet.
 
     Facing a bet `b` into starting pot `P`, pot after calling is `P+2b`.
     A pot-sized raise adds that amount over the call, so total contribution is
-    `b + (P+2b) = P+3b`. We cap at stack. This v1 gate deliberately requires
-    the resulting target to exceed the opening bet; all-in/no-raise openings are
-    a separate low-SPR extension rather than being silently misrepresented.
+    `b + (P+2b) = P+3b`, capped at stack. If the opening itself exhausts the
+    effective stack, the exact response map contains an empty target tuple:
+    fold/call remain legal but there is no raise branch.
     """
     out = []
     for bet in opening_sizes:
         target = min(stack, pot + 3 * bet)
-        if target <= bet:
-            raise ValueError(
-                f"no raise is possible after opening bet {bet} with stack={stack}; "
-                "all-in/no-raise geometries are not part of one-raise v1"
-            )
-        out.append((bet, (target,)))
+        targets = () if target <= bet else (target,)
+        out.append((bet, targets))
     return tuple(out)
 
 
@@ -220,6 +216,7 @@ def main() -> None:
         "method": (
             "one-sided opening-size restriction against a shared one-raise rich reference; "
             "raise-response geometry held fixed to isolate opening-size loss; "
+            "all-in openings retain fold/call with an empty raise set; "
             "dynamic exact BR intervals propagated"
         ),
         "checkpoints": list(checkpoints),
