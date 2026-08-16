@@ -1,0 +1,24 @@
+name: DeepCash R5 VR-MCCFR no-leak baseline oracle v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_vr_infoset_baseline_v2.py'
+      - 'tests/test_river_vr_infoset_baseline_v2.py'
+      - 'docs/R5_VR_MCCFR_NOLEAK_BASELINE_PRECOMMIT_20260816.md'
+      - '.github/workflows/r5-vr-mccfr-noleak-baseline-oracle-v2.yml'
+
+jobs:
+  noleak-baseline-oracle-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Prove self-contained no-private-leak exact conditional baselines
+        run: python -m pytest -q tests/test_river_vr_infoset_baseline_v2.py
