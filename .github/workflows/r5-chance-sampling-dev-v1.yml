@@ -1,0 +1,39 @@
+name: DeepCash R5 chance-sampling development v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_chance_sampling.py'
+      - 'tools/benchmark_river_chance_sampling.py'
+      - 'tests/test_river_chance_sampling.py'
+      - 'docs/R5_CHANCE_SAMPLING_PRECOMMIT_20260816.md'
+      - '.github/workflows/r5-chance-sampling-dev-v1.yml'
+
+jobs:
+  chance-sampling-control:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run deterministic chance-sampling battery
+        run: >-
+          python tools/benchmark_river_chance_sampling.py
+          --checkpoints 1000,5000,20000
+          --seeds 11,29,101,20260816
+          --range-combos 6
+          --pot 100
+          --stack 400
+          --p0-phase 0.00
+          --p1-phase 0.27
+          --variants CS_CFR_LINEAR,CS_CFR_PLUS_LINEAR
+          --out r5_chance_sampling_dev_v1.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-chance-sampling-dev-v1
+          path: r5_chance_sampling_dev_v1.json
