@@ -3,9 +3,17 @@ import pytest
 from deepcash_core.cards import card_from_str
 from deepcash_core.river_lab import RangeCombo
 from deepcash_core.river_raise_lab import RiverRaiseGameSpec, solve_river_raise_cfr_plus
+from deepcash_core.river_reference_lab import (
+    AsymmetricRiverGameSpec,
+    solve_asymmetric_river_cfr_plus,
+)
 from deepcash_core.river_raise_reference_lab import (
     AsymmetricRiverRaiseGameSpec,
+    actions,
+    all_infosets,
     evaluate_opening_restriction_loss_with_raises,
+    p0_vs_p1_bet_node,
+    p1_vs_p0_bet_node,
     solve_asymmetric_river_raise_cfr_plus,
 )
 
@@ -55,6 +63,49 @@ def test_symmetric_asymmetric_one_raise_solver_matches_original_control():
     assert new.exploitability == old.exploitability
     assert new.infosets == old.infosets
     assert new.action_slots == old.action_slots
+
+
+def test_empty_raise_targets_mean_fold_call_only_after_allin_opening():
+    p0, p1 = ranges()
+    spec = AsymmetricRiverRaiseGameSpec(
+        board(), p0, p1, pot=100,
+        p0_bet_sizes=(50,),
+        p1_bet_sizes=(50,),
+        p1_raise_targets_vs_p0=((50, ()),),
+        p0_raise_targets_vs_p1=((50, ()),),
+    )
+    assert actions(spec, 1, p1_vs_p0_bet_node(50)) == ("FOLD", "CALL")
+    assert actions(spec, 0, p0_vs_p1_bet_node(50)) == ("FOLD", "CALL")
+    assert all("RAISE" not in node for _, node, _ in all_infosets(spec))
+
+
+def test_empty_raise_tree_is_exactly_equivalent_to_one_bet_control():
+    p0, p1 = ranges()
+    iterations = 180
+    one_bet = solve_asymmetric_river_cfr_plus(
+        AsymmetricRiverGameSpec(
+            board(), p0, p1, pot=100,
+            p0_bet_sizes=(50,),
+            p1_bet_sizes=(50,),
+        ),
+        iterations=iterations,
+    )
+    no_raise = solve_asymmetric_river_raise_cfr_plus(
+        AsymmetricRiverRaiseGameSpec(
+            board(), p0, p1, pot=100,
+            p0_bet_sizes=(50,),
+            p1_bet_sizes=(50,),
+            p1_raise_targets_vs_p0=((50, ()),),
+            p0_raise_targets_vs_p1=((50, ()),),
+        ),
+        iterations=iterations,
+    )
+    assert no_raise.policy_ev == one_bet.policy_ev
+    assert no_raise.br0_value == one_bet.br0_value
+    assert no_raise.br1_value == one_bet.br1_value
+    assert no_raise.exploitability == one_bet.exploitability
+    assert no_raise.infosets == one_bet.infosets
+    assert no_raise.action_slots == one_bet.action_slots
 
 
 def test_equal_candidate_reference_has_only_solver_interval_as_upper_bound():
@@ -117,4 +168,22 @@ def test_raise_map_must_cover_every_faced_bet():
             p1_bet_sizes=(25,),
             p1_raise_targets_vs_p0=((25, (100,)),),
             p0_raise_targets_vs_p1=((25, (100,)),),
+        )
+
+
+def test_nonempty_raise_targets_remain_sorted_unique_and_above_opening():
+    p0, p1 = ranges()
+    with pytest.raises(ValueError, match="sorted and unique"):
+        AsymmetricRiverRaiseGameSpec(
+            board(), p0, p1, pot=100,
+            p0_bet_sizes=(50,), p1_bet_sizes=(50,),
+            p1_raise_targets_vs_p0=((50, (150, 150)),),
+            p0_raise_targets_vs_p1=((50, (150,)),),
+        )
+    with pytest.raises(ValueError, match="must exceed"):
+        AsymmetricRiverRaiseGameSpec(
+            board(), p0, p1, pot=100,
+            p0_bet_sizes=(50,), p1_bet_sizes=(50,),
+            p1_raise_targets_vs_p0=((50, (50,)),),
+            p0_raise_targets_vs_p1=((50, (150,)),),
         )
