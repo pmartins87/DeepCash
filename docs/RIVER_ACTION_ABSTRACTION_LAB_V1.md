@@ -2,9 +2,13 @@
 
 ## Purpose
 
-R3 does not freeze bet sizes by intuition. The first laboratory is a deliberately tractable **heads-up river subgame** in which the strategic error of every candidate action set can be measured against an **exact best response**.
+R3 does not freeze bet sizes by intuition. The first laboratory is a deliberately tractable **heads-up river subgame** used to separate three different quantities that must not be conflated:
 
-The lab is not the production cash-game tree. It is an oracle environment for deciding which branches buy enough strategic value to justify their CPU/memory cost.
+1. **solver convergence error** inside a chosen game tree;
+2. **structural compute cost** of that tree;
+3. **strategic loss caused by restricting actions** relative to a richer common reference game.
+
+The lab is not the production cash-game tree. It is an oracle environment for deciding which branches buy enough strategic value to justify CPU/memory cost.
 
 ## Game contract
 
@@ -15,26 +19,26 @@ The lab is not the production cash-game tree. It is an oracle environment for de
 - the exact pot entering the river;
 - a finite set of exact integer bet sizes.
 
-P0 acts first. At the first version of the lab each player may make at most one bet; the opponent may fold or call. There are no raises yet. This restriction is intentional: it keeps exact best response cheap enough to serve as an oracle while we establish the action-abstraction methodology.
+P0 acts first. In the first tree each player may make at most one bet; the opponent may fold or call. A separate `river_raise_lab` now extends this to one raise, but the one-bet tree remains the smallest auditable control.
 
 The subgame is zero-sum after a constant shift of the already-built pot. A showdown with matched river bet `b` pays the winner `pot/2 + b`; a fold transfers `pot/2` to the bettor. Ties are zero under that shifted utility.
 
 ## Solver
 
-The initial solver is synchronous full-chance **CFR+** with linear average-strategy weighting. Every compatible private-card pair is traversed; card removal is exact.
+The control solver is synchronous full-chance **CFR+** with linear average-strategy weighting. Every compatible private-card pair is traversed; card removal is exact.
 
-The implementation records one policy per exact private combo and infoset. There is no private-state abstraction in this R3 control.
+`deepcash_core.river_training` adds deterministic resumable state. Staged training is gated to be exactly equal to a monolithic run with the same global iteration count, including linear averaging weights. JSON checkpoint roundtrip must preserve the exact subsequent training path.
 
-## Exact best response
+There is no private-state abstraction in this R3 control.
 
-The v1 tree is small enough that best response does not need an approximate solver.
+## Exact best response inside a fixed tree
 
-For `S` bet sizes, each private hand has `(1 + S) * 2^S` pure plans:
+For `S` bet sizes in the one-bet game, each private hand has `(1 + S) * 2^S` pure plans:
 
 - choose check or one of `S` bets at its opening node;
 - choose fold/call against each of the opponent's `S` bet sizes.
 
-The lab enumerates every pure plan for each private hand against the opponent's fixed average strategy. It reports:
+The lab enumerates every pure plan for each private hand against the opponent's fixed average strategy and reports:
 
 - policy EV;
 - P0 exact best-response value;
@@ -44,48 +48,101 @@ The lab enumerates every pure plan for each private hand against the opponent's 
 - infoset count;
 - action-slot count.
 
-This lets us compare strategy quality and structural cost using one common oracle.
+These values are excellent **convergence diagnostics for a fixed game tree**.
+
+## Methodological correction: own-tree exploitability is not abstraction error
+
+A smaller action set and a larger action set define **different games**. Therefore comparing each policy's exploitability only inside its own restricted tree does **not** tell us how much strategic value was lost by removing actions.
+
+A restricted game can even look easier to solve precisely because important opponent actions no longer exist. That can make its own-tree exploitability smaller while its strategy is strategically poorer in the richer game.
+
+No DeepCash action-family decision may therefore be based on cross-candidate own-tree exploitability alone.
+
+## Common-reference restriction oracle
+
+`deepcash_core.river_reference_lab` fixes this by allowing P0 and P1 to have different action sets.
+
+For a rich reference set `R` and candidate subset `C`, R3 solves three zero-sum games:
+
+1. `R vs R` — common reference;
+2. `C vs R` — only P0 is action-restricted;
+3. `R vs C` — only P1 is action-restricted.
+
+This measures the value lost when **one player at a time** is denied the omitted actions while the opponent retains the richer set. It avoids the cancellation that can occur when both players are restricted in the same way.
+
+Each finite CFR solution has an exact-BR value interval:
+
+`BR1 <= true game value <= BR0`.
+
+The restriction-loss oracle propagates these intervals rather than pretending the finite-iteration policy EV is the exact equilibrium value. For P0 restriction:
+
+`loss = V(R,R) - V(C,R)`.
+
+For P1 restriction, expressed as value gained by P0 because P1 was restricted:
+
+`loss = V(R,C) - V(R,R)`.
+
+The benchmark reports lower/upper bounds for both and a conservative `worst_loss_upper_per_pot`.
+
+This common-reference metric, not own-tree exploitability, is the primary R3 abstraction-quality signal.
 
 ## Bet-size materialization
 
-`materialize_bet_sizes` converts candidate pot fractions into integer chip sizes, rounds half-up to the chip unit, clips to the legal `[min_bet, stack]` envelope and removes duplicates. This is a **laboratory generator**, not yet the full R3 production legalization layer.
+`materialize_bet_sizes` converts candidate pot fractions into integer chip sizes, rounds half-up to the chip unit, clips to the legal `[min_bet, stack]` envelope and removes duplicates. This is a **laboratory generator**, not yet the full production legalization layer.
 
-Current benchmark candidates are intentionally diverse:
+Current candidate families remain deliberately diverse:
 
 - `S1_50`: 50% pot;
 - `S2_33_100`: 33%, 100%;
 - `S3_25_75_150`: 25%, 75%, 150%;
 - `S4_25_50_100_200`: 25%, 50%, 100%, 200%.
 
-They are candidates, not recommendations.
+The current common reference is the materialized union of 25%, 33%, 50%, 75%, 100%, 150% and 200% pot. This reference itself is not frozen as production truth; it is a richer control.
 
-## Benchmark battery
+## Benchmark batteries
 
-`tools/benchmark_river_action_abstraction.py` currently uses four deterministic standard-Hold'em river families:
+`tools/benchmark_river_action_abstraction.py` measures own-tree convergence/structure.
+
+`tools/benchmark_river_action_convergence.py` measures cumulative training curves and separates training wall time from exact-BR evaluation time.
+
+`tools/analyze_river_action_convergence.py` builds mean/worst-error Pareto and equal-compute views. Hosted-CI time is engineering evidence only; physical Ryzen time is required before freeze.
+
+`tools/benchmark_river_reference_restriction.py` measures one-sided action-restriction loss against the richer common game.
+
+Current deterministic standard-Hold'em river families include:
 
 1. A-high dry;
 2. paired;
 3. four-straight;
 4. four-flush.
 
-Exact-combo ranges are sampled mechanically from hand-strength quantiles with different phases for the two players. These synthetic ranges are for controlled engineering comparison only; they are not population models and do not estimate live win rate.
+Exact-combo ranges are sampled mechanically from hand-strength quantiles with different phases for the two players. These synthetic ranges are engineering controls, not population models and not estimates of live win rate.
+
+## One-raise control
+
+`deepcash_core.river_raise_lab` now contains a second exact tree in which either player's opening bet may face one explicit raise-to and then fold/call. Its exact best response is still enumerative because the control tree remains small.
+
+This is a structural gate for raise-depth engineering; it is not yet integrated into the production candidate battery.
 
 ## Selection rule
 
-No candidate wins merely because it has lower exploitability at one iteration count. R3 will add convergence checkpoints/equal-wall-clock comparison and then construct a Pareto frontier using at least:
+An action family can advance only after it is judged on all of the following:
 
-- exact exploitability/pot;
-- worst-board exploitability;
-- wall time;
-- infosets/action slots;
-- later, memory and Ryzen throughput.
+- convergence under cumulative training;
+- common-reference restriction-loss bounds;
+- worst-board restriction loss;
+- wall time on the physical Ryzen 9;
+- infosets/action slots and later memory;
+- multiple pot/stack/SPR geometries;
+- behavior after adding at least one raise depth.
 
-A richer set must justify every added branch. CPU saved by discarding strategically redundant sizings is budget that can be spent on more states, more iterations, better private-state representation or deeper resolving.
+A richer set must justify every branch. CPU saved by discarding strategically redundant sizings can instead buy more states, more iterations, better private-state representation or deeper resolving.
 
 ## Next gates
 
-1. CI-gate CFR+/exact-BR correctness on small fixtures.
-2. Run the deterministic v1 battery and inspect convergence, not only final snapshots.
-3. Add one-raise river trees and exact-BR parity before considering re-raises.
-4. Add multiple pot/stack/SPR geometries.
-5. Only then precommit the R3 candidate set for larger street solvers.
+1. CI-gate the common-reference restriction benchmark and archive smoke evidence.
+2. Expand it across all boards/candidates and multiple pot/stack/SPR geometries.
+3. Extend convergence until the exact-BR intervals are tight enough that candidate loss bounds are informative.
+4. Integrate the one-raise control into the same common-reference methodology.
+5. Run physical equal-wall-clock evidence on the Ryzen 9.
+6. Only then precommit/freeze the R3 action family for larger street solvers.
