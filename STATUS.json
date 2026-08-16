@@ -5,12 +5,12 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months after pretraining gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1",
+  "current_gate": "R1 release debt + R3 engineering",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
-    "R2": "FOUNDATION_STARTED",
-    "R3": "PENDING",
+    "R2": "PASS",
+    "R3": "IN_PROGRESS",
     "R4": "PENDING",
     "R5": "PENDING",
     "R6": "PENDING",
@@ -30,7 +30,7 @@
       "head_sha": "acd390baa75cd4f94b7bf8894ef075c1cc691152",
       "conclusion": "success"
     },
-    "r1_evaluator_oracles": {
+    "r1_evaluator_oracles_initial": {
       "run_id": 31948656185,
       "head_sha": "7022abd66bd57b9a7fea103b38596f18ab6d60cc",
       "conclusion": "success",
@@ -39,20 +39,82 @@
         "pinned PokerKit StandardHighHand cross-check"
       ]
     },
+    "r1_evaluator_oracles_after_cache": {
+      "run_id": 31949651215,
+      "head_sha": "872f99ebc82c023d54c20ef043c0653b83272cce",
+      "conclusion": "success"
+    },
     "r1_state_machine_ci": {
       "run_id": 31948857753,
       "head_sha": "45c4e03d42d068df5371f604f5b77edefaf3c1d4",
       "conclusion": "success"
+    },
+    "r1_pokerkit_fixed_fullgame": {
+      "run_id": 31949047459,
+      "conclusion": "success",
+      "checks": [
+        "three-way checkdown",
+        "raise/fold with uncalled return",
+        "preflop multiway all-in side pot"
+      ]
+    },
+    "r1_pokerkit_random_fullgame": {
+      "run_id": 31949099966,
+      "head_sha": "0040556de2a426c71c24e7afdfd577ecdf62d4f5",
+      "conclusion": "success",
+      "checks": [
+        "100 deterministic randomized three-handed full-game traces",
+        "exact final-stack parity against pinned PokerKit"
+      ]
+    },
+    "r2_canonical_state": {
+      "run_id": 31949413618,
+      "head_sha": "76988a4ebadf3cb5f8df51a73d082d1d7d3dcdd1",
+      "conclusion": "success",
+      "checks": [
+        "hole-card order invariance",
+        "simultaneous flop-card order invariance",
+        "all 24 global suit permutations on frozen fixture",
+        "Button-relative physical-chair invariance",
+        "exact chip/action geometry non-aliasing",
+        "randomized 2-to-6 handed metamorphic battery across preflop/flop/turn/river",
+        "exact HandState to DecisionSnapshot adapter without opponent-card leakage"
+      ]
+    },
+    "r3_river_lab_smoke": {
+      "run_id": 31949683719,
+      "head_sha": "2640371563cd40067eb5f370af30ee123aaddb21",
+      "conclusion": "success",
+      "artifact_id": 9264288209,
+      "checks": [
+        "synchronous full-chance CFR+",
+        "exact pure-plan best response",
+        "four deterministic river board families",
+        "one-to-four candidate bet-size sets"
+      ]
+    },
+    "latest_general_ci": {
+      "run_id": 31949683720,
+      "head_sha": "2640371563cd40067eb5f370af30ee123aaddb21",
+      "conclusion": "success"
     }
   },
   "r1_open_items": [
-    "independent full-game oracle parity beyond evaluator parity",
-    "deeper property/fuzz coverage for side pots and complex multi-all-in lines",
+    "broaden independent full-game oracle coverage beyond current deterministic three-handed battery",
+    "deeper property/fuzz coverage for complex side pots, cumulative short all-ins and rare terminal lines",
     "target-site short-all-in/reopen confirmation",
     "target-site odd-chip ordering confirmation",
     "target-site rake eligibility/cap/rounding evidence",
     "incomplete blind/straddle/ante policy if required by target economy",
     "cross-language/native evaluator parity before performance-critical production use"
+  ],
+  "r3_open_items": [
+    "cumulative convergence checkpoints",
+    "equal-wall-clock candidate comparison",
+    "one-raise river tree with exact best-response gate",
+    "multiple pot/stack/SPR geometries",
+    "larger held-out board/range battery",
+    "Ryzen physical benchmark before action-abstraction freeze"
   ],
   "open_decisions": [
     "authoritative poker site and cash-game economy",
@@ -67,7 +129,8 @@
     "simultaneous flop-card order invariance",
     "global suit permutation invariance",
     "relative chair/button rotation invariance",
-    "exact pot/call/stack geometry retained at game-state boundary",
+    "exact pot/call/stack and action geometry retained at game-state boundary",
+    "opponent private cards never leak into decision representation",
     "no long production training before rule/representation/action/solver gates pass"
   ]
 }
