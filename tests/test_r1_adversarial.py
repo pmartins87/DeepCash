@@ -125,14 +125,21 @@ def test_four_way_nested_preflop_sidepots_settle_each_eligibility_layer_exactly(
 
 
 def test_odd_chip_order_is_explicit_not_implicitly_seat_sorted():
-    pot = SidePot(amount=5, eligible=(2, 7))
+    pot = SidePot(amount=5, contributors=(2, 7), eligible=(2, 7))
     hand_values = {2: (1, 14, 13, 12, 11), 7: (1, 14, 13, 12, 11)}
     assert award_side_pots((pot,), hand_values, odd_chip_order=(7, 2)) == {2: 2, 7: 3}
     assert award_side_pots((pot,), hand_values, odd_chip_order=(2, 7)) == {2: 3, 7: 2}
 
 
 def test_odd_chip_order_must_cover_winners():
-    pot = SidePot(amount=5, eligible=(2, 7))
+    pot = SidePot(amount=5, contributors=(2, 7), eligible=(2, 7))
     hand_values = {2: (1, 14), 7: (1, 14)}
     with pytest.raises(ValueError):
         award_side_pots((pot,), hand_values, odd_chip_order=(2,))
+
+
+def test_odd_chip_order_rejects_duplicate_seats():
+    pot = SidePot(amount=5, contributors=(2, 7), eligible=(2, 7))
+    hand_values = {2: (1, 14), 7: (1, 14)}
+    with pytest.raises(ValueError):
+        award_side_pots((pot,), hand_values, odd_chip_order=(2, 7, 2))
