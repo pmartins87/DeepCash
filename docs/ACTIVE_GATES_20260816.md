@@ -1,119 +1,110 @@
 # DeepCash active gates — 2026-08-16
 
-Transient audit ledger. A workflow is never promoted merely because it exists or because a partial matrix is green. Accepted evidence is recorded only after completion and inspection.
+Transient audit ledger. A workflow is never promoted because it merely exists or because only part of a matrix is green. `STATUS.json` and the accepted-evidence documents remain canonical.
 
-## R1 — generic exact-engine oracle — ACCEPTED; target-site debt remains
+## R1 — exact generic engine
 
-Legal-action oracle v3 run `31963863819`: **PASS** — 120 deterministic 2-to-6 handed hands, 592 live decision states and exactly one structurally documented pinned-PokerKit blind-epoch reopen divergence. DeepCash intentionally keeps cumulative-full-raise semantics rather than copying that upstream behavior.
+**Generic evidence: ACCEPTED. R1 overall: IN PROGRESS.**
 
-R1 remains IN PROGRESS only because target-site reopen, odd-chip, rake and optional forced-bet semantics are not yet frozen from evidence.
+Latest hard gate: legal-action oracle v3 run `31963863819` — PASS, 120 deterministic 2-to-6 handed hands, 592 live decision states and exactly one isolated pinned-PokerKit blind-epoch divergence. Target-site reopen, odd-chip, rake and optional forced-bet semantics remain unresolved release debt.
 
-## R3 — opening-size lattice seen selection — ACCEPTED; unseen-v2 RUNNING
+## R3 — action abstraction
 
-Seen engineering workflow run `31962334355` evaluated all 14 non-empty proper subsets of `{25,50,75,100}%` across the four precommitted seen cells and selected, before unseen-v2 consumption:
+### Opening-size complete lattice — ACCEPTED
 
-| complexity | frozen champion | worst upper/pot | mean upper/pot |
-|---:|---|---:|---:|
-| 1 | `L1_100` | 0.00881885 | 0.00269107 |
-| 2 | `L2_50_100` | 0.00342888 | 0.00153998 |
-| 3 | `L3_25_50_100` | 0.00316745 | 0.00132747 |
+Seen engineering run `31962334355` evaluated every one-, two- and three-size proper subset of `{25,50,75,100}%`. Frozen cardinality champions:
+
+- `L1_100`;
+- `L2_50_100`;
+- `L3_25_50_100`.
 
 Selector artifact `9268277521`, SHA-256 `f17838f1196564e4e30a9b622d85bd0157ce1d17b92af1cff349bb2f1427897a`.
 
-The original `25/50/100` three-size hypothesis survived the complete proper-subset search. This is not a complexity freeze because 2-size vs 3-size differences remain close to exact-BR resolution.
+### Opening-size unseen-v2 — ACCEPTED
 
-Unseen-v2 uses only those three frozen champions on six new boards, 8 combos/player, phases 0.31/0.79 and SPR 1/2/4. Latest inspection:
+The independently precommitted six-board / 8-combo / SPR 1-2-4 unseen generation completed fully. Summary artifact `9268566954`, SHA-256 `158eef1f2d9d9adfff1254af14d694464a0e8ff85a6716cd3ea27c75291de641`.
 
-- SPR 1: PASS numerical cell;
-- SPR 4: PASS numerical cell;
-- SPR 2: still running;
-- final summary: blocked until all three cells finish.
+Cross-SPR checkpoint-3600 mean/worst upper loss per pot:
 
-No unseen-v2 result may retroactively change the candidates forwarded by the selector.
+| candidate | mean | worst |
+|---|---:|---:|
+| L1_100 | 0.00589680 | 0.01368868 |
+| L2_50_100 | 0.00114458 | 0.00267837 |
+| **L3_25_50_100** | **0.00097338** | **0.00168981** |
 
-Full seen-selection evidence: `docs/R3_OPENING_LATTICE_SELECTION_ACCEPTED_20260816.md`.
+At SPR 2, L3's extra 25% branch has a resolved advantage over L2. L3 is therefore the leading strategic opening finalist; L2 remains the compute-efficient finalist. Full evidence: `docs/R3_OPENING_HELDOUT_V2_ACCEPTED_20260816.md`.
 
-## R3 — independent raise-size held-out — ACCEPTED AS ENGINEERING EVIDENCE
+### Raise-size unseen evidence — ACCEPTED
 
-Across SPR 1/2/4, the unseen raise-size battery established `Q2_50_100` as the leading engineering candidate. At deeper geometries, removing 50% produces material resolved loss; adding 150% on top of 50%+100% has not shown a resolved gain worth its extra cost.
+`Q2_50_100` is the leading engineering raise family. Omitting 50% causes material loss at deeper SPR; adding 150% has not shown a resolved incremental gain worth its cost. Full evidence: `docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md`.
 
-Fail-closed postprocessor run `31964700344`: PASS. Full evidence: `docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md`.
+### R3 remaining gate
 
-R3 still requires opening unseen-v2 completion, any necessary exact-BR tightening and physical Ryzen equal-compute evidence before action-family freeze.
+R3 remains IN PROGRESS until:
 
-## R4 — deterministic representation development — RUNNING / UNACCEPTED
+- difficult exact-BR intervals are tightened where they affect the L2/L3 decision;
+- the finalists receive physical Ryzen equal-wall-clock comparison;
+- river evidence is converted into a street/SPR-dependent action contract rather than blindly copied to flop/turn/preflop.
 
-Workflow run `31964142661` remains active. Frozen development candidates:
+Current finalists: river openings 25/50/100 vs compute-efficient 50/100; river raises 50/100.
+
+## R4 — representation abstraction
+
+**RUNNING / UNACCEPTED.**
+
+Development workflow run `31964142661` remains active. Frozen candidates:
 
 `category`, `strength4`, `equity4`, `equity8`, `category_equity4`, `equity4_blocker2`, `equity8_blocker2`.
 
-Battery: four seen control boards, phase pairs 0.00/0.27 and 0.11/0.54, 6 exact combos/player, SPR 1/2/4, checkpoints 100/400/1200. Latest inspection remains phase A SPR1 PASS, phase A SPR2 running.
+Battery: four seen control boards, two phase pairs, 6 exact combos/player, SPR 1/2/4 and checkpoints 100/400/1200. Latest inspection: phase-A SPR1 PASS; phase-A SPR2 still running.
 
-The deterministic selector was frozen before numerical inspection. R4 held-out-v1 remains firewalled and NOT RUN.
+The deterministic selector was frozen before results and may forward at most three finalists. Independent R4 heldout-v1 remains firewalled and NOT RUN.
 
-## R5 — exact solver controls
+## R5 — solver / traversal research
 
-### Synchronous full-tree controls — ACCEPTED
+### Exact synchronous baseline — ACCEPTED
 
-Run `31964902076`: PASS. Among the first synchronous controls, `CFR_PLUS_LINEAR` led at checkpoint 1200 with mean/worst exploitability per pot `0.000398 / 0.000455` at ~2.97 hosted seconds.
+`CFR_PLUS_LINEAR` led the first synchronous battery at checkpoint 1200 with mean/worst exploitability per pot about `0.000398 / 0.000455`.
 
-This remains a valid synchronous baseline but is no longer the strongest exact control.
+### Corrected alternating exact discounted controls — ACCEPTED
 
-### Corrected alternating CFR+ / DCFR v2 — ACCEPTED
+Corrected player-local alternating run `31966030278` established the historical OpenSpiel-style post-update discounted `ALT_DCFR_150_0_2` as the strongest tested exact control: checkpoint-1200 mean/worst about `0.00000587 / 0.00000767`.
 
-A literature/source audit invalidated v1 **before any result consumption** because v1 averaged both players only after both regret half-updates. v2 corrects this to player-local alternating semantics: P0 average/regret/update, profile refresh, then P1 average/regret/update.
+A semantics audit then separated that concrete algorithm from the old-regret-discount-then-add recurrence written in the 2026 Hyperparameter Schedules paper.
 
-Corrected CI run `31966030259`: PASS.
+### Paper-equation DCFR / HS schedules — ACCEPTED NEGATIVE EVIDENCE
 
-Corrected benchmark run `31966030278`: PASS. Artifact `9268529202`, SHA-256 `5c000f61a9d14722f927851942e6b44b8311f5d7f2d575c5fd1e5b761a97643b`.
+Run `31966914580`, artifact `9268760347`, SHA-256 `a05440224844d6515944b89428aeccae0fe64fb0c63958c737a316be03887976`.
 
-Checkpoint-1200 mean/worst exploitability per pot:
-
-| algorithm | mean | worst | mean hosted train s |
-|---|---:|---:|---:|
-| synchronous CFR+ linear | 0.00039815 | 0.00045542 | 2.845 |
-| alternating CFR+ linear | 0.00000946 | 0.00002445 | 5.762 |
-| alternating CFR+ quadratic | 0.00001077 | 0.00002870 | 5.774 |
-| **DCFR 1.5/0/2** | **0.00000587** | **0.00000767** | 5.784 |
-| DCFR 1.5/0.5/2 | 0.00001071 | 0.00002722 | 5.769 |
-
-`ALT_DCFR_150_0_2` is now the leading exact tabular development control. At checkpoint 400 it is already about 28.6x more converged than synchronous CFR+ at checkpoint 1200 while using less hosted wall-clock in this exact microgame.
-
-Full evidence: `docs/R5_ALTERNATING_DCFR_DEV_V2_ACCEPTED_20260816.md`.
-
-## R5 — sampled traversal decomposition
-
-### External sampling — ACCEPTED negative tiny-tree result
-
-Run `31965167770`: PASS. At 20k, `ES_CFR_PLUS_LINEAR` mean/worst exploitability per pot is ~`0.009886 / 0.012771`. It is far worse than exact traversal on the 6x6 chance support, so sampling is not automatically beneficial at small scale.
-
-Full evidence: `docs/R5_EXTERNAL_SAMPLING_DEV_ACCEPTED_20260816.md`.
+The paper-equation DCFR and HS-DCFR(30/15) controls remained around `~0.002–0.004` exploitability/pot and were dramatically weaker on this microgame than both alternating CFR+ and the historical post-update discounted control. The negative result is preserved; no tuning was performed to force the literature-preferred method to win.
 
 ### IID chance sampling — ACCEPTED
 
-Run `31965523599`: PASS. At 20k, `CS_CFR_PLUS_LINEAR` mean/worst is ~`0.005879 / 0.008443`, materially better than external sampling at modestly higher per-iteration cost. This isolates opponent-action sampling as an important additional variance source in this river control.
+At 20k, `CS_CFR_PLUS_LINEAR` mean/worst ~`0.005879 / 0.008443`, materially better than external sampling but still far behind exact traversal on the tiny chance support. An analytical test proves the one-step chance-sampled regret estimator is unbiased against the exact full-chance delta.
 
-An analytical unit oracle also proves the one-step chance-sampled regret estimator is unbiased relative to the exact full-chance regret update on the frozen fixture.
+### Correlated chance sampling — ACCEPTED STRONG RESULT
 
-Full evidence: `docs/R5_CHANCE_SAMPLING_DEV_ACCEPTED_20260816.md`.
+Run `31966357494`, artifact `9268623901`, SHA-256 `ee2bb35f28eae23fe7f9639bd6ddc9fb47949ea78dc90450a1535f7b5f4a84d4`.
 
-### Range-support crossover — RUNNING / UNACCEPTED
+Persistent randomized golden-ratio Weyl chance allocation beat paired IID chance sampling in **16/16 frozen board-seed cells at every 1k/5k/20k checkpoint**. At 20k, mean exploitability improved from ~`0.005879` to ~`0.003340` with no observed hosted-run cost penalty. CCS is the current leading chance-sampling primitive, not a production solver.
 
-Run `31965398733` is still running. It compares full-tree CFR+ against external-sampling CFR+ as exact private range support expands through 6/12/24/48 combos per player on two boards. Interpretation must use wall-clock/deal support rather than pretending iteration counts are equal work.
+### Alternating external LCFR — ACCEPTED MIXED RESULT
 
-### Correlated chance sampling — RUNNING / UNACCEPTED
+Run `31966542606`. LCFR was only marginally ahead of uniform alternating external CFR at 20k, while linear output averaging alone was clearly worse. No decisive promotion.
 
-Recent CCS-MCCFR work motivated a new paired control in which only the temporal allocation of chance outcomes changes: IID private-deal sampling versus a persistent randomized golden-ratio Weyl stream. The precommit explicitly assumes no gain until DeepCash evidence proves one.
+### Sampling crossover v1 — INVALIDATED FOR TIMING
 
-Correctness implementation/tests are in `deepcash_core/river_correlated_chance_sampling.py` and `tests/test_river_correlated_chance_sampling.py`.
+Run `31965398733` exposed a hot-loop implementation problem before acceptance: each sampled chance draw rebuilt the full compatible-deal support. That preserved the strategic sample sequence but invalidated scaling/wall-clock conclusions.
 
-Numerical run `31966357494` is running on the same four boards, four frozen seeds and 1k/5k/20k checkpoints.
+The sampler now precomputes the exact weighted deal CDF once per `advance` batch and uses binary search. A deterministic 10,000-draw regression proves identical sampled-deal sequence and final PRNG state against the legacy selector.
 
-## R5 — modern algorithm funnel
+### Sampling crossover v2 — RUNNING / UNACCEPTED
 
-`docs/R5_MODERN_ALGORITHM_CANDIDATE_REGISTRY_20260816.md` now prevents the project from stopping at vanilla CFR/CFR+/Deep CFR. The research funnel includes DCFR, predictive/discounted variants, hyperparameter schedules, pruning/treeplex/block-coordinate methods and later neural discounted/embedding candidates. Every candidate must pass tiny-game correctness, held-out evidence, scaling and target-Ryzen equal-compute before production candidacy.
+Run `31967392548` replays the exact v1 coordinates with only the optimized sampler hot path. Latest inspection: sampler-equivalence tests passed and the corrected scaling battery is running. Strategic outputs must match the old sequence before any new timing conclusion is accepted.
 
-The next advanced sampled-control question is whether discounted/variance-reduced sampling can inherit some of the enormous exact-DCFR convergence gain without paying full-tree cost.
+### Modern candidate funnel
+
+`docs/R5_MODERN_ALGORITHM_CANDIDATE_REGISTRY_20260816.md` includes discounted/predictive methods, CCS, variance-reduced MCCFR baselines, pruning, treeplex/block-coordinate methods and later neural discounted/embedding variants. No paper receives production status without DeepCash exact-oracle, held-out, scaling and physical-Ryzen evidence.
 
 ## Current project state
 
