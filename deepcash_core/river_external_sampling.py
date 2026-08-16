@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import bisect
 import math
 import random
 from dataclasses import dataclass
@@ -35,6 +36,60 @@ class ExternalSamplingVariant(str, Enum):
     @property
     def clips_regrets(self) -> bool:
         return self == self.ES_CFR_PLUS_LINEAR
+
+
+@dataclass(frozen=True)
+class WeightedDealSampler:
+    """Immutable exact compatible-deal CDF built once per game traversal batch.
+
+    The old sampler rebuilt `_valid_deals(spec)` and its weight list on every
+    sampled chance event. That preserved semantics but accidentally made the
+    sampling hot path O(|range0|*|range1|) before any CFR work. This object
+    performs the same weighted draw with one precomputation plus O(log N)
+    lookup, without changing the chance distribution or RNG draw count.
+    """
+
+    deals: tuple[tuple[int, int], ...]
+    cumulative_weights: tuple[float, ...]
+    total_weight: float
+
+    @classmethod
+    def from_spec(cls, spec: RiverGameSpec) -> "WeightedDealSampler":
+        raw = _valid_deals(spec)
+        if not raw:
+            raise ValueError("cannot sample from an empty compatible-deal support")
+        deals: list[tuple[int, int]] = []
+        cumulative: list[float] = []
+        running = 0.0
+        for i, j, weight in raw:
+            w = float(weight)
+            if not math.isfinite(w) or w <= 0.0:
+                raise ValueError("deal weights must be finite and positive")
+            running += w
+            if not math.isfinite(running):
+                raise ValueError("deal-weight total overflowed")
+            deals.append((i, j))
+            cumulative.append(running)
+        return cls(tuple(deals), tuple(cumulative), running)
+
+    def sample(self, rng: random.Random) -> tuple[int, int]:
+        target = rng.random() * self.total_weight
+        # Legacy `_weighted_choice_index` selected the first cumulative mass
+        # strictly greater than target. bisect_right has identical boundary
+        # semantics when target lands exactly on a cumulative boundary.
+        index = bisect.bisect_right(self.cumulative_weights, target)
+        if index >= len(self.deals):  # only possible through final FP drift
+            index = len(self.deals) - 1
+        return self.deals[index]
+
+    def quantile(self, u: float) -> tuple[int, int]:
+        if not math.isfinite(u) or not 0.0 <= u < 1.0:
+            raise ValueError("u must be finite in [0,1)")
+        target = u * self.total_weight
+        index = bisect.bisect_right(self.cumulative_weights, target)
+        if index >= len(self.deals):
+            index = len(self.deals) - 1
+        return self.deals[index]
 
 
 @dataclass
@@ -119,11 +174,14 @@ def _weighted_choice_index(rng: random.Random, weights: Sequence[float]) -> int:
     return len(weights) - 1
 
 
-def _sample_deal(spec: RiverGameSpec, rng: random.Random) -> tuple[int, int]:
-    deals = _valid_deals(spec)
-    idx = _weighted_choice_index(rng, [weight for _, _, weight in deals])
-    i, j, _ = deals[idx]
-    return i, j
+def _sample_deal(
+    spec: RiverGameSpec,
+    rng: random.Random,
+    sampler: WeightedDealSampler | None = None,
+) -> tuple[int, int]:
+    if sampler is None:
+        sampler = WeightedDealSampler.from_spec(spec)
+    return sampler.sample(rng)
 
 
 def _accumulate_exact_average(
@@ -269,6 +327,7 @@ def advance_external_sampling(
         return state
 
     infosets = _all_infosets(spec)
+    deal_sampler = WeightedDealSampler.from_spec(spec)
     rng = random.Random()
     rng.setstate(state.rng_state)
 
@@ -288,7 +347,7 @@ def advance_external_sampling(
         # opponent actions are independently sampled from one deterministic RNG
         # stream; all traverser actions are enumerated.
         for traverser in (0, 1):
-            i, j = _sample_deal(spec, rng)
+            i, j = _sample_deal(spec, rng, deal_sampler)
             _external_traverse(
                 spec,
                 i=i,
