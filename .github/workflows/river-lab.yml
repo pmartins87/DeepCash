@@ -9,6 +9,7 @@ on:
       - 'deepcash_core/river_training.py'
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
+      - 'tools/analyze_river_action_convergence.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - '.github/workflows/river-lab.yml'
@@ -18,6 +19,7 @@ on:
       - 'deepcash_core/river_training.py'
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
+      - 'tools/analyze_river_action_convergence.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - '.github/workflows/river-lab.yml'
@@ -46,9 +48,15 @@ jobs:
           --checkpoints 20,60,120
           --range-combos 4
           --out river_action_convergence_smoke.json
+      - name: Analyze convergence smoke
+        run: >-
+          python tools/analyze_river_action_convergence.py
+          river_action_convergence_smoke.json
+          --out river_action_convergence_analysis_smoke.json
       - uses: actions/upload-artifact@v4
         with:
           name: river-action-abstraction-smoke
           path: |
             river_action_abstraction_smoke.json
             river_action_convergence_smoke.json
+            river_action_convergence_analysis_smoke.json
