@@ -9,6 +9,7 @@ from deepcash_core.river_external_sampling import (
     init_external_sampling,
 )
 from deepcash_core.river_lab import (
+    P1_AFTER_CHECK,
     RangeCombo,
     RiverGameSpec,
     _actions,
@@ -76,7 +77,14 @@ def test_zero_baseline_staged_path_remains_identical_to_ordinary_external():
     assert zero_vr == ordinary
 
 
-def _fixed_node_value(spec, *, seed: int, mode: VRBaselineMode) -> float:
+def _uniform_trace(
+    spec,
+    *,
+    seed: int,
+    mode: VRBaselineMode,
+    node: str,
+    player: int,
+):
     infosets = _all_infosets(spec)
     zero_regrets = {
         key: [0.0] * len(_actions(spec, key[0], key[1])) for key in infosets
@@ -84,7 +92,7 @@ def _fixed_node_value(spec, *, seed: int, mode: VRBaselineMode) -> float:
     strategies = {key: _regret_strategy(zero_regrets[key]) for key in infosets}
     delta = {key: [0.0] * len(zero_regrets[key]) for key in infosets}
     counter = [0]
-    return _vr_external_traverse(
+    value = _vr_external_traverse(
         spec,
         i=0,
         j=0,
@@ -94,9 +102,21 @@ def _fixed_node_value(spec, *, seed: int, mode: VRBaselineMode) -> float:
         regret_delta=delta,
         counter=counter,
         baseline_mode=mode,
+        node=node,
+        player=player,
+    )
+    return value, delta, counter[0]
+
+
+def _fixed_node_value(spec, *, seed: int, mode: VRBaselineMode) -> float:
+    value, _, _ = _uniform_trace(
+        spec,
+        seed=seed,
+        mode=mode,
         node=p1_vs_bet_node(25),
         player=1,
     )
+    return value
 
 
 def test_perfect_history_baseline_eliminates_sampled_opponent_action_variance_at_fixed_history():
@@ -114,6 +134,31 @@ def test_perfect_history_baseline_eliminates_sampled_opponent_action_variance_at
     # The response node has FOLD/CALL actions with distinct values in this fixed
     # history, so ordinary sampling must retain action-sampling variance.
     assert len(zero_values) > 1
+
+
+def test_perfect_history_counterfactual_baselines_have_no_regret_side_effects():
+    spec = fixture_spec()
+    # Start at a non-traverser decision with multiple non-terminal actions. With
+    # the same seed, ZERO and PERFECT_HISTORY sample the same realized opponent
+    # action. The privileged baseline may change only the returned value used
+    # upstream; evaluating its unsampled counterfactual branches must not update
+    # any traverser regret or terminal counter.
+    _, zero_delta, zero_counter = _uniform_trace(
+        spec,
+        seed=17,
+        mode=VRBaselineMode.ZERO,
+        node=P1_AFTER_CHECK,
+        player=1,
+    )
+    _, perfect_delta, perfect_counter = _uniform_trace(
+        spec,
+        seed=17,
+        mode=VRBaselineMode.PERFECT_HISTORY,
+        node=P1_AFTER_CHECK,
+        player=1,
+    )
+    assert perfect_delta == zero_delta
+    assert perfect_counter == zero_counter
 
 
 def test_perfect_history_mode_is_explicitly_distinct_from_zero_baseline_training():
@@ -134,7 +179,5 @@ def test_perfect_history_mode_is_explicitly_distinct_from_zero_baseline_training
         baseline_mode=VRBaselineMode.PERFECT_HISTORY,
     )
     assert perfect.regrets != zero.regrets
-    # Perfect-history oracle enumerates hidden-history continuations and is only
-    # an implementation lower bound; it must never be silently confused with
-    # the production-eligible zero/no-leak paths.
-    assert perfect.terminal_visits > zero.terminal_visits
+    perfect.validate(spec)
+    zero.validate(spec)
