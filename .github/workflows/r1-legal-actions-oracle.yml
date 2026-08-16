@@ -1,0 +1,27 @@
+name: DeepCash R1 legal-action parity oracle
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/betting.py'
+      - 'deepcash_core/hand.py'
+      - 'deepcash_core/seating.py'
+      - 'tools/crosscheck_pokerkit_fullgame.py'
+      - 'tools/crosscheck_pokerkit_fullgame_subbb.py'
+      - 'tools/crosscheck_pokerkit_legal_actions.py'
+      - '.github/workflows/r1-legal-actions-oracle.yml'
+
+jobs:
+  legal-action-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned independent NLHE rules engine
+        run: python -m pip install 'git+https://github.com/uoftcprg/pokerkit.git@5841c0afe4d6eb71ae5db0f8a6a376ee3e329afb'
+      - name: Compare offered legal-action boundaries bidirectionally
+        run: PYTHONPATH=.:tools python tools/crosscheck_pokerkit_legal_actions.py
