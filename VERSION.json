@@ -1,0 +1,8 @@
+{
+  "project": "DeepCash",
+  "version": "0.1.0-foundation",
+  "date": "2026-08-16",
+  "schema_version": 1,
+  "engine_contract": "docs/ENGINE_CONTRACT_V1.md",
+  "ready_for_tables": false
+}
