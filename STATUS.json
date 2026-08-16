@@ -5,7 +5,7 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months after pretraining gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1 target-site/release debt + R3 action-abstraction engineering",
+  "current_gate": "R1 target-site/release debt + R3 held-out/raise-size/action-cost engineering",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -116,62 +116,109 @@
       "run_id": 31949683719,
       "head_sha": "2640371563cd40067eb5f370af30ee123aaddb21",
       "conclusion": "success",
-      "artifact_id": 9264288209,
-      "checks": [
-        "synchronous full-chance CFR+",
-        "exact pure-plan best response",
-        "four deterministic river board families",
-        "one-to-four candidate bet-size sets"
-      ]
+      "artifact_id": 9264288209
     },
     "r3_resumable_convergence": {
       "run_id": 31949968733,
       "head_sha": "b916b33ac7f51b82530cea7a6b505e8704a81b86",
       "conclusion": "success",
       "artifact_id": 9264366421,
-      "artifact_sha256": "47d83b15555c934bd9eee4ac739cebf2a0069664ec1dd287ce61279629c446fa",
+      "artifact_sha256": "47d83b15555c934bd9eee4ac739cebf2a0069664ec1dd287ce61279629c446fa"
+    },
+    "r3_low_spr_all_in_opening_semantics": {
+      "head_sha": "d05a02ee98eb970e03710be53b3e08287d881095",
+      "ci_run_id": 31960722077,
+      "conclusion": "success",
       "checks": [
-        "staged CFR+ resume exactly equals monolithic training",
-        "JSON checkpoint roundtrip preserves exact future training path",
-        "checkpoint refuses a different river game spec",
-        "training wall time separated from exact-BR evaluation time",
-        "Pareto and equal-compute analysis infrastructure"
+        "all-in opening remains a legal opening action",
+        "empty raise target set yields fold/call only",
+        "all-empty one-raise tree exactly matches one-bet control semantics"
       ]
     },
-    "r3_one_raise_multiboard_reference_battery_v2": {
-      "run_id": 31960177760,
-      "head_sha": "430e876e9844478ca95c5f233e60d17b544b2347",
+    "r3_opening_size_multispr_control": {
+      "run_id": 31960758207,
+      "head_sha": "6d96926df770ee3a46721d20c24f7e17432ddcbf",
       "conclusion": "success",
-      "artifact_id": 9267050257,
-      "artifact_sha256": "7e88e66c97cfb27c82ca8de9d6a4567fa252b6347425449bb37592b64c784d0e",
       "configuration": {
-        "spr": 4,
+        "sprs": [0.5, 1.0, 2.0, 4.0],
         "boards": 4,
         "range_combos_per_player": 4,
         "checkpoints": [250, 1000, 3000],
         "candidates": ["O1_50", "O2_25_75", "O3_25_50_100"]
       },
-      "latest_checkpoint_summary": {
-        "O1_50": {
-          "mean_loss_upper_per_pot": 0.02668787,
-          "worst_loss_upper_per_pot": 0.03380718
+      "artifacts": {
+        "spr_0_5": {
+          "id": 9267189103,
+          "sha256": "953e23ddd6a3e3ede41de1c746030a47929c7797bae9fcd524f4164cef62b206"
         },
-        "O2_25_75": {
-          "mean_loss_upper_per_pot": 0.01125024,
-          "worst_loss_upper_per_pot": 0.01384253
+        "spr_1": {
+          "id": 9267209423,
+          "sha256": "6b33a6117f83d75ea1b4480ee6c518dc3c1892982b51fe3c9e75a60e87d67863"
         },
-        "O3_25_50_100": {
-          "mean_loss_upper_per_pot": 0.00129484,
-          "worst_loss_upper_per_pot": 0.00316745
+        "spr_2": {
+          "id": 9267212233,
+          "sha256": "dbe4a829aef43729561f3ae10344b89ca626927d4e8f8f573884ec5236b5678c"
         },
-        "worst_exact_br_interval_width_per_pot": 0.001966
+        "spr_4": {
+          "id": 9267213394,
+          "sha256": "3f36e74bcdd0cc060cc33d83b83f8fe66d3b11b206d2cd29db2f8c89ef151fad"
+        }
       },
-      "interpretation": "O3 is a leading engineering candidate on this bounded SPR-4 control battery, not a production freeze"
+      "latest_checkpoint_summary": {
+        "spr_0_5": {
+          "O1_mean_worst": [0.00176802, 0.00422536],
+          "O2_mean_worst": [0.00083922, 0.00089981],
+          "O3_mean_worst": [0.00083922, 0.00089981],
+          "worst_interval": 0.00115406
+        },
+        "spr_1": {
+          "O1_mean_worst": [0.01899489, 0.02340501],
+          "O2_mean_worst": [0.00819711, 0.01040966],
+          "O3_mean_worst": [0.00151017, 0.00162960],
+          "worst_interval": 0.00186018
+        },
+        "spr_2": {
+          "O1_mean_worst": [0.02696512, 0.03398673],
+          "O2_mean_worst": [0.01118075, 0.01393534],
+          "O3_mean_worst": [0.00158742, 0.00372877],
+          "worst_interval": 0.00293995
+        },
+        "spr_4": {
+          "O1_mean_worst": [0.02668787, 0.03380718],
+          "O2_mean_worst": [0.01125024, 0.01384253],
+          "O3_mean_worst": [0.00129484, 0.00316745],
+          "worst_interval": 0.00196600
+        }
+      },
+      "interpretation": "O3 is the leading opening-size engineering candidate on the control SPR range; at SPR 0.5 O2 and O3 collapse to the same materialized action set; no production freeze"
     },
-    "latest_general_ci": {
-      "run_id": 31960383715,
-      "head_sha": "8bfe751cede717fa2af6c901856dab5013407c78",
+    "r3_raise_size_reference_smoke": {
+      "run_id": 31960872365,
+      "conclusion": "success",
+      "artifact_id": 9267206071,
+      "artifact_sha256": "36dc43cd28ca7063e8c9bd7dfcf3be58b30338a1db6f601018b0718412f89216",
+      "interpretation": "1200-iteration single-board candidate differences remain dominated by exact-BR interval uncertainty; selects nothing"
+    },
+    "latest_general_ci_before_current_r3_extensions": {
+      "run_id": 31960722077,
       "conclusion": "success"
+    }
+  },
+  "running_or_unaccepted_gates": {
+    "raise_size_multiboard_v2": {
+      "run_id": 31960969252,
+      "accept_only_if": "workflow completes successfully and intervals/results are inspected"
+    },
+    "opening_size_heldout_v1": {
+      "workflow": ".github/workflows/river-raise-opening-heldout-v1.yml",
+      "launch_commit": "df2145abdda4ad2e841a01b8bc58907b533adc16",
+      "precommit": {
+        "board_set": "six held-out families distinct from development controls",
+        "range_phases": [0.13, 0.61],
+        "range_combos_per_player": 6,
+        "sprs": [1.0, 4.0],
+        "checkpoints": [250, 1000, 3000]
+      }
     }
   },
   "r1_open_items": [
@@ -183,13 +230,12 @@
     "cross-language/native evaluator parity before performance-critical production use"
   ],
   "r3_open_items": [
-    "support all-in opening nodes with no legal raise response in one-raise reference games",
-    "one-raise common-reference battery across multiple SPRs including approximately 0.5, 1, 2 and 4",
-    "larger held-out board/range battery",
-    "independent raise-size restriction benchmark",
-    "tighter exact-BR intervals on difficult boards where needed",
+    "accept/reject running multi-board raise-size battery from workflow evidence",
+    "accept/reject precommitted held-out opening-size battery from workflow evidence",
+    "expand held-out evidence only if unresolved geometry-specific behavior remains",
+    "tighten exact-BR intervals on difficult boards where needed",
     "physical equal-wall-clock candidate comparison on the Ryzen 9",
-    "production action-family selection rule precommit and freeze"
+    "future-evidence selection procedure and production action-family freeze"
   ],
   "open_decisions": [
     "authoritative poker site and cash-game economy",
@@ -207,6 +253,8 @@
     "exact pot/call/stack and action geometry retained at game-state boundary",
     "opponent private cards never leak into decision representation",
     "no raise may create a side-pot tranche that no opponent can contest",
+    "all-in openings retain exact fold/call/no-raise semantics",
+    "development controls and held-out fixtures remain explicitly separated",
     "no long production training before rule/representation/action/solver gates pass"
   ]
 }
