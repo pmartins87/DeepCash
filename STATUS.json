@@ -5,7 +5,8 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months only after R1-R8 production gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1 target-site debt + R3 physical action-finalist calibration + R4 representation development + R5 solver/traversal research",
+  "status_semantics": "docs/STATUS_SEMANTICS.md",
+  "current_gate": "R1 target-site debt + R3 physical action-finalist calibration + corrected R4 representation development + R5 solver/traversal/variance research",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -73,6 +74,14 @@
       "status_doc": "docs/R3_OPENING_HELDOUT_V2_ACCEPTED_20260816.md",
       "interpretation": "25%+50%+100% generalized best overall and had a resolved SPR2 advantage over 50%+100%; final production choice still requires exact-BR tightening where needed and physical Ryzen equal-compute"
     },
+    "R4_representation_dev_v1_infrastructure": {
+      "run": 31964142661,
+      "artifact": 9270794930,
+      "artifact_sha256": "2fcf9bac459126f6d2638421c5b06da5441ae14682ef0d999e80dba15473eb70",
+      "status_doc": "docs/R4_DEV_RESULTS_20260816.md",
+      "methodology_correction": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
+      "interpretation": "bucket construction, training paths, compression, timing and invariance evidence accepted; old unrestricted-BR selection intervals superseded before finalist or held-out use"
+    },
     "R5_sync_tabular_control": {
       "run": 31964902076,
       "artifact": 9268225276,
@@ -130,20 +139,46 @@
       "artifact_sha256": "a05440224844d6515944b89428aeccae0fe64fb0c63958c737a316be03887976",
       "status_doc": "docs/R5_HS_DCFR_DEV_ACCEPTED_20260816.md",
       "interpretation": "accepted negative evidence: Equation-2/3 old-discount-then-add DCFR and HS schedules were dramatically weaker than alternating CFR+ and the historical post-update discounted control on this microgame"
-    }
-  },
-  "running_or_unaccepted_gates": {
-    "R4_representation_development": {
-      "run": 31964142661,
-      "status_last_checked": "in_progress",
-      "heldout_v1": "PRECOMMITTED_NOT_RUN",
-      "rule": "development selector must freeze finalists before heldout-v1 consumption"
     },
     "R5_sampling_crossover_v2": {
       "run": 31967392548,
+      "artifact": 9269091911,
+      "artifact_sha256": "a81c3675b9cd9768a30d8ff01b34cb281fc21800765c8fabef61a2d07cb6c577",
+      "interpretation": "precomputed exact weighted-deal CDF preserves the legacy sample sequence; first hosted-CI crossover observed at 48 combos/player where ES 80k beat full-tree CFR+ 100 in both exploitability and wall-clock; not a universal threshold or Ryzen timing"
+    },
+    "R5_no_leak_infoset_oracle": {
+      "run": 31975167850,
+      "interpretation": "exact conditional baseline API uses traverser private combo plus public history/current policy and has no realized-opponent-hand input"
+    },
+    "R5_infoset_vr_integration": {
+      "run": 31975535179,
+      "interpretation": "ZERO identity, deterministic INFOSET_EXACT checkpointing and no-private-leak boundary passed"
+    },
+    "R5_vr_mode_benchmark_v2": {
+      "run": 31975899761,
+      "artifact": 9271052796,
+      "artifact_sha256": "371737a22e72e2b4e31ea3f4b09ac24ab32b58827346b3bd555137b95e99f980",
+      "status_doc": "docs/R5_VR_MODE_BENCHMARK_V2_ACCEPTED_20260816.md",
+      "zero_mean_exploitability_per_pot": 0.0342709564,
+      "infoset_exact_mean_exploitability_per_pot": 0.0331181698,
+      "perfect_history_mean_exploitability_per_pot": 0.0296994983,
+      "infoset_exact_time_multiplier_vs_zero": 4.7087,
+      "interpretation": "legal exact hidden-support baseline recovers only a modest fixed-iteration gain at high CPU cost; meaningful reducible opponent-action variance remains, motivating a cheap legal tabular/bootstrapped baseline"
+    }
+  },
+  "running_or_unaccepted_gates": {
+    "R4_representation_dev_v2_bucket_br": {
+      "run": 31976302604,
       "status_last_checked": "in_progress",
-      "precommit": "docs/R5_SAMPLING_CROSSOVER_V2_PRECOMMIT_20260816.md",
-      "note": "v1 timing invalidated because sampled hot path rebuilt the full compatible-deal support every draw; v2 precomputes an exact weighted deal CDF once per batch"
+      "correction_doc": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
+      "heldout_v1": "PRECOMMITTED_NOT_RUN",
+      "rule": "corrected bucket-constrained BR development evidence must be inspected and at most three finalists frozen before heldout-v1 consumption"
+    },
+    "R5_tabular_vr_oracle": {
+      "run": 31976450221,
+      "status_last_checked": "in_progress",
+      "candidate": "legal no-private-leak running-mean baseline keyed only by traverser private combo + public node + action",
+      "accept_only_if": "same-seed determinism, staged equivalence, checkpoint roundtrip and pre-sample baseline update ordering all pass"
     }
   },
   "invalidated_evidence": {
@@ -151,6 +186,17 @@
       "run": 31965398733,
       "status_doc": "docs/R5_SAMPLING_CROSSOVER_V1_INVALIDATED_20260816.md",
       "reason": "external sampler rebuilt O(range0*range1) compatible-deal support inside every sampled chance event; strategic sequence preserved but scaling/wall-clock conclusion rejected"
+    },
+    "R5_vr_mode_benchmark_v1": {
+      "run": 31975686749,
+      "artifact": 9270998384,
+      "status_doc": "docs/R5_VR_MODE_BENCHMARK_V1_INVALIDATED_20260816.md",
+      "reason": "PERFECT_HISTORY evaluated unsampled opponent branches through the stateful training traversal and contaminated regret deltas; v2 replayed identical frozen coordinates after pure counterfactual evaluation fix"
+    },
+    "R4_v1_unrestricted_br_selection_metrics": {
+      "source_runs": [31964142661, 31975623597],
+      "status_doc": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
+      "reason": "unrestricted exact BRs gave bucket-restricted players information unavailable in their abstract game, mixing representation loss into the reported convergence interval; infrastructure/training evidence remains valid"
     },
     "R5_alternating_dcfr_v1": {
       "reason": "invalidated before numerical-result consumption because average-strategy timing was not player-local alternating semantics"
@@ -161,13 +207,13 @@
     "river_raise_sizes": "50% / 100%",
     "exact_tabular_solver_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
     "chance_sampling_primitive": "correlated chance sampling via persistent randomized Weyl stream",
-    "sampled_regret_update": "no production leader yet; variance reduction and scaling remain open",
-    "private_state_representation": "not selected"
+    "sampled_regret_update": "no production leader yet; optimized external sampling scales usefully, legal variance reduction remains active research",
+    "private_state_representation": "not selected; corrected bucket-constrained BR replay active"
   },
   "next_critical_work": [
-    "finish corrected sampling-crossover v2 and identify real traversal-scaling behavior",
-    "finish R4 deterministic development battery and freeze at most three finalists before heldout-v1",
-    "implement/gate VR-MCCFR baseline estimators after sampler scaling is clean",
+    "finish corrected R4 bucket-constrained-BR development replay and freeze at most three finalists before heldout-v1",
+    "finish/gate cheap legal tabular VR baseline and compare it against ZERO plus INFOSET_EXACT target",
+    "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",
     "tighten R3 exact-BR intervals only where final action-family decisions remain resolution-limited",
     "run R3/R4/R5 equal-wall-clock comparisons on the physical Ryzen 9 before any production freeze",
     "freeze target-site cash-game rules/economy before R1 PASS"
