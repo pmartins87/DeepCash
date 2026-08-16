@@ -20,20 +20,22 @@ Implement and independently validate:
 
 - [x] 52-card codec/evaluator;
 - [x] 2–6 handed seating/button/blinds for stacks covering a full BB;
-- [~] arbitrary effective stacks — variable stacks work; incomplete forced-blind edge cases remain deliberately gated;
+- [~] arbitrary effective stacks — variable stacks work; incomplete forced-blind/sub-BB edge cases remain deliberately gated;
 - [x] NLHE betting with minimum full raise and configurable short-all-in reopen semantics;
-- [x] fold/check/call/bet/raise/all-in legality, including dry-side-pot raise prevention;
+- [x] fold/check/call/bet/raise/all-in legality, including dry-side-pot prevention when no opponent can contest a higher price;
 - [x] multiway pots and side pots;
 - [x] uncalled-bet return;
-- [~] showdown/ties/odd chips — deterministic settlement exists; target-site odd-chip order remains unconfirmed;
+- [~] showdown/ties/odd chips — deterministic settlement exists and odd-chip allocation now fails closed unless an explicit order covers all tied winners; target-site order remains unconfirmed;
 - [~] rake interface with exact units/rounding separated from rules — exact model exists; target economy remains unconfirmed;
 - [x] deterministic full-hand replay and fingerprints;
 - [x] exhaustive five-card distribution audit;
 - [x] independent evaluator parity against pinned PokerKit;
-- [~] independent full-game lifecycle/rules oracle parity — fixed traces plus 100 deterministic randomized three-handed full-game traces have exact final-stack parity against pinned PokerKit; broader 2–6 handed/adversarial coverage remains;
-- [~] adversarial/property fuzzing — deterministic randomized legal-hand, multiway all-in and side-pot coverage exists; deeper corner-case battery remains.
+- [x] independent full-game generic-rules parity control across 2–6 handed — fixed traces plus 25 deterministic randomized hands per player count, 125 randomized traces total, exact final-stack parity against pinned PokerKit after correcting an oracle-discovered legality bug;
+- [~] adversarial/property fuzzing — cumulative short-raise boundaries, nested side pots, explicit odd-chip ordering and effectively-all-in dry-side-pot regression are covered; broader rare-state coverage remains.
 
-Current evidence: `docs/R1_VALIDATION_STATUS.md`.
+Important chronology: the generalized PokerKit gate initially **failed** and exposed two separate issues — first a HU mapping error in the harness, then a real DeepCash legality error where a raise was offered although the only live opponent could not contribute above the current price. The engine was corrected and the full 2–6 handed oracle then passed. Failed oracle runs are retained as audit evidence rather than erased from project history.
+
+Current evidence: `docs/R1_VALIDATION_STATUS.md` and `STATUS.json`.
 
 Exit gate: exhaustive/sampled parity against independent oracles plus property/fuzz tests, with target-site-dependent rules explicitly frozen or parameterized from evidence.
 
@@ -65,26 +67,44 @@ Benchmark progressively richer action sets per street and geometry:
 
 - [x] exact HU river one-bet microgame with exact combo card removal;
 - [x] synchronous full-chance CFR+ control;
-- [x] exact pure-plan best response on the tractable river tree;
+- [x] exact best-response controls and exact-BR value intervals;
 - [x] exact exploitability/pot, infoset count and action-slot metrics;
-- [x] candidate 1–4 bet-size smoke battery over multiple river board families;
-- [x] CI smoke + archived benchmark artifact;
+- [x] candidate 1–4 bet-size own-tree smoke battery over multiple river board families;
 - [x] cumulative/resumable CFR+ checkpoints with exact staged-vs-monolithic equivalence;
 - [x] JSON checkpoint roundtrip with exact future-path equivalence;
-- [x] convergence analyzer with mean/worst exploitability, Pareto frontier and equal-compute snapshots;
+- [x] common-reference restriction methodology `R vs R`, `C vs R`, `R vs C` so action-abstraction loss is not confused with own-tree convergence;
+- [x] resumable asymmetric/common-reference CFR+;
+- [x] exact one-raise river tree;
+- [x] dynamic exact one-raise best response gated against independent enumeration on tractable fixtures;
+- [x] package-safe shared benchmark fixtures and convergence analyzer;
+- [x] multi-SPR one-bet benchmark infrastructure;
+- [x] one-raise common-reference opening-size restriction smoke;
+- [x] four-board one-raise common-reference battery at SPR 4 with checkpoints 250/1000/3000 and archived artifact;
+- [~] opening-size candidate evidence — `O3_25_50_100` is the leading engineering candidate on the current bounded SPR-4 control battery, but is **not** frozen for production;
 - [~] equal-wall-clock comparison — infrastructure works in CI, but decisive timing must be measured on the physical Ryzen 9;
-- [ ] multiple pot/stack/SPR geometries and larger held-out board/range battery;
-- [ ] one-raise river tree with exact-BR validation;
-- [ ] later: richer raise depths only if the measured gain justifies cost;
-- [ ] final Pareto/action-family precommit and freeze.
+- [ ] allow all-in opening nodes in the one-raise reference game to correctly have no legal raise response, enabling low-SPR one-raise tests without misrepresenting the tree;
+- [ ] one-raise common-reference battery across multiple SPRs, approximately 0.5, 1, 2 and 4;
+- [ ] larger held-out board/range battery;
+- [ ] benchmark raise-size restriction independently from opening-size restriction;
+- [ ] tighten difficult-board exact-BR intervals where necessary;
+- [ ] later: richer raise depths only if measured gain justifies cost;
+- [ ] final strategic-error/compute selection-rule precommit and action-family freeze.
+
+Current one-raise SPR-4 battery (`31960177760`) at 3000 iterations reported conservative mean/worst opening-restriction upper bounds per pot:
+
+| Candidate | Mean upper | Worst upper | Worst exact-BR interval width |
+|---|---:|---:|---:|
+| O1 50% | 0.026688 | 0.033807 | 0.001966 |
+| O2 25/75% | 0.011250 | 0.013843 | 0.001966 |
+| O3 25/50/100% | 0.001295 | 0.003167 | 0.001966 |
+
+This is strategically informative but still insufficient for a freeze: it covers only SPR 4, deliberately tiny exact ranges, four control boards and opening-size restriction with richer raise geometry held fixed. Hosted-CI timing is also not Ryzen timing.
 
 Candidate sizes are expressed primarily as pot fractions and geometrically clipped by stack/min-bet rules in the laboratory. Preflop will likely require blind-denominated raise-to abstractions.
 
-Neither the first 120-iteration smoke nor the hosted-CI Pareto frontier is a sizing-selection result. Richer trees are harder to optimize, hosted timing is not Ryzen timing, and the current ranges/tree are deliberately tiny controls.
+Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md`, `docs/R3_VALIDATION_STATUS.md` and `STATUS.json`.
 
-Current evidence: `docs/RIVER_ACTION_ABSTRACTION_LAB_V1.md` and `docs/R3_VALIDATION_STATUS.md`.
-
-Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence on the target hardware.
+Exit gate: choose the smallest family on the Pareto frontier of strategic error vs CPU/memory/wall-clock cost across a multi-board/multi-SPR benchmark battery, with convergence and equal-compute evidence on the target hardware and a precommitted selection rule.
 
 ## R4 — Private/public state abstraction laboratory
 Status: **PENDING**
@@ -279,9 +299,9 @@ Only this gate may set:
 
 ```text
 R0 PASS
--> R1 exact cash engine release debt (parallel)
+-> R1 exact cash engine target-site/release debt (parallel)
 -> R2 PASS
--> R3 action-abstraction convergence/equal-compute + raise-depth gates
+-> R3 one-raise low-SPR + multi-SPR + raise-size abstraction + Ryzen equal-compute gates
 -> R4 state abstraction benchmarks
 -> R5 solver selection
 -> R6 street resolving
