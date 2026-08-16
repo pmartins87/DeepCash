@@ -221,8 +221,18 @@ class BettingRoundState:
         call_amount = min(to_call, p.stack)
         max_to = p.committed + p.stack
         raise_right_open = self._raise_reopened(actor)
+        # A nominally non-all-in opponent is not enough to justify a raise. If
+        # that opponent's entire remaining stack cannot exceed the current bet,
+        # they can only fold or call all-in to the existing price; they cannot
+        # contest any additional side-pot tranche. Raising would merely create
+        # an immediately uncalled excess. PokerKit independently exposed this
+        # corner case in a 4-handed randomized trace.
         opponent_can_respond = any(
-            seat != actor and not q.folded and not q.all_in and q.stack > 0
+            seat != actor
+            and not q.folded
+            and not q.all_in
+            and q.stack > 0
+            and q.committed + q.stack > self.current_bet
             for seat, q in self.players.items()
         )
         can_raise = raise_right_open and opponent_can_respond and max_to > self.current_bet
