@@ -1,0 +1,47 @@
+name: DeepCash river reference DP v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_benchmark_fixtures.py'
+      - 'deepcash_core/river_reference_dp.py'
+      - 'deepcash_core/river_reference_lab.py'
+      - 'deepcash_core/river_reference_training.py'
+      - 'tools/benchmark_river_reference_convergence_dp_v2.py'
+      - 'tools/analyze_river_reference_convergence.py'
+      - 'tests/test_river_reference_dp.py'
+      - '.github/workflows/river-reference-dp-v2.yml'
+
+jobs:
+  dynamic-reference-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Gate dynamic exact BR
+        run: |
+          python -m pip install -e '.[dev]'
+          pytest -q tests/test_river_reference_dp.py
+      - name: DP-accelerated cumulative reference convergence
+        run: >-
+          python tools/benchmark_river_reference_convergence_dp_v2.py
+          --checkpoints 250,1000,3000
+          --range-combos 4
+          --boards A_high_dry,paired
+          --candidates S1_50,S2_33_100,S3_25_75_150
+          --out river_reference_dp_v2.json
+      - name: Analyze convergence
+        run: >-
+          python tools/analyze_river_reference_convergence.py
+          river_reference_dp_v2.json
+          --out river_reference_dp_v2_analysis.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: river-reference-dp-v2
+          path: |
+            river_reference_dp_v2.json
+            river_reference_dp_v2_analysis.json
