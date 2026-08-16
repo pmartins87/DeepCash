@@ -74,7 +74,10 @@ def award_side_pots(
     odd_chip_order: Sequence[int],
 ) -> dict[int, int]:
     payouts: dict[int, int] = {}
-    order_index = {seat: i for i, seat in enumerate(odd_chip_order)}
+    order = tuple(int(seat) for seat in odd_chip_order)
+    if len(set(order)) != len(order):
+        raise ValueError("odd_chip_order cannot contain duplicate seats")
+    order_index = {seat: i for i, seat in enumerate(order)}
 
     for pot in pots:
         missing = [seat for seat in pot.eligible if seat not in hand_values]
@@ -82,7 +85,13 @@ def award_side_pots(
             raise ValueError(f"missing hand value for eligible seats: {missing}")
         best = max(hand_values[seat] for seat in pot.eligible)
         winners = [seat for seat in pot.eligible if hand_values[seat] == best]
-        winners.sort(key=lambda s: order_index.get(s, len(order_index) + s))
+        missing_order = [seat for seat in winners if seat not in order_index]
+        if missing_order:
+            raise ValueError(
+                "odd_chip_order must explicitly cover every tied winner; "
+                f"missing={missing_order}"
+            )
+        winners.sort(key=order_index.__getitem__)
         share, remainder = divmod(pot.amount, len(winners))
         for seat in winners:
             payouts[seat] = payouts.get(seat, 0) + share
