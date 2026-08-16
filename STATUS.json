@@ -5,7 +5,7 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months after pretraining gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1 release debt + R3 engineering",
+  "current_gate": "R1 target-site/release debt + R3 action-abstraction engineering",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -58,13 +58,44 @@
         "preflop multiway all-in side pot"
       ]
     },
-    "r1_pokerkit_random_fullgame": {
+    "r1_pokerkit_random_three_handed": {
       "run_id": 31949099966,
       "head_sha": "0040556de2a426c71c24e7afdfd577ecdf62d4f5",
       "conclusion": "success",
       "checks": [
         "100 deterministic randomized three-handed full-game traces",
         "exact final-stack parity against pinned PokerKit"
+      ]
+    },
+    "r1_pokerkit_random_2_to_6_handed": {
+      "run_id": 31960365274,
+      "head_sha": "4b6738208e4daa0408c4b3a6af2ff1eb1a422939",
+      "conclusion": "success",
+      "checks": [
+        "25 deterministic randomized hands per player count from 2 through 6",
+        "125 randomized full-game traces total plus fixed traces",
+        "every DeepCash legal action mirrored into pinned PokerKit",
+        "exact final-stack parity for every completed hand",
+        "accepted only after correcting effectively-all-in dry-side-pot raise legality"
+      ]
+    },
+    "r1_effectively_all_in_dry_side_pot_regression": {
+      "run_id": 31960383715,
+      "head_sha": "8bfe751cede717fa2af6c901856dab5013407c78",
+      "conclusion": "success",
+      "checks": [
+        "raise blocked when no opponent can contribute above current price",
+        "explicit regression for PokerKit-discovered four-handed corner case"
+      ]
+    },
+    "r1_adversarial_gate": {
+      "run_id": 31959996084,
+      "conclusion": "success",
+      "checks": [
+        "cumulative short raises below and at reopen threshold",
+        "ANY_INCREASE versus NEVER reopen semantics remain distinct",
+        "nested four-way side pots",
+        "explicit fail-closed odd-chip ordering"
       ]
     },
     "r2_canonical_state": {
@@ -103,33 +134,62 @@
         "staged CFR+ resume exactly equals monolithic training",
         "JSON checkpoint roundtrip preserves exact future training path",
         "checkpoint refuses a different river game spec",
-        "cumulative 20/60/120 iteration convergence battery",
         "training wall time separated from exact-BR evaluation time",
         "Pareto and equal-compute analysis infrastructure"
-      ],
-      "ci_smoke_frontier_warning": "CI smoke currently favors S1 at its observed tiny budgets; this is not a production sizing-selection result and must not be extrapolated to Ryzen or converged play"
+      ]
     },
-    "latest_general_ci_before_status_update": {
-      "run_id": 31949683720,
-      "head_sha": "2640371563cd40067eb5f370af30ee123aaddb21",
+    "r3_one_raise_multiboard_reference_battery_v2": {
+      "run_id": 31960177760,
+      "head_sha": "430e876e9844478ca95c5f233e60d17b544b2347",
+      "conclusion": "success",
+      "artifact_id": 9267050257,
+      "artifact_sha256": "7e88e66c97cfb27c82ca8de9d6a4567fa252b6347425449bb37592b64c784d0e",
+      "configuration": {
+        "spr": 4,
+        "boards": 4,
+        "range_combos_per_player": 4,
+        "checkpoints": [250, 1000, 3000],
+        "candidates": ["O1_50", "O2_25_75", "O3_25_50_100"]
+      },
+      "latest_checkpoint_summary": {
+        "O1_50": {
+          "mean_loss_upper_per_pot": 0.02668787,
+          "worst_loss_upper_per_pot": 0.03380718
+        },
+        "O2_25_75": {
+          "mean_loss_upper_per_pot": 0.01125024,
+          "worst_loss_upper_per_pot": 0.01384253
+        },
+        "O3_25_50_100": {
+          "mean_loss_upper_per_pot": 0.00129484,
+          "worst_loss_upper_per_pot": 0.00316745
+        },
+        "worst_exact_br_interval_width_per_pot": 0.001966
+      },
+      "interpretation": "O3 is a leading engineering candidate on this bounded SPR-4 control battery, not a production freeze"
+    },
+    "latest_general_ci": {
+      "run_id": 31960383715,
+      "head_sha": "8bfe751cede717fa2af6c901856dab5013407c78",
       "conclusion": "success"
     }
   },
   "r1_open_items": [
-    "broaden independent full-game oracle coverage beyond current deterministic three-handed battery",
-    "deeper property/fuzz coverage for complex side pots, cumulative short all-ins and rare terminal lines",
     "target-site short-all-in/reopen confirmation",
     "target-site odd-chip ordering confirmation",
-    "target-site rake eligibility/cap/rounding evidence",
-    "incomplete blind/straddle/ante policy if required by target economy",
+    "target-site rake eligibility/cap/rounding/timing evidence",
+    "forced-blind/straddle/ante and sub-BB stack edge cases if required by target economy",
+    "additional adversarial/property coverage beyond current deterministic samples",
     "cross-language/native evaluator parity before performance-critical production use"
   ],
   "r3_open_items": [
-    "physical equal-wall-clock candidate comparison on the Ryzen 9",
-    "one-raise river tree with exact best-response gate",
-    "multiple pot/stack/SPR geometries",
+    "support all-in opening nodes with no legal raise response in one-raise reference games",
+    "one-raise common-reference battery across multiple SPRs including approximately 0.5, 1, 2 and 4",
     "larger held-out board/range battery",
-    "production action-family precommit and freeze"
+    "independent raise-size restriction benchmark",
+    "tighter exact-BR intervals on difficult boards where needed",
+    "physical equal-wall-clock candidate comparison on the Ryzen 9",
+    "production action-family selection rule precommit and freeze"
   ],
   "open_decisions": [
     "authoritative poker site and cash-game economy",
@@ -146,6 +206,7 @@
     "relative chair/button rotation invariance",
     "exact pot/call/stack and action geometry retained at game-state boundary",
     "opponent private cards never leak into decision representation",
+    "no raise may create a side-pot tranche that no opponent can contest",
     "no long production training before rule/representation/action/solver gates pass"
   ]
 }
