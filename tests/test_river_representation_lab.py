@@ -1,3 +1,4 @@
+import itertools
 import json
 
 import pytest
@@ -55,6 +56,22 @@ def fixture_spec(*, reverse_holes: bool = False) -> RiverGameSpec:
     return RiverGameSpec(board, p0, p1, pot=100, bet_sizes=(40, 100))
 
 
+def permute_suits(spec: RiverGameSpec, permutation: tuple[int, int, int, int]) -> RiverGameSpec:
+    def pc(card: int) -> int:
+        return permutation[card // 13] * 13 + (card % 13)
+
+    def pr(rng: tuple[RangeCombo, ...]) -> tuple[RangeCombo, ...]:
+        return tuple(RangeCombo((pc(item.hole[0]), pc(item.hole[1])), item.weight) for item in rng)
+
+    return RiverGameSpec(
+        tuple(pc(card) for card in spec.board),
+        pr(spec.p0_range),
+        pr(spec.p1_range),
+        spec.pot,
+        spec.bet_sizes,
+    )
+
+
 def test_exact_infoset_map_reproduces_original_solver_bitwise():
     spec = fixture_spec()
     baseline = solve_river_cfr_plus(spec, iterations=120)
@@ -85,6 +102,14 @@ def test_feature_bucket_maps_ignore_hole_card_order(name: str):
     normal = fixture_spec(reverse_holes=False)
     reversed_spec = fixture_spec(reverse_holes=True)
     assert candidate_bucket_maps(normal, name) == candidate_bucket_maps(reversed_spec, name)
+
+
+@pytest.mark.parametrize("name", RIVER_REPRESENTATION_CANDIDATES)
+def test_feature_bucket_maps_ignore_all_24_global_suit_permutations(name: str):
+    base = fixture_spec()
+    expected = candidate_bucket_maps(base, name)
+    for permutation in itertools.permutations(range(4)):
+        assert candidate_bucket_maps(permute_suits(base, permutation), name) == expected
 
 
 def test_one_sided_restriction_keeps_other_player_exact():
