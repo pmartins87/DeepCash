@@ -11,7 +11,9 @@ on:
       - 'deepcash_core/reference_convergence_analysis.py'
       - 'tools/benchmark_river_raise_reference_convergence.py'
       - 'tools/benchmark_river_opening_subset_lattice.py'
+      - 'tools/select_opening_lattice_champions.py'
       - 'tools/analyze_river_reference_convergence.py'
+      - 'docs/R3_HELDOUT_V2_PRECOMMIT_20260816.md'
       - '.github/workflows/river-opening-subset-lattice-v1.yml'
 
 jobs:
@@ -76,3 +78,27 @@ jobs:
           path: |
             river_opening_subset_lattice_${{ matrix.evidence_set }}_${{ matrix.stack }}.json
             river_opening_subset_lattice_${{ matrix.evidence_set }}_${{ matrix.stack }}_analysis.json
+
+  select-cardinality-champions:
+    needs: opening-subset-lattice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download only seen engineering lattice artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: river-opening-subset-lattice-*
+          path: lattice_artifacts
+          merge-multiple: true
+      - name: Apply precommitted champion-selection rule
+        run: >-
+          python tools/select_opening_lattice_champions.py
+          lattice_artifacts
+          --out opening_subset_champions.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: opening-subset-cardinality-champions
+          path: opening_subset_champions.json
