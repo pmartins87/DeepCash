@@ -1,0 +1,22 @@
+name: DeepCash R1 short-blind oracle probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/probe_pokerkit_short_blinds.py'
+      - '.github/workflows/r1-short-blind-oracle-probe.yml'
+
+jobs:
+  pokerkit-short-blinds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned independent NLHE rules engine
+        run: python -m pip install 'git+https://github.com/uoftcprg/pokerkit.git@5841c0afe4d6eb71ae5db0f8a6a376ee3e329afb'
+      - name: Probe short-stack blind and bring-in semantics
+        run: PYTHONPATH=. python tools/probe_pokerkit_short_blinds.py
