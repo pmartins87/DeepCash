@@ -12,6 +12,7 @@ on:
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
       - 'tools/analyze_river_action_convergence.py'
+      - 'tools/benchmark_river_reference_restriction.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - 'tests/test_river_raise_lab.py'
@@ -26,6 +27,7 @@ on:
       - 'tools/benchmark_river_action_abstraction.py'
       - 'tools/benchmark_river_action_convergence.py'
       - 'tools/analyze_river_action_convergence.py'
+      - 'tools/benchmark_river_reference_restriction.py'
       - 'tests/test_river_lab.py'
       - 'tests/test_river_training.py'
       - 'tests/test_river_raise_lab.py'
@@ -65,6 +67,14 @@ jobs:
           python tools/analyze_river_action_convergence.py
           river_action_convergence_smoke.json
           --out river_action_convergence_analysis_smoke.json
+      - name: Common-reference restriction smoke
+        run: >-
+          python tools/benchmark_river_reference_restriction.py
+          --iterations 80
+          --range-combos 3
+          --boards A_high_dry
+          --candidates S1_50
+          --out river_reference_restriction_smoke.json
       - uses: actions/upload-artifact@v4
         with:
           name: river-action-abstraction-smoke
@@ -72,3 +82,4 @@ jobs:
             river_action_abstraction_smoke.json
             river_action_convergence_smoke.json
             river_action_convergence_analysis_smoke.json
+            river_reference_restriction_smoke.json
