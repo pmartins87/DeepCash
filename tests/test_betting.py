@@ -104,6 +104,41 @@ def test_dry_side_pot_cannot_be_raised_into_allin_opponents():
     assert st.complete
 
 
+def test_raise_is_blocked_when_only_live_opponent_cannot_exceed_current_price():
+    # Regression from the independent PokerKit 4-handed randomized oracle.
+    # Seat 0 is all-in to 1200, seat 1 folded. Seat 2 still has raise rights and
+    # chips, but seat 3 can contribute only 950 total. Because current price is
+    # already 1200, no opponent can contest any tranche above 1200; seat 2 may
+    # only call/fold rather than create an immediately uncalled side-pot excess.
+    st = BettingRoundState.create(
+        order=(2, 3, 0, 1),
+        stacks={2: 1200, 3: 650, 0: 0, 1: 1300},
+        committed={2: 200, 3: 300, 0: 1200, 1: 100},
+        min_bet=100,
+    )
+    # create() cannot encode a historical fold, so reproduce the exact legal
+    # geometry directly after folding seat 1 from a live state.
+    players = dict(st.players)
+    from dataclasses import replace
+    players[1] = replace(players[1], folded=True)
+    st = BettingRoundState(
+        order=st.order,
+        players=players,
+        min_bet=100,
+        current_bet=1200,
+        last_full_raise=900,
+        pending=frozenset({2, 3}),
+        next_index=0,
+        config=st.config,
+    )
+    legal = st.legal_actions()
+    assert legal.actor == 2
+    assert legal.to_call == 1000
+    assert legal.raise_right_open is True
+    assert legal.can_raise is False
+    assert legal.max_raise_to is None
+
+
 def test_subminimum_non_allin_raise_is_rejected():
     st = BettingRoundState.create(order=(0, 1), stacks={0: 1000, 1: 1000}, min_bet=100)
     with pytest.raises(ValueError):
