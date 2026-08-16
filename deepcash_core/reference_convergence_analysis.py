@@ -131,10 +131,19 @@ def _source_geometry(payload: dict) -> dict:
 
     Keeping geometry here lets separate matrix jobs be aggregated later without
     reopening or reparsing their larger raw convergence files. Missing fields
-    remain absent so older one-bet payloads stay backward compatible.
+    remain absent so older payloads stay backward compatible.
     """
     geometry = {}
-    for key in ("pot", "stack", "spr", "range_combos", "restriction_dimension"):
+    for key in (
+        "pot",
+        "stack",
+        "spr",
+        "range_combos",
+        "restriction_dimension",
+        "board_set",
+        "p0_phase",
+        "p1_phase",
+    ):
         if key in payload:
             geometry[key] = payload[key]
     return geometry
