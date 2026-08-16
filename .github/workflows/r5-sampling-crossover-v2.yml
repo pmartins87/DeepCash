@@ -1,0 +1,42 @@
+name: DeepCash R5 sampling crossover v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_external_sampling.py'
+      - 'tests/test_weighted_deal_sampler.py'
+      - 'tools/benchmark_r5_sampling_crossover.py'
+      - 'docs/R5_SAMPLING_CROSSOVER_V2_PRECOMMIT_20260816.md'
+      - '.github/workflows/r5-sampling-crossover-v2.yml'
+
+jobs:
+  sampling-crossover-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Gate optimized deal-sampler sequence equivalence
+        run: python -m pytest -q tests/test_weighted_deal_sampler.py tests/test_river_external_sampling.py
+      - name: Run corrected precommitted scaling crossover battery
+        run: >-
+          python tools/benchmark_r5_sampling_crossover.py
+          --boards A_high_dry,four_straight
+          --range-combos 6,12,24,48
+          --full-checkpoints 100,400
+          --es-checkpoints 20000,80000
+          --es-seeds 29,101
+          --pot 100
+          --stack 400
+          --p0-phase 0.00
+          --p1-phase 0.27
+          --out r5_sampling_crossover_v2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-sampling-crossover-v2
+          path: r5_sampling_crossover_v2.json
