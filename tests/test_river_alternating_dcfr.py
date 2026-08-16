@@ -5,7 +5,7 @@ import pytest
 from deepcash_core.cards import card_from_str
 from deepcash_core.river_alternating_dcfr import (
     AlternatingVariant,
-    _accumulate_post_alternation_average,
+    _accumulate_player_average,
     _apply_player_update,
     _full_regret_delta,
     advance_alternating_solver,
@@ -17,6 +17,7 @@ from deepcash_core.river_alternating_dcfr import (
     init_alternating_solver,
 )
 from deepcash_core.river_lab import (
+    P1_AFTER_CHECK,
     RangeCombo,
     RiverGameSpec,
     _actions,
@@ -115,11 +116,48 @@ def test_dcfr_positive_and_negative_regrets_are_discounted_differently():
     assert positive_factor > negative_factor
 
 
+def test_player_local_average_mutates_only_requested_player():
+    spec = fixture_spec()
+    state = init_alternating_solver(spec, AlternatingVariant.ALT_CFR_PLUS_LINEAR)
+    infosets = _all_infosets(spec)
+    strategies = {key: _regret_strategy(state.regrets[key]) for key in infosets}
+    _accumulate_player_average(spec, state, strategies, player=0, iteration=1)
+    assert any(sum(values) > 0.0 for key, values in state.strategy_sum.items() if key[0] == 0)
+    assert all(sum(values) == 0.0 for key, values in state.strategy_sum.items() if key[0] == 1)
+
+
+def test_p1_average_is_taken_after_p0_refresh_before_p1_refresh():
+    spec = fixture_spec()
+    state = init_alternating_solver(spec, AlternatingVariant.ALT_CFR_PLUS_LINEAR)
+    infosets = _all_infosets(spec)
+
+    initial = {key: _regret_strategy(state.regrets[key]) for key in infosets}
+    _accumulate_player_average(spec, state, initial, player=0, iteration=1)
+    delta0 = _full_regret_delta(spec, initial)
+    _apply_player_update(state, delta0, player=0, iteration=1)
+
+    refreshed = {key: _regret_strategy(state.regrets[key]) for key in infosets}
+    _accumulate_player_average(spec, state, refreshed, player=1, iteration=1)
+
+    # P1 has no prior own action before this root-after-check infoset, so at t=1
+    # its accumulated average must equal the refreshed strategy exactly.
+    key = (1, P1_AFTER_CHECK, 0)
+    assert state.strategy_sum[key] == pytest.approx(refreshed[key])
+
+    before_average = tuple(state.strategy_sum[key])
+    delta1 = _full_regret_delta(spec, refreshed)
+    _apply_player_update(state, delta1, player=1, iteration=1)
+    assert tuple(state.strategy_sum[key]) == before_average
+
+
 def test_linear_and_quadratic_output_weighting_are_materially_distinct():
     spec = fixture_spec()
     infosets = _all_infosets(spec)
     uniform = {
-        key: tuple(1.0 / len(_actions(spec, key[0], key[1])) for _ in _actions(spec, key[0], key[1]))
+        key: tuple(
+            1.0 / len(_actions(spec, key[0], key[1]))
+            for _ in _actions(spec, key[0], key[1])
+        )
         for key in infosets
     }
     biased = {}
@@ -131,12 +169,11 @@ def test_linear_and_quadratic_output_weighting_are_materially_distinct():
     quadratic = init_alternating_solver(
         spec, AlternatingVariant.ALT_CFR_PLUS_QUADRATIC
     )
-    _accumulate_post_alternation_average(spec, linear, uniform, iteration=1)
-    _accumulate_post_alternation_average(spec, quadratic, uniform, iteration=1)
-    _accumulate_post_alternation_average(spec, linear, biased, iteration=2)
-    _accumulate_post_alternation_average(spec, quadratic, biased, iteration=2)
+    for state in (linear, quadratic):
+        _accumulate_player_average(spec, state, uniform, player=1, iteration=1)
+        _accumulate_player_average(spec, state, biased, player=1, iteration=2)
 
-    key = next(iter(infosets))
+    key = (1, P1_AFTER_CHECK, 0)
     assert linear.strategy_sum[key] != quadratic.strategy_sum[key]
     # Quadratic weighting puts relatively more mass on the second, biased profile.
     assert quadratic.strategy_sum[key][0] / sum(quadratic.strategy_sum[key]) > (
