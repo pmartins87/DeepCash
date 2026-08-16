@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Mapping
 
-from .betting import BettingRoundState, StreetAction
+from .betting import BettingConfig, BettingRoundState, StreetAction
 from .cards import require_distinct
 from .evaluator import evaluate_best
 from .pots import award_side_pots, build_side_pots, normalize_uncalled
@@ -29,6 +29,7 @@ class HandSetup:
     big_blind: int
     hole_cards: Mapping[int, tuple[int, int]]
     board: tuple[int, int, int, int, int]
+    betting_config: BettingConfig = BettingConfig()
 
     def __post_init__(self) -> None:
         plan = build_seat_plan(self.occupied_clockwise, self.button)
@@ -89,6 +90,7 @@ class HandState:
             stacks=remaining,
             committed={sb: setup.small_blind, bb: setup.big_blind},
             min_bet=setup.big_blind,
+            config=setup.betting_config,
         )
         state = cls(
             setup=setup,
@@ -198,6 +200,7 @@ class HandState:
                 stacks={s: state.remaining[s] for s in order},
                 committed={},
                 min_bet=state.setup.big_blind,
+                config=state.setup.betting_config,
             )
             state = HandState(
                 setup=state.setup,
