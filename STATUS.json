@@ -3,16 +3,16 @@
   "date": "2026-08-16",
   "ready_for_tables": false,
   "hardware_target": "single Ryzen 9",
-  "production_training_envelope": "approximately three months after pretraining gates pass",
+  "production_training_envelope": "approximately three months only after R1-R8 production gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1 target-site/release debt + R3 action-abstraction held-out evidence + R4 representation engineering",
+  "current_gate": "R1 target-site debt + R3 physical action-finalist calibration + R4 representation development + R5 solver/traversal research",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
     "R2": "PASS",
     "R3": "IN_PROGRESS",
     "R4": "IN_PROGRESS",
-    "R5": "PENDING",
+    "R5": "IN_PROGRESS",
     "R6": "PENDING",
     "R7": "PENDING",
     "R8": "PENDING",
@@ -24,285 +24,164 @@
     "R14": "PENDING",
     "R15": "PENDING"
   },
-  "validated_evidence": {
-    "r0_clean_ci": {
-      "run_id": 31948882362,
-      "head_sha": "acd390baa75cd4f94b7bf8894ef075c1cc691152",
-      "conclusion": "success"
+  "accepted_evidence": {
+    "R1_generic_engine": {
+      "legal_action_oracle_v3_run": 31963863819,
+      "legal_action_oracle_v3_head": "5e6c46349980b9a6e861b69736a3d7c49bb7f686",
+      "hands": 120,
+      "live_decision_states": 592,
+      "expected_pokerkit_blind_epoch_divergences": 1,
+      "subbb_fullgame_oracle_run": 31961946231,
+      "status_doc": "docs/R1_VALIDATION_STATUS.md",
+      "interpretation": "generic 2-to-6 handed engine strongly validated; target-site reopen, odd-chip, rake and optional forced-bet facts remain"
     },
-    "r1_evaluator_oracles_initial": {
-      "run_id": 31948656185,
-      "head_sha": "7022abd66bd57b9a7fea103b38596f18ab6d60cc",
-      "conclusion": "success",
-      "checks": [
-        "exhaustive 2,598,960 five-card category distribution",
-        "pinned PokerKit StandardHighHand cross-check"
-      ]
-    },
-    "r1_evaluator_oracles_after_cache": {
-      "run_id": 31949651215,
-      "head_sha": "872f99ebc82c023d54c20ef043c0653b83272cce",
-      "conclusion": "success"
-    },
-    "r1_state_machine_ci": {
-      "run_id": 31948857753,
-      "head_sha": "45c4e03d42d068df5371f604f5b77edefaf3c1d4",
-      "conclusion": "success"
-    },
-    "r1_pokerkit_fixed_fullgame": {
-      "run_id": 31949047459,
-      "conclusion": "success",
-      "checks": [
-        "three-way checkdown",
-        "raise/fold with uncalled return",
-        "preflop multiway all-in side pot"
-      ]
-    },
-    "r1_pokerkit_random_three_handed": {
-      "run_id": 31949099966,
-      "head_sha": "0040556de2a426c71c24e7afdfd577ecdf62d4f5",
-      "conclusion": "success",
-      "checks": [
-        "100 deterministic randomized three-handed full-game traces",
-        "exact final-stack parity against pinned PokerKit"
-      ]
-    },
-    "r1_pokerkit_random_2_to_6_handed": {
-      "run_id": 31960365274,
-      "head_sha": "4b6738208e4daa0408c4b3a6af2ff1eb1a422939",
-      "conclusion": "success",
-      "checks": [
-        "25 deterministic randomized hands per player count from 2 through 6",
-        "125 randomized full-game traces total plus fixed traces",
-        "every DeepCash legal action mirrored into pinned PokerKit",
-        "exact final-stack parity for every completed hand",
-        "accepted only after correcting effectively-all-in dry-side-pot raise legality"
-      ]
-    },
-    "r1_pokerkit_random_2_to_6_handed_subbb": {
-      "run_id": 31961946231,
-      "head_sha": "8d03674495e64b563751bfa07d08e287ba066397",
-      "conclusion": "success",
-      "checks": [
-        "40 deterministic randomized hands per player count from 2 through 6",
-        "200 randomized full-game traces total plus fixed traces",
-        "short-SB, short-BB, both-blinds-short, shallow and random 20-chip-granularity stacks",
-        "exact final-stack parity against pinned PokerKit",
-        "only zero-chip no-strategy PokerKit bookkeeping checks may be normalized fail-closed"
-      ]
-    },
-    "r1_effectively_all_in_dry_side_pot_regression": {
-      "run_id": 31960383715,
-      "head_sha": "8bfe751cede717fa2af6c901856dab5013407c78",
-      "conclusion": "success",
-      "checks": [
-        "raise blocked when no opponent can contribute above current price",
-        "explicit regression for PokerKit-discovered four-handed corner case"
-      ]
-    },
-    "r1_adversarial_gate": {
-      "run_id": 31959996084,
-      "conclusion": "success",
-      "checks": [
-        "cumulative short raises below and at reopen threshold",
-        "ANY_INCREASE versus NEVER reopen semantics remain distinct",
-        "nested four-way side pots",
-        "explicit fail-closed odd-chip ordering"
-      ]
-    },
-    "r1_legal_action_oracle_v3": {
-      "run_id": 31963863819,
-      "head_sha": "5e6c46349980b9a6e861b69736a3d7c49bb7f686",
-      "conclusion": "success",
-      "checks": [
-        "120 deterministic full-game traces, 24 per player count from 2 through 6",
-        "592 live decision states checked bidirectionally",
-        "actor/call/fold/check/raise availability and raise-to lower/upper/one-chip boundaries",
-        "exactly one structurally documented pinned-PokerKit preflop blind-epoch reopen divergence",
-        "DeepCash retained cumulative-full-raise semantics instead of copying the upstream divergence"
-      ]
-    },
-    "r2_canonical_state": {
-      "run_id": 31949413618,
-      "head_sha": "76988a4ebadf3cb5f8df51a73d082d1d7d3dcdd1",
-      "conclusion": "success",
+    "R2_canonical_state": {
+      "run": 31949413618,
+      "head": "76988a4ebadf3cb5f8df51a73d082d1d7d3dcdd1",
+      "status_doc": "docs/R2_VALIDATION_STATUS.md",
       "checks": [
         "hole-card order invariance",
         "simultaneous flop-card order invariance",
-        "all 24 global suit permutations on frozen fixture",
-        "Button-relative physical-chair invariance",
+        "all 24 global suit permutations",
+        "button-relative chair invariance",
         "exact chip/action geometry non-aliasing",
-        "randomized 2-to-6 handed metamorphic battery across preflop/flop/turn/river",
-        "exact HandState to DecisionSnapshot adapter without opponent-card leakage"
+        "no opponent private-card leakage"
       ]
     },
-    "r3_river_lab_smoke": {
-      "run_id": 31949683719,
-      "head_sha": "2640371563cd40067eb5f370af30ee123aaddb21",
-      "conclusion": "success",
-      "artifact_id": 9264288209
+    "R3_raise_size_heldout": {
+      "source_run": 31962687271,
+      "postprocessor_run": 31964700344,
+      "summary_artifact": 9268162754,
+      "summary_sha256": "a77790aefe7e255f0d4ec7a76cbdb2c8d7331432ab664583036888695734f9b5",
+      "leading_engineering_candidate": "Q2_50_100",
+      "status_doc": "docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md",
+      "interpretation": "50% raise is materially valuable at deeper river geometry; 150% has not shown resolved incremental gain over 50%+100%"
     },
-    "r3_resumable_convergence": {
-      "run_id": 31949968733,
-      "head_sha": "b916b33ac7f51b82530cea7a6b505e8704a81b86",
-      "conclusion": "success",
-      "artifact_id": 9264366421,
-      "artifact_sha256": "47d83b15555c934bd9eee4ac739cebf2a0069664ec1dd287ce61279629c446fa"
+    "R3_opening_subset_selection": {
+      "run": 31962334355,
+      "selector_artifact": 9268277521,
+      "selector_sha256": "f17838f1196564e4e30a9b622d85bd0157ce1d17b92af1cff349bb2f1427897a",
+      "champions": ["L1_100", "L2_50_100", "L3_25_50_100"],
+      "status_doc": "docs/R3_OPENING_LATTICE_SELECTION_ACCEPTED_20260816.md"
     },
-    "r3_low_spr_all_in_opening_semantics": {
-      "head_sha": "d05a02ee98eb970e03710be53b3e08287d881095",
-      "ci_run_id": 31960722077,
-      "conclusion": "success",
+    "R3_opening_heldout_v2": {
+      "run": 31962334355,
+      "summary_artifact": 9268566954,
+      "summary_sha256": "158eef1f2d9d9adfff1254af14d694464a0e8ff85a6716cd3ea27c75291de641",
+      "leading_strategic_candidate": "L3_25_50_100",
+      "compute_efficient_finalist": "L2_50_100",
+      "status_doc": "docs/R3_OPENING_HELDOUT_V2_ACCEPTED_20260816.md",
+      "interpretation": "25%+50%+100% generalized best overall and had a resolved SPR2 advantage over 50%+100%; final production choice still requires exact-BR tightening where needed and physical Ryzen equal-compute"
+    },
+    "R5_sync_tabular_control": {
+      "run": 31964902076,
+      "artifact": 9268225276,
+      "artifact_sha256": "53fca369a4856faafbd1a7427335a1bda0399e21c8d4835c99cb4a36598110e0",
+      "leading_sync_control": "CFR_PLUS_LINEAR",
+      "status_doc": "docs/R5_TABULAR_SOLVER_DEV_ACCEPTED_20260816.md"
+    },
+    "R5_external_sampling": {
+      "run": 31965167770,
+      "artifact": 9268312419,
+      "artifact_sha256": "40f52a73cc60126c1d31d3261e3dab47962a5d14cf9a6377c18ed114723df552",
+      "leading_external_control": "ES_CFR_PLUS_LINEAR",
+      "status_doc": "docs/R5_EXTERNAL_SAMPLING_DEV_ACCEPTED_20260816.md",
+      "interpretation": "negative tiny-tree efficiency result retained; sampling only justified by scaling"
+    },
+    "R5_chance_sampling": {
+      "run": 31965523599,
+      "artifact": 9268412226,
+      "artifact_sha256": "afcecf04db047d8ecb37648d1052da6f6ad31723d0a44fe67588b64a254dfdd9",
+      "leading_chance_control": "CS_CFR_PLUS_LINEAR",
+      "status_doc": "docs/R5_CHANCE_SAMPLING_DEV_ACCEPTED_20260816.md",
+      "interpretation": "chance-only sampling materially outperformed external sampling in the small river control; analytical estimator-unbiasedness oracle added"
+    },
+    "R5_correlated_chance_sampling": {
+      "run": 31966357494,
+      "artifact": 9268623901,
+      "artifact_sha256": "ee2bb35f28eae23fe7f9639bd6ddc9fb47949ea78dc90450a1535f7b5f4a84d4",
+      "leading_chance_primitive": "CCS_CFR_PLUS_LINEAR",
+      "status_doc": "docs/R5_CORRELATED_CHANCE_DEV_ACCEPTED_20260816.md",
       "checks": [
-        "all-in opening remains a legal opening action",
-        "empty raise target set yields fold/call only",
-        "all-empty one-raise tree exactly matches one-bet control semantics"
-      ]
+        "CCS better than paired IID chance sampling in all 16/16 frozen board-seed cells at 1k",
+        "CCS better in 16/16 at 5k",
+        "CCS better in 16/16 at 20k"
+      ],
+      "interpretation": "persistent randomized golden-ratio chance allocation strongly reduced sampled variance on the single-root river chance node"
     },
-    "r3_opening_size_multispr_control": {
-      "run_id": 31960758207,
-      "head_sha": "6d96926df770ee3a46721d20c24f7e17432ddcbf",
-      "conclusion": "success",
-      "configuration": {
-        "sprs": [0.5, 1.0, 2.0, 4.0],
-        "boards": 4,
-        "range_combos_per_player": 4,
-        "checkpoints": [250, 1000, 3000],
-        "candidates": ["O1_50", "O2_25_75", "O3_25_50_100"]
-      },
-      "latest_checkpoint_summary": {
-        "spr_0_5": {
-          "O1_mean_worst": [0.00176802, 0.00422536],
-          "O2_mean_worst": [0.00083922, 0.00089981],
-          "O3_mean_worst": [0.00083922, 0.00089981],
-          "worst_interval": 0.00115406
-        },
-        "spr_1": {
-          "O1_mean_worst": [0.01899489, 0.02340501],
-          "O2_mean_worst": [0.00819711, 0.01040966],
-          "O3_mean_worst": [0.00151017, 0.0016296],
-          "worst_interval": 0.00186018
-        },
-        "spr_2": {
-          "O1_mean_worst": [0.02696512, 0.03398673],
-          "O2_mean_worst": [0.01118075, 0.01393534],
-          "O3_mean_worst": [0.00158742, 0.00372877],
-          "worst_interval": 0.00293995
-        },
-        "spr_4": {
-          "O1_mean_worst": [0.02668787, 0.03380718],
-          "O2_mean_worst": [0.01125024, 0.01384253],
-          "O3_mean_worst": [0.00129484, 0.00316745],
-          "worst_interval": 0.001966
-        }
-      },
-      "interpretation": "O3 led the original control family at SPR >= 1; at SPR 0.5 O2/O3 collapse to the same materialized action set; no production freeze"
+    "R5_alternating_external_lcfr": {
+      "run": 31966542606,
+      "artifact": 9268697523,
+      "artifact_sha256": "16bffe2dc7b2034096dda20642e38e61b3a7a4617c70970968ffdba4a8e0c5ec",
+      "status_doc": "docs/R5_EXTERNAL_LCFR_DEV_ACCEPTED_20260816.md",
+      "interpretation": "LCFR only marginally led uniform alternating external CFR at 20k; linear averaging alone was harmful; no decisive promotion"
     },
-    "r3_raise_size_reference_smoke": {
-      "run_id": 31960872365,
-      "conclusion": "success",
-      "artifact_id": 9267206071,
-      "artifact_sha256": "36dc43cd28ca7063e8c9bd7dfcf3be58b30338a1db6f601018b0718412f89216",
-      "interpretation": "single-board smoke useful for wiring/convergence only; selects nothing"
+    "R5_alternating_discounted_exact": {
+      "run": 31966030278,
+      "artifact": 9268529202,
+      "artifact_sha256": "5c000f61a9d14722f927851942e6b44b8311f5d7f2d575c5fd1e5b761a97643b",
+      "leading_tested_exact_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
+      "status_doc": "docs/R5_ALTERNATING_DCFR_DEV_V2_ACCEPTED_20260816.md",
+      "semantics_audit": "docs/R5_DCFR_SEMANTICS_AUDIT_20260816.md"
     },
-    "latest_general_ci": {
-      "run_id": 31963863833,
-      "head_sha": "5e6c46349980b9a6e861b69736a3d7c49bb7f686",
-      "conclusion": "success",
-      "checks": [
-        "R1 live-BB short-all-in regression",
-        "R4 exact representation control equivalence",
-        "R4 deterministic feature/bucket invariance tests",
-        "R4 staged-vs-monolithic CFR+ equivalence",
-        "R4 JSON checkpoint future-path equivalence"
-      ]
+    "R5_paper_equation_hs_dcfr": {
+      "run": 31966914580,
+      "artifact": 9268760347,
+      "artifact_sha256": "a05440224844d6515944b89428aeccae0fe64fb0c63958c737a316be03887976",
+      "status_doc": "docs/R5_HS_DCFR_DEV_ACCEPTED_20260816.md",
+      "interpretation": "accepted negative evidence: Equation-2/3 old-discount-then-add DCFR and HS schedules were dramatically weaker than alternating CFR+ and the historical post-update discounted control on this microgame"
     }
   },
   "running_or_unaccepted_gates": {
-    "r3_opening_subset_lattice_to_unseen_v2": {
-      "run_id": 31962334355,
-      "head_sha": "723096d01cea3a2bd39869734329f81ecd480aad",
+    "R4_representation_development": {
+      "run": 31964142661,
       "status_last_checked": "in_progress",
-      "accept_only_if": "workflow completes successfully, precommitted subset winners are selected before unseen-v2 consumption, and artifacts/results are inspected"
+      "heldout_v1": "PRECOMMITTED_NOT_RUN",
+      "rule": "development selector must freeze finalists before heldout-v1 consumption"
     },
-    "r3_raise_size_heldout_v1": {
-      "run_id": 31962687271,
-      "head_sha": "7a4a323d8f541b315f9ac3da03ccdd74296b9003",
+    "R5_sampling_crossover_v2": {
+      "run": 31967392548,
       "status_last_checked": "in_progress",
-      "accept_only_if": "workflow completes successfully and independent raise-size held-out intervals/results are inspected"
-    },
-    "r4_development_numeric_battery": {
-      "run_id": 31964142661,
-      "head_sha": "8ee5f704a24e5ca169671a917556990f8f316efa",
-      "status_last_checked": "in_progress",
-      "board_set": "development controls only",
-      "configuration": {
-        "boards": 4,
-        "range_combos_per_player": 6,
-        "range_phase_pairs": [[0.0, 0.27], [0.11, 0.54]],
-        "sprs": [1.0, 2.0, 4.0],
-        "checkpoints": [100, 400, 1200],
-        "candidates": ["category", "strength4", "equity4", "equity8", "category_equity4", "equity4_blocker2", "equity8_blocker2"]
-      },
-      "selection_precommit": "docs/R4_DEV_SELECTION_PRECOMMIT_20260816.md",
-      "accept_only_if": "workflow completes successfully and results are inspected under the frozen Pareto/complexity procedure"
-    },
-    "r4_heldout_v1": {
-      "status": "PRECOMMITTED_NOT_RUN",
-      "precommit": "docs/R4_HELDOUT_PRECOMMIT_20260816.md",
-      "configuration": {
-        "boards": 8,
-        "range_combos_per_player": 8,
-        "range_phase_pairs": [[0.19, 0.47], [0.58, 0.83]],
-        "sprs": [1.0, 2.0, 4.0],
-        "checkpoints": [300, 1200, 3600]
-      }
+      "precommit": "docs/R5_SAMPLING_CROSSOVER_V2_PRECOMMIT_20260816.md",
+      "note": "v1 timing invalidated because sampled hot path rebuilt the full compatible-deal support every draw; v2 precomputes an exact weighted deal CDF once per batch"
     }
   },
-  "r1_open_items": [
-    "target-site short-all-in/reopen confirmation",
-    "target-site odd-chip ordering confirmation",
-    "target-site rake eligibility/cap/rounding/timing evidence",
-    "straddle/ante/other forced-bet variants if present in selected target games",
-    "additional adversarial/property coverage as engine features expand",
-    "cross-language/native evaluator parity before performance-critical production use"
-  ],
-  "r3_open_items": [
-    "accept/reject opening subset-lattice -> unseen-v2 workflow from completed evidence",
-    "accept/reject independent raise-size heldout-v1 workflow from completed evidence",
-    "tighten exact-BR intervals on difficult boards where needed",
-    "physical equal-wall-clock candidate comparison on the Ryzen 9",
-    "production action-family freeze"
-  ],
-  "r4_open_items": [
-    "accept/reject development-only deterministic representation battery",
-    "global suit-permutation representation-level metamorphic tests",
-    "record up to three deterministic finalists under frozen Pareto/complexity rule",
-    "counterfactual-value feature/clustering candidates after deterministic controls",
-    "learned embeddings only if justified by measured gains",
-    "heldout-v1 evaluation on the precommitted independent generation",
-    "physical Ryzen equal-wall-clock comparison",
-    "production representation freeze"
-  ],
-  "open_decisions": [
-    "authoritative poker site and cash-game economy",
-    "target stack-depth distribution",
-    "production action abstraction",
-    "production private/public representation",
-    "production solver algorithm",
-    "runtime resolving latency budget"
+  "invalidated_evidence": {
+    "R5_sampling_crossover_v1_timing": {
+      "run": 31965398733,
+      "status_doc": "docs/R5_SAMPLING_CROSSOVER_V1_INVALIDATED_20260816.md",
+      "reason": "external sampler rebuilt O(range0*range1) compatible-deal support inside every sampled chance event; strategic sequence preserved but scaling/wall-clock conclusion rejected"
+    },
+    "R5_alternating_dcfr_v1": {
+      "reason": "invalidated before numerical-result consumption because average-strategy timing was not player-local alternating semantics"
+    }
+  },
+  "current_engineering_leaders": {
+    "river_opening_sizes": "25% / 50% / 100% strategic finalist; 50% / 100% compute-efficient finalist",
+    "river_raise_sizes": "50% / 100%",
+    "exact_tabular_solver_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
+    "chance_sampling_primitive": "correlated chance sampling via persistent randomized Weyl stream",
+    "sampled_regret_update": "no production leader yet; variance reduction and scaling remain open",
+    "private_state_representation": "not selected"
+  },
+  "next_critical_work": [
+    "finish corrected sampling-crossover v2 and identify real traversal-scaling behavior",
+    "finish R4 deterministic development battery and freeze at most three finalists before heldout-v1",
+    "implement/gate VR-MCCFR baseline estimators after sampler scaling is clean",
+    "tighten R3 exact-BR intervals only where final action-family decisions remain resolution-limited",
+    "run R3/R4/R5 equal-wall-clock comparisons on the physical Ryzen 9 before any production freeze",
+    "freeze target-site cash-game rules/economy before R1 PASS"
   ],
   "non_negotiable_invariants": [
     "hole-card order invariance",
     "simultaneous flop-card order invariance",
     "global suit permutation invariance",
     "relative chair/button rotation invariance",
-    "exact pot/call/stack and action geometry retained at game-state boundary",
+    "exact pot/call/stack/action geometry retained at game-state boundary",
     "opponent private cards never leak into decision representation",
-    "no raise may create a side-pot tranche that no opponent can contest",
-    "all-in openings retain exact fold/call/no-raise semantics",
-    "lossy representation may alias solver infosets but never mutate exact game/chance/payoff state",
-    "development controls and held-out fixtures remain explicitly separated",
-    "no long production training before rule/representation/action/solver gates pass"
+    "lossy compression never mutates exact game/chance/payoff state",
+    "development and held-out generations remain explicitly separated",
+    "failed and invalidated experiments remain in the audit trail",
+    "no long production training before R1-R8 production gates pass"
   ]
 }
