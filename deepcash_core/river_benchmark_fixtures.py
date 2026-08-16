@@ -58,12 +58,39 @@ ONE_RAISE_SIZE_REFERENCE_FRACTIONS = (
     Fraction(3, 2),
 )
 
+# Development/control boards. These are intentionally small and stable because
+# earlier convergence curves and regression artifacts reference them directly.
 RIVER_BOARDS = {
     "A_high_dry": "Ah Kd 9c 7s 2h",
     "paired": "Qs Qd 9h 7c 2s",
     "four_straight": "9h 8d 7c 6s 2h",
     "four_flush": "Ah Jh 8h 4h 2c",
 }
+
+# Precommitted held-out board families. They are kept separate from RIVER_BOARDS
+# so adding them never silently changes the historical `--boards all` control
+# battery. Held-out workflows must opt into this set explicitly.
+HELDOUT_RIVER_BOARDS = {
+    "K_high_dry_heldout": "Kc 8d 5s 3h 2c",
+    "double_paired_heldout": "Js Jd 6c 6h 2s",
+    "three_flush_heldout": "Kh Qh 8h 5c 2d",
+    "broadway_connected_heldout": "Ks Qd Jh 5c 2s",
+    "low_connected_heldout": "7h 6d 5c 3s 2h",
+    "trips_board_heldout": "9s 9h 9d 4c 2h",
+}
+
+
+def board_registry(name: str) -> dict[str, str]:
+    if name == "control":
+        return dict(RIVER_BOARDS)
+    if name == "heldout":
+        return dict(HELDOUT_RIVER_BOARDS)
+    if name == "all":
+        overlap = set(RIVER_BOARDS).intersection(HELDOUT_RIVER_BOARDS)
+        if overlap:
+            raise RuntimeError(f"control/heldout board names overlap: {sorted(overlap)}")
+        return {**RIVER_BOARDS, **HELDOUT_RIVER_BOARDS}
+    raise ValueError("board set must be control, heldout, or all")
 
 
 def parse_cards(text: str) -> tuple[int, ...]:
