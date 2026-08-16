@@ -1,4 +1,4 @@
-from tools.analyze_river_reference_convergence import analyze
+from deepcash_core.reference_convergence_analysis import analyze
 
 
 def payload():
