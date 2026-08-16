@@ -2,8 +2,8 @@
 
 This is deliberately separate from evaluator parity. It checks blind posting,
 action order, raise-to semantics, fold terminals, all-in runout, side pots and
-final stack accounting on exact fixtures plus a deterministic randomized trace
-battery.
+final stack accounting on exact fixtures plus deterministic randomized 2-to-6
+handed trace batteries.
 
 Expected dependency:
     pip install git+https://github.com/uoftcprg/pokerkit.git@5841c0afe4d6eb71ae5db0f8a6a376ee3e329afb
@@ -23,7 +23,7 @@ PINNED_POKERKIT = "5841c0afe4d6eb71ae5db0f8a6a376ee3e329afb"
 SB = 50
 BB = 100
 RANDOM_SEED = 0xD33FC451
-RANDOM_CASES = 100
+RANDOM_CASES_PER_PLAYER_COUNT = 25
 
 
 def card(text: str) -> int:
@@ -34,22 +34,35 @@ def action(kind: str, raise_to: int | None = None) -> StreetAction:
     return StreetAction(StreetActionKind(kind), raise_to)
 
 
+def button_for_count(player_count: int) -> int:
+    # PokerKit's Hold'em convention places the first two players in SB/BB.
+    # With 3+ players, the final player is the Button. Heads-up is the standard
+    # exception: player 0 is Button/SB and player 1 is BB.
+    if not 2 <= player_count <= 6:
+        raise ValueError("player_count must be 2..6")
+    return 0 if player_count == 2 else player_count - 1
+
+
 def setup_ours(stacks, holes, board) -> HandState:
-    # PokerKit's 3-player positional convention maps player 2 to BTN,
-    # player 0 to SB and player 1 to BB. Use the same physical mapping here.
+    player_count = len(stacks)
+    if len(holes) != player_count:
+        raise ValueError("holes/stacks player count mismatch")
     setup = HandSetup(
-        occupied_clockwise=(0, 1, 2),
-        button=2,
-        stacks={i: int(stacks[i]) for i in range(3)},
+        occupied_clockwise=tuple(range(player_count)),
+        button=button_for_count(player_count),
+        stacks={i: int(stacks[i]) for i in range(player_count)},
         small_blind=SB,
         big_blind=BB,
-        hole_cards={i: tuple(card(x) for x in holes[i]) for i in range(3)},
+        hole_cards={i: tuple(card(x) for x in holes[i]) for i in range(player_count)},
         board=tuple(card(x) for x in board),
     )
     return HandState.new(setup)
 
 
 def setup_oracle(stacks, holes):
+    player_count = len(stacks)
+    if len(holes) != player_count:
+        raise ValueError("holes/stacks player count mismatch")
     state = NoLimitTexasHoldem.create_state(
         (
             Automation.ANTE_POSTING,
@@ -66,7 +79,7 @@ def setup_oracle(stacks, holes):
         (SB, BB),
         BB,
         tuple(stacks),
-        3,
+        player_count,
     )
     for pair in holes:
         state.deal_hole("".join(pair))
@@ -99,7 +112,10 @@ def sync_oracle_board(state, ours: HandState, board, dealt: int) -> int:
 
 def final_ours(state: HandState) -> tuple[int, ...]:
     payouts = state.gross_settlement()
-    return tuple(int(state.remaining[i]) + int(payouts.get(i, 0)) for i in range(3))
+    return tuple(
+        int(state.remaining[i]) + int(payouts.get(i, 0))
+        for i in range(len(state.plan.occupied))
+    )
 
 
 def final_oracle(state) -> tuple[int, ...]:
@@ -158,7 +174,6 @@ def trace_three_way_checkdown() -> None:
     ours = setup_ours(stacks, holes, board)
     oracle = setup_oracle(stacks, holes)
 
-    # BTN call, SB call, BB check.
     for _ in range(2):
         ours = ours.apply(action("CALL"))
         oracle.check_or_call()
@@ -169,12 +184,10 @@ def trace_three_way_checkdown() -> None:
     for _ in range(3):
         ours = ours.apply(action("CHECK"))
         oracle.check_or_call()
-
     deal_street(oracle, board[3:4])
     for _ in range(3):
         ours = ours.apply(action("CHECK"))
         oracle.check_or_call()
-
     deal_street(oracle, board[4:5])
     for _ in range(3):
         ours = ours.apply(action("CHECK"))
@@ -201,8 +214,6 @@ def trace_raise_then_folds() -> None:
 
 
 def trace_preflop_multiway_sidepot() -> None:
-    # Player 2/BTN is short and wins only the main pot with AA. Player 0/SB
-    # wins the side pot with KK over player 1/BB's QQ.
     stacks = (600, 1000, 300)
     holes = (("Ks", "Kd"), ("Qs", "Qd"), ("As", "Ad"))
     board = ("2c", "3c", "4h", "8h", "9s")
@@ -226,32 +237,39 @@ def trace_preflop_multiway_sidepot() -> None:
 def randomized_trace_battery() -> None:
     rng = random.Random(RANDOM_SEED)
     deck = list(full_deck())
-    for case in range(RANDOM_CASES):
-        sample = rng.sample(deck, 11)
-        holes = tuple(
-            tuple(card_to_str(sample[2 * i + j]) for j in range(2))
-            for i in range(3)
-        )
-        board = tuple(card_to_str(x) for x in sample[6:11])
-        stacks = tuple(rng.randrange(4, 31) * 50 for _ in range(3))
+    total_cases = 0
+    for player_count in range(2, 7):
+        for case in range(RANDOM_CASES_PER_PLAYER_COUNT):
+            sample = rng.sample(deck, 2 * player_count + 5)
+            holes = tuple(
+                tuple(card_to_str(sample[2 * i + j]) for j in range(2))
+                for i in range(player_count)
+            )
+            board = tuple(card_to_str(x) for x in sample[2 * player_count:2 * player_count + 5])
+            stacks = tuple(rng.randrange(4, 31) * 50 for _ in range(player_count))
 
-        ours = setup_ours(stacks, holes, board)
-        oracle = setup_oracle(stacks, holes)
-        dealt = 0
-        actions = 0
-        while not ours.terminal:
-            if actions >= 200:
-                raise AssertionError(f"random case {case}: action loop exceeded 200")
-            chosen = choose_random_action(ours, rng)
-            next_ours = ours.apply(chosen)
-            apply_oracle_action(oracle, chosen)
-            ours = next_ours
-            dealt = sync_oracle_board(oracle, ours, board, dealt)
-            actions += 1
+            ours = setup_ours(stacks, holes, board)
+            oracle = setup_oracle(stacks, holes)
+            dealt = 0
+            action_count = 0
+            while not ours.terminal:
+                if action_count >= 300:
+                    raise AssertionError(
+                        f"random n={player_count} case={case}: action loop exceeded 300"
+                    )
+                chosen = choose_random_action(ours, rng)
+                ours = ours.apply(chosen)
+                apply_oracle_action(oracle, chosen)
+                dealt = sync_oracle_board(oracle, ours, board, dealt)
+                action_count += 1
 
-        check_trace(f"random_{case:03d}", ours, oracle)
+            check_trace(f"random_{player_count}p_{case:03d}", ours, oracle)
+            total_cases += 1
 
-    print(f"PASS randomized trace battery: cases={RANDOM_CASES} seed={RANDOM_SEED}")
+    print(
+        "PASS randomized 2-to-6 handed trace battery: "
+        f"cases={total_cases} ({RANDOM_CASES_PER_PLAYER_COUNT}/player-count) seed={RANDOM_SEED}"
+    )
 
 
 def main() -> None:
