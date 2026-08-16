@@ -1,0 +1,45 @@
+name: DeepCash R5 tabular VR benchmark v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_vr_tabular.py'
+      - 'tools/benchmark_river_vr_tabular.py'
+      - 'docs/R5_TABULAR_VR_BENCHMARK_PLAN_20260816.md'
+      - '.github/workflows/r5-vr-tabular-benchmark-v1.yml'
+
+jobs:
+  tabular-vr-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Gate tabular VR structure before benchmark
+        run: >-
+          python -m pytest -q
+          tests/test_vr_mccfr_baseline.py
+          tests/test_river_vr_tabular.py
+      - name: Run frozen ZERO vs TABULAR_RUNNING vs INFOSET_EXACT convergence battery
+        run: >-
+          python tools/benchmark_river_vr_tabular.py
+          --boards all
+          --range-combos 8
+          --p0-phase 0.13
+          --p1-phase 0.61
+          --pot 100
+          --bet-sizes 25,50,100
+          --checkpoints 500,2000,10000
+          --seeds 101,211,307,401,503
+          --out r5_vr_tabular.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-vr-tabular-benchmark-v1
+          path: r5_vr_tabular.json
+          if-no-files-found: error
