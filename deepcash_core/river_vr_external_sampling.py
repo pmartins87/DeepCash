@@ -124,14 +124,13 @@ def _vr_external_traverse(
 
     sampled = _weighted_choice_index(rng, sigma)
     if baseline_mode == VRBaselineMode.ZERO:
-        child = descend(actions[sampled])
-        return baseline_enhanced_node_value(
-            target_policy=sigma,
-            sampling_policy=sigma,
-            baselines=(0.0,) * len(actions),
-            sampled_action=sampled,
-            sampled_child_value=child,
-        )
+        # The ZERO control is not merely algebraically equivalent to ordinary
+        # external sampling; it is the identity control and is therefore
+        # required to preserve the exact floating-point/RNG path.  Routing a
+        # zero baseline through the generic importance-weighted estimator adds
+        # mathematically cancelling multiply/divide operations and can move the
+        # last few IEEE-754 bits.  Return the sampled child directly instead.
+        return descend(actions[sampled])
 
     if baseline_mode == VRBaselineMode.PERFECT_HISTORY:
         # Deliberately privileged oracle: full hidden history (i,j) is known here,
