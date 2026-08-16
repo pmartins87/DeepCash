@@ -16,6 +16,7 @@ from .canonical_state import (
     DecisionSnapshot,
     PlayerSnapshot,
     canonical_decision_key,
+    decision_snapshot_from_hand_state,
     rotate_physical_seats,
 )
 from .cards import card_from_str, card_rank, card_suit, card_to_str, full_deck
@@ -28,7 +29,8 @@ from .seating import SeatPlan, build_seat_plan
 
 __all__ = [
     "canonical_hole", "canonical_public_cards", "canonical_suits",
-    "ActionSnapshot", "DecisionSnapshot", "PlayerSnapshot", "canonical_decision_key", "rotate_physical_seats",
+    "ActionSnapshot", "DecisionSnapshot", "PlayerSnapshot", "canonical_decision_key",
+    "decision_snapshot_from_hand_state", "rotate_physical_seats",
     "ActionKind", "AbstractAction", "legalize_raise_to",
     "BettingConfig", "BettingRoundState", "LegalActions", "ShortAllInReopenPolicy",
     "StreetAction", "StreetActionKind", "StreetPlayer",

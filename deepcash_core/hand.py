@@ -55,9 +55,35 @@ class HandSetup:
 
 @dataclass(frozen=True)
 class HandActionRecord:
+    """Exact action plus the monetary geometry visible when it was chosen.
+
+    Recording only ``CALL`` or only a raise target is not enough for later
+    strategic representation work.  These fields preserve the action's exact
+    context without introducing any bucket at the game-engine boundary.
+    """
+
     street: Street
     actor: int
     action: StreetAction
+    paid: int = 0
+    pot_before: int = 0
+    to_call_before: int = 0
+    current_bet_before: int = 0
+    actor_committed_before: int = 0
+    min_full_raise_to_before: int | None = None
+
+    def __post_init__(self) -> None:
+        for value in (
+            self.paid,
+            self.pot_before,
+            self.to_call_before,
+            self.current_bet_before,
+            self.actor_committed_before,
+        ):
+            if value < 0:
+                raise ValueError("action geometry cannot be negative")
+        if self.min_full_raise_to_before is not None and self.min_full_raise_to_before <= 0:
+            raise ValueError("min_full_raise_to_before must be positive")
 
 
 @dataclass(frozen=True)
@@ -123,7 +149,9 @@ class HandState:
         if actor is None:
             raise ValueError("betting round is complete")
 
+        legal = self.betting.legal_actions()
         old_player = self.betting.players[actor]
+        pot_before = sum(int(v) for v in self.total_contributed.values())
         next_betting = self.betting.apply(action)
         new_player = next_betting.players[actor]
         paid = old_player.stack - new_player.stack
@@ -140,6 +168,17 @@ class HandState:
         if new_player.folded:
             folded.add(actor)
 
+        record = HandActionRecord(
+            street=self.street,
+            actor=actor,
+            action=action,
+            paid=paid,
+            pot_before=pot_before,
+            to_call_before=legal.to_call,
+            current_bet_before=self.betting.current_bet,
+            actor_committed_before=old_player.committed,
+            min_full_raise_to_before=legal.min_full_raise_to,
+        )
         state = HandState(
             setup=self.setup,
             plan=self.plan,
@@ -149,7 +188,7 @@ class HandState:
             total_contributed=contributed,
             folded=frozenset(folded),
             betting=next_betting,
-            actions=self.actions + (HandActionRecord(self.street, actor, action),),
+            actions=self.actions + (record,),
         )
         return state._advance_automatic()
 

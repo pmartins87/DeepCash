@@ -5,6 +5,8 @@ from itertools import permutations
 from typing import Iterable, Mapping, Sequence
 
 from .canonical import RANK_VALUE, SUITS, SUIT_VALUE
+from .cards import card_to_str
+from .hand import HandState, Street
 
 
 @dataclass(frozen=True)
@@ -30,7 +32,13 @@ class ActionSnapshot:
     street: str
     actor: int
     kind: str
-    amount: int | None = None
+    raise_to: int | None = None
+    paid: int = 0
+    pot_before: int = 0
+    to_call_before: int = 0
+    current_bet_before: int = 0
+    actor_committed_before: int = 0
+    min_full_raise_to_before: int | None = None
 
     def __post_init__(self) -> None:
         if not self.street:
@@ -38,10 +46,21 @@ class ActionSnapshot:
         if self.kind not in {"FOLD", "CHECK", "CALL", "RAISE_TO"}:
             raise ValueError(f"unsupported action kind: {self.kind}")
         if self.kind == "RAISE_TO":
-            if self.amount is None or self.amount <= 0:
-                raise ValueError("RAISE_TO requires positive amount")
-        elif self.amount is not None:
-            raise ValueError("only RAISE_TO carries an amount")
+            if self.raise_to is None or self.raise_to <= 0:
+                raise ValueError("RAISE_TO requires positive raise_to")
+        elif self.raise_to is not None:
+            raise ValueError("only RAISE_TO carries raise_to")
+        for value in (
+            self.paid,
+            self.pot_before,
+            self.to_call_before,
+            self.current_bet_before,
+            self.actor_committed_before,
+        ):
+            if value < 0:
+                raise ValueError("action geometry cannot be negative")
+        if self.min_full_raise_to_before is not None and self.min_full_raise_to_before <= 0:
+            raise ValueError("min_full_raise_to_before must be positive")
 
 
 @dataclass(frozen=True)
@@ -152,8 +171,9 @@ def canonical_decision_key(snapshot: DecisionSnapshot) -> tuple:
     - rotation/renaming of physical chairs while preserving clockwise order and
       the Button-relative strategic geometry.
 
-    No bucketing is performed here. Every chip amount and action amount is kept
-    exact so later abstractions can be audited against this lossless boundary.
+    No bucketing is performed here. Every chip amount and historical action
+    geometry is exact so later abstractions can be audited against this lossless
+    boundary.
     """
     rel = _relative_seat_map(snapshot.occupied_clockwise, snapshot.button)
     players_by_seat = {p.seat: p for p in snapshot.players}
@@ -169,7 +189,18 @@ def canonical_decision_key(snapshot: DecisionSnapshot) -> tuple:
         for seat in sorted(snapshot.occupied_clockwise, key=rel.__getitem__)
     )
     actions = tuple(
-        (a.street, rel[a.actor], a.kind, a.amount)
+        (
+            a.street,
+            rel[a.actor],
+            a.kind,
+            a.raise_to,
+            a.paid,
+            a.pot_before,
+            a.to_call_before,
+            a.current_bet_before,
+            a.actor_committed_before,
+            a.min_full_raise_to_before,
+        )
         for a in snapshot.action_history
     )
     noncard = (
@@ -192,6 +223,10 @@ def canonical_decision_key(snapshot: DecisionSnapshot) -> tuple:
 
 def rotate_physical_seats(snapshot: DecisionSnapshot, mapping: Mapping[int, int]) -> DecisionSnapshot:
     """Metamorphic-test helper: rename every physical chair consistently."""
+    if set(mapping) != set(snapshot.occupied_clockwise):
+        raise ValueError("physical-seat mapping must cover every occupied seat")
+    if len(set(mapping.values())) != len(mapping):
+        raise ValueError("physical-seat mapping must be one-to-one")
     occupied = tuple(mapping[s] for s in snapshot.occupied_clockwise)
     players = tuple(
         PlayerSnapshot(
@@ -205,7 +240,18 @@ def rotate_physical_seats(snapshot: DecisionSnapshot, mapping: Mapping[int, int]
         for p in snapshot.players
     )
     actions = tuple(
-        ActionSnapshot(a.street, mapping[a.actor], a.kind, a.amount)
+        ActionSnapshot(
+            street=a.street,
+            actor=mapping[a.actor],
+            kind=a.kind,
+            raise_to=a.raise_to,
+            paid=a.paid,
+            pot_before=a.pot_before,
+            to_call_before=a.to_call_before,
+            current_bet_before=a.current_bet_before,
+            actor_committed_before=a.actor_committed_before,
+            min_full_raise_to_before=a.min_full_raise_to_before,
+        )
         for a in snapshot.action_history
     )
     return DecisionSnapshot(
@@ -221,4 +267,70 @@ def rotate_physical_seats(snapshot: DecisionSnapshot, mapping: Mapping[int, int]
         to_call=snapshot.to_call,
         min_raise_to=snapshot.min_raise_to,
         action_history=actions,
+    )
+
+
+def decision_snapshot_from_hand_state(state: HandState) -> DecisionSnapshot:
+    """Project an exact non-terminal engine state into the canonical boundary.
+
+    Only the current actor's private cards are exposed. Opponent hole cards that
+    exist inside the simulator's ``HandSetup`` are deliberately not leaked into
+    the decision representation.
+    """
+    if state.terminal or state.betting is None or state.actor is None:
+        raise ValueError("a decision snapshot requires a non-terminal actor")
+
+    actor = state.actor
+    legal = state.betting.legal_actions()
+    visible = tuple(card_to_str(c) for c in state.visible_board)
+    flop: tuple[str, ...] = () if len(visible) == 0 else visible[:3]
+    turn = visible[3] if len(visible) >= 4 else None
+    river = visible[4] if len(visible) >= 5 else None
+
+    players: list[PlayerSnapshot] = []
+    for seat in state.plan.occupied:
+        street_player = state.betting.players.get(seat)
+        committed_street = 0 if street_player is None else street_player.committed
+        folded = seat in state.folded
+        all_in = (not folded) and state.remaining[seat] == 0
+        players.append(
+            PlayerSnapshot(
+                seat=seat,
+                stack=int(state.remaining[seat]),
+                committed_total=int(state.total_contributed[seat]),
+                committed_street=int(committed_street),
+                folded=folded,
+                all_in=all_in,
+            )
+        )
+
+    history = tuple(
+        ActionSnapshot(
+            street=record.street.value,
+            actor=record.actor,
+            kind=record.action.kind.value,
+            raise_to=record.action.raise_to,
+            paid=record.paid,
+            pot_before=record.pot_before,
+            to_call_before=record.to_call_before,
+            current_bet_before=record.current_bet_before,
+            actor_committed_before=record.actor_committed_before,
+            min_full_raise_to_before=record.min_full_raise_to_before,
+        )
+        for record in state.actions
+    )
+
+    return DecisionSnapshot(
+        occupied_clockwise=state.plan.occupied,
+        button=state.plan.button,
+        actor=actor,
+        hero_hole=tuple(card_to_str(c) for c in state.setup.hole_cards[actor]),  # type: ignore[arg-type]
+        flop=flop,
+        turn=turn,
+        river=river,
+        players=tuple(players),
+        pot=sum(int(v) for v in state.total_contributed.values()),
+        to_call=legal.to_call,
+        min_raise_to=legal.min_full_raise_to if legal.can_raise else None,
+        action_history=history,
     )

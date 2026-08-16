@@ -15,6 +15,11 @@ def replay_hand(setup: HandSetup, actions: Iterable[HandActionRecord]) -> HandSt
         if state.actor != expected.actor:
             raise ValueError(f"replay actor mismatch: expected {expected.actor}, got {state.actor}")
         state = state.apply(expected.action)
+        generated = state.actions[-1]
+        # Geometry is deterministic.  Detect corrupted logs immediately instead
+        # of accepting an action label that happens to replay to a valid state.
+        if generated != expected:
+            raise ValueError(f"replay action geometry mismatch: expected={expected!r} generated={generated!r}")
     return state
 
 
@@ -50,6 +55,12 @@ def state_fingerprint(state: HandState) -> str:
                 "actor": r.actor,
                 "kind": r.action.kind.value,
                 "raise_to": r.action.raise_to,
+                "paid": r.paid,
+                "pot_before": r.pot_before,
+                "to_call_before": r.to_call_before,
+                "current_bet_before": r.current_bet_before,
+                "actor_committed_before": r.actor_committed_before,
+                "min_full_raise_to_before": r.min_full_raise_to_before,
             }
             for r in state.actions
         ],

@@ -1,8 +1,10 @@
 import random
 
+import pytest
+
 from deepcash_core.betting import StreetAction, StreetActionKind
 from deepcash_core.cards import card_from_str, full_deck
-from deepcash_core.hand import HandSetup, HandState, Street
+from deepcash_core.hand import HandActionRecord, HandSetup, HandState, Street
 from deepcash_core.replay import replay_hand, state_fingerprint
 
 
@@ -51,12 +53,49 @@ def test_fold_terminal_returns_uncalled_raise_excess():
     assert payouts[0] == 450
 
 
+def test_action_log_preserves_exact_monetary_context():
+    st = HandState.new(setup_three_way())
+    st = st.apply(A("RAISE_TO", 300))
+    first = st.actions[0]
+    assert first.paid == 300
+    assert first.pot_before == 150
+    assert first.to_call_before == 100
+    assert first.current_bet_before == 100
+    assert first.actor_committed_before == 0
+    assert first.min_full_raise_to_before == 200
+
+    st = st.apply(A("CALL"))
+    second = st.actions[1]
+    assert second.paid == 250
+    assert second.pot_before == 450
+    assert second.to_call_before == 250
+    assert second.actor_committed_before == 50
+
+
 def test_action_log_replays_to_identical_fingerprint():
     st = HandState.new(setup_three_way())
     st = st.apply(A("CALL")); st = st.apply(A("CALL")); st = st.apply(A("CHECK"))
     st = st.apply(A("RAISE_TO", 100)); st = st.apply(A("FOLD")); st = st.apply(A("CALL"))
     replayed = replay_hand(st.setup, st.actions)
     assert state_fingerprint(replayed) == state_fingerprint(st)
+
+
+def test_replay_detects_corrupted_action_geometry_even_when_action_label_is_legal():
+    st = HandState.new(setup_three_way()).apply(A("CALL"))
+    record = st.actions[0]
+    corrupt = HandActionRecord(
+        street=record.street,
+        actor=record.actor,
+        action=record.action,
+        paid=record.paid + 1,
+        pot_before=record.pot_before,
+        to_call_before=record.to_call_before,
+        current_bet_before=record.current_bet_before,
+        actor_committed_before=record.actor_committed_before,
+        min_full_raise_to_before=record.min_full_raise_to_before,
+    )
+    with pytest.raises(ValueError, match="geometry mismatch"):
+        replay_hand(st.setup, (corrupt,))
 
 
 def random_setup(seed: int) -> HandSetup:
