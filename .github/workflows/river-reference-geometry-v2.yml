@@ -1,0 +1,43 @@
+name: DeepCash river reference geometry v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_benchmark_fixtures.py'
+      - 'deepcash_core/river_reference_dp.py'
+      - 'tools/benchmark_river_reference_geometry_dp_v2.py'
+      - 'tools/analyze_river_reference_geometry.py'
+      - '.github/workflows/river-reference-geometry-v2.yml'
+
+jobs:
+  multi-spr-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Multi-SPR common-reference smoke
+        run: >-
+          python tools/benchmark_river_reference_geometry_dp_v2.py
+          --iterations 600
+          --range-combos 3
+          --boards A_high_dry
+          --candidates S1_50,S2_33_100
+          --geometries SPR0_5,SPR1,SPR2,SPR4
+          --out river_reference_geometry_v2.json
+      - name: Analyze geometry smoke
+        run: >-
+          python tools/analyze_river_reference_geometry.py
+          river_reference_geometry_v2.json
+          --out river_reference_geometry_v2_analysis.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: river-reference-geometry-v2
+          path: |
+            river_reference_geometry_v2.json
+            river_reference_geometry_v2_analysis.json
