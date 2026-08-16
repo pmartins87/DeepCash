@@ -42,6 +42,30 @@ ONE_RAISE_OPEN_REFERENCE_FRACTIONS = (
     Fraction(1, 1),
 )
 
+# Exhaustive non-empty proper subset lattice of the same four-size opening
+# reference. The first candidate set intentionally sampled only one singleton,
+# one pair and one triple. Held-out evidence showed that the triple remained far
+# better than those smaller controls but still had measurable residual loss on
+# some boards. Before adding any new arbitrary size, enumerate every existing
+# reference subset so we know whether the earlier candidate choice itself left
+# easy EV on the table.
+ONE_RAISE_OPEN_SUBSET_LATTICE = {
+    "L1_25": (Fraction(1, 4),),
+    "L1_50": (Fraction(1, 2),),
+    "L1_75": (Fraction(3, 4),),
+    "L1_100": (Fraction(1, 1),),
+    "L2_25_50": (Fraction(1, 4), Fraction(1, 2)),
+    "L2_25_75": (Fraction(1, 4), Fraction(3, 4)),
+    "L2_25_100": (Fraction(1, 4), Fraction(1, 1)),
+    "L2_50_75": (Fraction(1, 2), Fraction(3, 4)),
+    "L2_50_100": (Fraction(1, 2), Fraction(1, 1)),
+    "L2_75_100": (Fraction(3, 4), Fraction(1, 1)),
+    "L3_25_50_75": (Fraction(1, 4), Fraction(1, 2), Fraction(3, 4)),
+    "L3_25_50_100": (Fraction(1, 4), Fraction(1, 2), Fraction(1, 1)),
+    "L3_25_75_100": (Fraction(1, 4), Fraction(3, 4), Fraction(1, 1)),
+    "L3_50_75_100": (Fraction(1, 2), Fraction(3, 4), Fraction(1, 1)),
+}
+
 # Raise-size controls. Fractions are measured against the pot *after calling*
 # the faced opening bet. A 1.0 fraction therefore means a pot-sized raise over
 # the call. Candidates are strict subsets of the rich 0.5/1.0/1.5 reference.
