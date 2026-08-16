@@ -1,0 +1,38 @@
+name: DeepCash R5 alternating external LCFR v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_external_lcfr.py'
+      - 'tools/benchmark_river_external_lcfr.py'
+      - 'tests/test_river_external_lcfr.py'
+      - 'docs/R5_EXTERNAL_LCFR_PRECOMMIT_20260816.md'
+      - '.github/workflows/r5-external-lcfr-dev-v1.yml'
+
+jobs:
+  alternating-external-lcfr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run alternating external CFR and LCFR battery
+        run: >-
+          python tools/benchmark_river_external_lcfr.py
+          --checkpoints 1000,5000,20000
+          --seeds 11,29,101,20260816
+          --range-combos 6
+          --pot 100
+          --stack 400
+          --p0-phase 0.00
+          --p1-phase 0.27
+          --out r5_external_lcfr_dev_v1.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-external-lcfr-dev-v1
+          path: r5_external_lcfr_dev_v1.json
