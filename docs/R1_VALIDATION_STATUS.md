@@ -2,9 +2,9 @@
 
 R1 is **IN PROGRESS**, not PASS.
 
-The generic exact NLHE engine now has independent evaluator parity, accepted 2-to-6 handed full-game PokerKit parity, focused adversarial side-pot/reopen tests, and a second expanded PokerKit battery that includes **sub-BB forced-blind stacks**. The remaining R1 debt is now concentrated much more heavily in target-site/economy facts, optional straddle/ante variants and later native-performance parity.
+The generic exact NLHE engine now has independent evaluator parity, accepted 2-to-6 handed full-game PokerKit parity, focused adversarial side-pot/reopen tests, a second expanded PokerKit battery that includes **sub-BB forced-blind stacks**, and a bidirectional legal-action boundary oracle that checks actions PokerKit offers even when DeepCash would never choose them. The remaining R1 debt is now concentrated much more heavily in target-site/economy facts, optional straddle/ante variants and later native-performance parity.
 
-Failed oracle runs remain part of the audit trail. Two of them found real problems, and one later failure identified a harness synchronization difference rather than an engine semantic error.
+Failed oracle runs remain part of the audit trail. Several failures found real engine/harness problems; the newest legal-boundary failure instead exposed one narrow semantic divergence in the pinned PokerKit implementation, which is now isolated explicitly rather than copied into DeepCash.
 
 ## Accepted evidence
 
@@ -12,6 +12,10 @@ Failed oracle runs remain part of the audit trail. Two of them found real proble
 
 - run `31948882362` on commit `acd390baa75cd4f94b7bf8894ef075c1cc691152`: **PASS**;
 - exact-engine foundation tests, state-machine tests, deterministic replay, randomized chip conservation and explicit multiway side-pot regressions.
+
+Latest broad regression after the R1 v3 oracle and initial R4 representation infrastructure:
+
+- run `31963863833` on commit `5e6c46349980b9a6e861b69736a3d7c49bb7f686`: **PASS**.
 
 ### Evaluator oracle gate
 
@@ -105,7 +109,7 @@ The external harness was therefore normalized in a fail-closed way: it may consu
 
 Accepted expanded run:
 
-- workflow `DeepCash full-game rules oracle sub-BB`;
+- canonical workflow `DeepCash full-game rules oracle` after promotion of the sub-BB wrapper;
 - run `31961946231` on commit `8d03674495e64b563751bfa07d08e287ba066397`: **PASS**;
 - **200 randomized traces, 40 per player count from 2 through 6**;
 - deterministic forced short-blind fixtures plus broad shallow/random stacks;
@@ -133,9 +137,46 @@ The focused fixtures cover:
 
 Odd-chip settlement is fail-closed: a tie requiring odd-chip allocation must provide an order covering every tied winner, and duplicate/incomplete orders are rejected rather than falling back silently to seat order. **The target site's actual order remains unconfirmed configuration debt.**
 
+### Bidirectional legal-action boundary oracle v3
+
+The original full-game mirror proved that actions **chosen by DeepCash** were accepted by PokerKit, but that direction alone could miss an action that PokerKit offered and DeepCash silently omitted. A new boundary oracle therefore compares the live action surface before every sampled decision: actor, call geometry, fold/check/call availability, raise availability, the lower and upper `RAISE_TO` boundaries and one-chip probes outside those boundaries.
+
+The first API-robust bidirectional run, v2 `31962983114`, **failed** after many successful traces and exposed a very specific five-handed preflop case:
+
+- stacks `(20, 180, 300, 100, 1100)`;
+- action history `CALL, FOLD, CALL, RAISE_TO(180)`;
+- live big blind / full-raise increment = 100;
+- the actor had already faced 100 and now faced only an additional 80;
+- DeepCash correctly kept `raise_right_open = false` under `CUMULATIVE_FULL_RAISE`;
+- pinned PokerKit nevertheless offered a reraise.
+
+Inspection of the pinned PokerKit implementation showed why this is not a reason to weaken DeepCash. PokerKit begins the betting round with its internal `completion_betting_or_raising_amount` at zero. In this exact blind-epoch corner case, a first voluntary short all-in from 100 to 180 becomes an 80-chip internal completion/raise baseline, and PokerKit resets prior acted-player state even though the player is not facing a full 100-chip raise above the price already faced. This diverges from the generic cumulative-full-raise contract DeepCash intentionally implements.
+
+The DeepCash engine was **not** changed to imitate that upstream behavior. Instead:
+
+- commit `e403ed3ffbe46cea91f971db6b8c5c36ac028555` added a direct regression proving that a caller of 100 who later faces 180 may call/fold but may not reraise under the generic cumulative-full-raise policy;
+- `tools/crosscheck_pokerkit_legal_actions_v3.py` retains every v2 bidirectional boundary check and permits only the structurally identified PokerKit blind-epoch divergence;
+- the overlay checks the upstream mechanism, not merely the surface mismatch: preflop only, prior faced price exactly one nominal BB, current price strictly between one and two BB, faced increase below the full-raise increment, PokerKit's consecutive short-all-in amount equal to its own completion baseline, and prior actor removed from PokerKit's acted set;
+- any other discrepancy remains a hard failure.
+
+Accepted v3 evidence:
+
+- workflow `DeepCash R1 legal-action oracle v3`;
+- run `31963863819` on commit `5e6c46349980b9a6e861b69736a3d7c49bb7f686`: **PASS**;
+- **120 deterministic full-game traces**, 24 for every player count from 2 through 6;
+- **592 live decision states** checked bidirectionally;
+- exactly **1** documented pinned-PokerKit blind-epoch divergence, the precommitted case above;
+- all other action boundaries and every completed-hand final stack passed.
+
+The final log ends with:
+
+`PokerKit/TDA bidirectional legal-action oracle v3 PASS; hands=120 states=592 expected_blind_epoch_divergences=1 cases_per_player_count=24 seed=510270039 pin=5841c0afe4d6eb71ae5db0f8a6a376ee3e329afb`
+
+This strengthens R1 because the external oracle is no longer treated as infallible: disagreement is investigated down to rule/state semantics and retained as explicit evidence. It does **not** settle the target poker site's reopen rule; target-site confirmation remains release debt.
+
 ## Why R1 is still not PASS
 
-The conventional generic engine is now strongly cross-checked, including shallow/sub-BB stacks. Production semantics still depend on target-game facts that must not be guessed:
+The conventional generic engine is now strongly cross-checked, including shallow/sub-BB stacks and bidirectional action availability. Production semantics still depend on target-game facts that must not be guessed:
 
 1. target-site short-all-in/reopen behavior;
 2. target-site odd-chip allocation order;
@@ -150,7 +191,7 @@ The Core keeps these as explicit configuration/debt instead of silently promotin
 
 R1 may continue in parallel with R3/R4 engineering. Before R1 PASS:
 
-- preserve the expanded self-diagnosing PokerKit full-game oracle as a required regression gate;
+- preserve the expanded self-diagnosing full-game oracle and bidirectional legal-boundary oracle as required regression gates;
 - parameterize any remaining target-dependent settlement/forced-bet rule;
 - freeze the target cash-game economy from authoritative/client evidence once the target games are selected;
 - add native evaluator parity when optimization becomes justified.
