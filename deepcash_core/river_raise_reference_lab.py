@@ -36,6 +36,11 @@ class AsymmetricRiverRaiseGameSpec:
     by raiser. This lets R3 restrict only one player's opening action set while
     leaving the richer raise-response geometry unchanged, isolating the value of
     omitted opening sizes in a tree where raises actually exist.
+
+    An empty target tuple is meaningful: the faced opening bet is all-in (or
+    otherwise leaves no legal raise response), so the responder retains only
+    fold/call. This is required for exact low-SPR geometry rather than silently
+    deleting all-in opening actions from the reference game.
     """
 
     board: tuple[int, int, int, int, int]
@@ -87,8 +92,11 @@ class AsymmetricRiverRaiseGameSpec:
         if len(mapping) != len(entries) or set(mapping) != set(faced_sizes):
             raise ValueError(f"{name} must cover every faced opening bet exactly once")
         for bet, targets in entries:
-            if not targets or tuple(sorted(set(targets))) != targets:
-                raise ValueError(f"{name} targets must be non-empty, sorted and unique")
+            # Empty is legal and explicitly represents a faced all-in/no-raise
+            # node. Non-empty tuples must remain canonical and strictly above
+            # the opening bet.
+            if tuple(sorted(set(targets))) != targets:
+                raise ValueError(f"{name} targets must be sorted and unique")
             if any(target <= bet for target in targets):
                 raise ValueError(f"{name} raise target must exceed faced opening bet")
 
