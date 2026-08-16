@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from deepcash_core.cards import card_from_str
@@ -9,6 +11,13 @@ from deepcash_core.river_representation_lab import (
     exact_bucket_maps,
     one_sided_bucket_maps,
     solve_river_representation_cfr_plus,
+)
+from deepcash_core.river_representation_training import (
+    advance_representation_cfr_plus,
+    init_representation_cfr_plus,
+    representation_result_from_state,
+    state_from_dict,
+    state_to_dict,
 )
 
 
@@ -107,4 +116,42 @@ def test_common_reference_representation_loss_is_measured_in_exact_game():
     assert bounds["worst_loss_upper"] >= 0.0
     assert bounds["worst_loss_upper_per_pot"] == pytest.approx(
         bounds["worst_loss_upper"] / spec.pot
+    )
+
+
+def test_representation_cfr_staged_training_matches_monolithic_exactly():
+    spec = fixture_spec()
+    maps = candidate_bucket_maps(spec, "equity4_blocker2")
+
+    staged = init_representation_cfr_plus(spec, maps)
+    advance_representation_cfr_plus(spec, maps, staged, additional_iterations=35)
+    advance_representation_cfr_plus(spec, maps, staged, additional_iterations=65)
+
+    monolithic = init_representation_cfr_plus(spec, maps)
+    advance_representation_cfr_plus(spec, maps, monolithic, additional_iterations=100)
+
+    assert staged == monolithic
+    assert representation_result_from_state(spec, maps, staged) == (
+        representation_result_from_state(spec, maps, monolithic)
+    )
+    assert representation_result_from_state(spec, maps, staged) == (
+        solve_river_representation_cfr_plus(spec, maps, iterations=100)
+    )
+
+
+def test_representation_checkpoint_json_roundtrip_preserves_future_path():
+    spec = fixture_spec()
+    maps = candidate_bucket_maps(spec, "category_equity4")
+    original = init_representation_cfr_plus(spec, maps)
+    advance_representation_cfr_plus(spec, maps, original, additional_iterations=40)
+
+    payload = json.loads(json.dumps(state_to_dict(original)))
+    restored = state_from_dict(spec, maps, payload)
+    assert restored == original
+
+    advance_representation_cfr_plus(spec, maps, original, additional_iterations=60)
+    advance_representation_cfr_plus(spec, maps, restored, additional_iterations=60)
+    assert restored == original
+    assert representation_result_from_state(spec, maps, restored) == (
+        representation_result_from_state(spec, maps, original)
     )
