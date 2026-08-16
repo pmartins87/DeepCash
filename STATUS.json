@@ -5,13 +5,13 @@
   "hardware_target": "single Ryzen 9",
   "production_training_envelope": "approximately three months after pretraining gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
-  "current_gate": "R1 target-site/release debt + R3 held-out/raise-size/action-cost engineering",
+  "current_gate": "R1 target-site/release debt + R3 action-abstraction held-out evidence + R4 representation engineering",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
     "R2": "PASS",
     "R3": "IN_PROGRESS",
-    "R4": "PENDING",
+    "R4": "IN_PROGRESS",
     "R5": "PENDING",
     "R6": "PENDING",
     "R7": "PENDING",
@@ -79,6 +79,18 @@
         "accepted only after correcting effectively-all-in dry-side-pot raise legality"
       ]
     },
+    "r1_pokerkit_random_2_to_6_handed_subbb": {
+      "run_id": 31961946231,
+      "head_sha": "8d03674495e64b563751bfa07d08e287ba066397",
+      "conclusion": "success",
+      "checks": [
+        "40 deterministic randomized hands per player count from 2 through 6",
+        "200 randomized full-game traces total plus fixed traces",
+        "short-SB, short-BB, both-blinds-short, shallow and random 20-chip-granularity stacks",
+        "exact final-stack parity against pinned PokerKit",
+        "only zero-chip no-strategy PokerKit bookkeeping checks may be normalized fail-closed"
+      ]
+    },
     "r1_effectively_all_in_dry_side_pot_regression": {
       "run_id": 31960383715,
       "head_sha": "8bfe751cede717fa2af6c901856dab5013407c78",
@@ -96,6 +108,18 @@
         "ANY_INCREASE versus NEVER reopen semantics remain distinct",
         "nested four-way side pots",
         "explicit fail-closed odd-chip ordering"
+      ]
+    },
+    "r1_legal_action_oracle_v3": {
+      "run_id": 31963863819,
+      "head_sha": "5e6c46349980b9a6e861b69736a3d7c49bb7f686",
+      "conclusion": "success",
+      "checks": [
+        "120 deterministic full-game traces, 24 per player count from 2 through 6",
+        "592 live decision states checked bidirectionally",
+        "actor/call/fold/check/raise availability and raise-to lower/upper/one-chip boundaries",
+        "exactly one structurally documented pinned-PokerKit preflop blind-epoch reopen divergence",
+        "DeepCash retained cumulative-full-raise semantics instead of copying the upstream divergence"
       ]
     },
     "r2_canonical_state": {
@@ -146,24 +170,6 @@
         "checkpoints": [250, 1000, 3000],
         "candidates": ["O1_50", "O2_25_75", "O3_25_50_100"]
       },
-      "artifacts": {
-        "spr_0_5": {
-          "id": 9267189103,
-          "sha256": "953e23ddd6a3e3ede41de1c746030a47929c7797bae9fcd524f4164cef62b206"
-        },
-        "spr_1": {
-          "id": 9267209423,
-          "sha256": "6b33a6117f83d75ea1b4480ee6c518dc3c1892982b51fe3c9e75a60e87d67863"
-        },
-        "spr_2": {
-          "id": 9267212233,
-          "sha256": "dbe4a829aef43729561f3ae10344b89ca626927d4e8f8f573884ec5236b5678c"
-        },
-        "spr_4": {
-          "id": 9267213394,
-          "sha256": "3f36e74bcdd0cc060cc33d83b83f8fe66d3b11b206d2cd29db2f8c89ef151fad"
-        }
-      },
       "latest_checkpoint_summary": {
         "spr_0_5": {
           "O1_mean_worst": [0.00176802, 0.00422536],
@@ -174,7 +180,7 @@
         "spr_1": {
           "O1_mean_worst": [0.01899489, 0.02340501],
           "O2_mean_worst": [0.00819711, 0.01040966],
-          "O3_mean_worst": [0.00151017, 0.00162960],
+          "O3_mean_worst": [0.00151017, 0.0016296],
           "worst_interval": 0.00186018
         },
         "spr_2": {
@@ -187,37 +193,58 @@
           "O1_mean_worst": [0.02668787, 0.03380718],
           "O2_mean_worst": [0.01125024, 0.01384253],
           "O3_mean_worst": [0.00129484, 0.00316745],
-          "worst_interval": 0.00196600
+          "worst_interval": 0.001966
         }
       },
-      "interpretation": "O3 is the leading opening-size engineering candidate on the control SPR range; at SPR 0.5 O2 and O3 collapse to the same materialized action set; no production freeze"
+      "interpretation": "O3 led the original control family at SPR >= 1; at SPR 0.5 O2/O3 collapse to the same materialized action set; no production freeze"
     },
     "r3_raise_size_reference_smoke": {
       "run_id": 31960872365,
       "conclusion": "success",
       "artifact_id": 9267206071,
       "artifact_sha256": "36dc43cd28ca7063e8c9bd7dfcf3be58b30338a1db6f601018b0718412f89216",
-      "interpretation": "1200-iteration single-board candidate differences remain dominated by exact-BR interval uncertainty; selects nothing"
+      "interpretation": "single-board smoke useful for wiring/convergence only; selects nothing"
     },
-    "latest_general_ci_before_current_r3_extensions": {
-      "run_id": 31960722077,
-      "conclusion": "success"
+    "latest_general_ci": {
+      "run_id": 31963863833,
+      "head_sha": "5e6c46349980b9a6e861b69736a3d7c49bb7f686",
+      "conclusion": "success",
+      "checks": [
+        "R1 live-BB short-all-in regression",
+        "R4 exact representation control equivalence",
+        "R4 deterministic feature/bucket invariance tests",
+        "R4 staged-vs-monolithic CFR+ equivalence",
+        "R4 JSON checkpoint future-path equivalence"
+      ]
     }
   },
   "running_or_unaccepted_gates": {
-    "raise_size_multiboard_v2": {
-      "run_id": 31960969252,
-      "accept_only_if": "workflow completes successfully and intervals/results are inspected"
+    "r3_opening_subset_lattice_to_unseen_v2": {
+      "run_id": 31962334355,
+      "head_sha": "723096d01cea3a2bd39869734329f81ecd480aad",
+      "status_last_checked": "in_progress",
+      "accept_only_if": "workflow completes successfully, precommitted subset winners are selected before unseen-v2 consumption, and artifacts/results are inspected"
     },
-    "opening_size_heldout_v1": {
-      "workflow": ".github/workflows/river-raise-opening-heldout-v1.yml",
-      "launch_commit": "df2145abdda4ad2e841a01b8bc58907b533adc16",
-      "precommit": {
-        "board_set": "six held-out families distinct from development controls",
-        "range_phases": [0.13, 0.61],
-        "range_combos_per_player": 6,
-        "sprs": [1.0, 4.0],
-        "checkpoints": [250, 1000, 3000]
+    "r3_raise_size_heldout_v1": {
+      "run_id": 31962687271,
+      "head_sha": "7a4a323d8f541b315f9ac3da03ccdd74296b9003",
+      "status_last_checked": "in_progress",
+      "accept_only_if": "workflow completes successfully and independent raise-size held-out intervals/results are inspected"
+    },
+    "r4_development_numeric_battery": {
+      "status": "NOT_RUN",
+      "board_set": "development controls only",
+      "rule": "freeze a deterministic development selection procedure before running R4 heldout_v1"
+    },
+    "r4_heldout_v1": {
+      "status": "PRECOMMITTED_NOT_RUN",
+      "precommit": "docs/R4_HELDOUT_PRECOMMIT_20260816.md",
+      "configuration": {
+        "boards": 8,
+        "range_combos_per_player": 8,
+        "range_phase_pairs": [[0.19, 0.47], [0.58, 0.83]],
+        "sprs": [1.0, 2.0, 4.0],
+        "checkpoints": [300, 1200, 3600]
       }
     }
   },
@@ -225,17 +252,26 @@
     "target-site short-all-in/reopen confirmation",
     "target-site odd-chip ordering confirmation",
     "target-site rake eligibility/cap/rounding/timing evidence",
-    "forced-blind/straddle/ante and sub-BB stack edge cases if required by target economy",
-    "additional adversarial/property coverage beyond current deterministic samples",
+    "straddle/ante/other forced-bet variants if present in selected target games",
+    "additional adversarial/property coverage as engine features expand",
     "cross-language/native evaluator parity before performance-critical production use"
   ],
   "r3_open_items": [
-    "accept/reject running multi-board raise-size battery from workflow evidence",
-    "accept/reject precommitted held-out opening-size battery from workflow evidence",
-    "expand held-out evidence only if unresolved geometry-specific behavior remains",
+    "accept/reject opening subset-lattice -> unseen-v2 workflow from completed evidence",
+    "accept/reject independent raise-size heldout-v1 workflow from completed evidence",
     "tighten exact-BR intervals on difficult boards where needed",
     "physical equal-wall-clock candidate comparison on the Ryzen 9",
-    "future-evidence selection procedure and production action-family freeze"
+    "production action-family freeze"
+  ],
+  "r4_open_items": [
+    "run development-only deterministic representation battery",
+    "freeze deterministic selection procedure before heldout-v1",
+    "global suit-permutation representation-level metamorphic tests",
+    "counterfactual-value feature/clustering candidates after deterministic controls",
+    "learned embeddings only if justified by measured gains",
+    "heldout-v1 evaluation on the precommitted independent generation",
+    "physical Ryzen equal-wall-clock comparison",
+    "production representation freeze"
   ],
   "open_decisions": [
     "authoritative poker site and cash-game economy",
@@ -254,6 +290,7 @@
     "opponent private cards never leak into decision representation",
     "no raise may create a side-pot tranche that no opponent can contest",
     "all-in openings retain exact fold/call/no-raise semantics",
+    "lossy representation may alias solver infosets but never mutate exact game/chance/payoff state",
     "development controls and held-out fixtures remain explicitly separated",
     "no long production training before rule/representation/action/solver gates pass"
   ]
