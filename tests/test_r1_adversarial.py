@@ -43,6 +43,36 @@ def test_cumulative_short_raises_just_below_full_raise_do_not_reopen_prior_actor
     assert legal.can_raise is False
 
 
+def test_preflop_first_short_allin_above_live_big_blind_does_not_reopen_limper():
+    # Generic NLHE contract used by DeepCash (Poker TDA Rule 47 semantics): a
+    # live big blind is already a full wager. A player who has called that 100
+    # and later faces a first voluntary all-in raise only to 180 is facing +80,
+    # not a full +100 raise, so their raise right remains closed. The pinned
+    # PokerKit build currently differs in precisely this blind-epoch corner case
+    # because its internal completion/raise amount begins at zero even though the
+    # live big blind is 100; the independent v3 oracle records that discrepancy
+    # explicitly instead of changing the DeepCash engine to match it.
+    st = BettingRoundState.create(
+        order=(0, 1, 2),
+        stacks={0: 1000, 1: 180, 2: 900},
+        committed={2: 100},
+        min_bet=100,
+        config=BettingConfig(
+            short_all_in_reopen=ShortAllInReopenPolicy.CUMULATIVE_FULL_RAISE
+        ),
+    )
+    assert st.actor == 0
+    st = st.apply(A("CALL"))
+    st = st.apply(A("RAISE_TO", 180))
+    st = st.apply(A("CALL"))
+    assert st.actor == 0
+    legal = st.legal_actions()
+    assert legal.to_call == 80
+    assert legal.call_amount == 80
+    assert legal.raise_right_open is False
+    assert legal.can_raise is False
+
+
 def test_cumulative_short_raises_exactly_full_raise_reopen_prior_actor():
     # Same geometry, but the aggregate short-raise increase reaches exactly 100.
     st = BettingRoundState.create(
