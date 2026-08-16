@@ -7,7 +7,9 @@ on:
     paths:
       - 'deepcash_core/river_representation_br.py'
       - 'deepcash_core/river_representation_training.py'
+      - 'deepcash_core/river_representation_solver.py'
       - 'tests/test_river_representation_br.py'
+      - 'tests/test_river_representation_lab.py'
       - 'docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md'
       - '.github/workflows/river-representation-dev-v2.yml'
 
