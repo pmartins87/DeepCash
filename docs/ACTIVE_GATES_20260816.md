@@ -16,32 +16,29 @@ Accepted generic-rules evidence:
 
 DeepCash intentionally keeps cumulative-full-raise semantics instead of copying the upstream PokerKit blind-epoch behavior. Target-site reopen evidence is still unresolved, so `R1 = IN PROGRESS`.
 
-## R3 — opening-size subset lattice -> unseen v2 — RUNNING / UNACCEPTED
+## R3 — opening-size lattice engineering selection — ACCEPTED; unseen v2 RUNNING
 
-Run `31962334355`.
+Workflow run `31962334355`, source commit `723096d01cea3a2bd39869734329f81ecd480aad`.
 
-The engineering lattice evaluates every one-, two- and three-size proper subset of the fixed `{25,50,75,100}%` opening reference. A frozen selector may forward exactly one champion at each cardinality, using worst conservative restriction-loss upper bound, then mean upper bound, training time and lexical tie-break.
+Every one-, two- and three-size proper subset of `{25,50,75,100}%` was evaluated on the four precommitted seen engineering cells. All four lattice jobs passed. The frozen selector then completed successfully and forwarded exactly one champion per cardinality:
 
-Latest inspection:
+| complexity | champion | worst upper/pot | mean upper/pot | worst interval/pot |
+|---:|---|---:|---:|---:|
+| 1 | `L1_100` | 0.00881885 | 0.00269107 | 0.00273509 |
+| 2 | `L2_50_100` | 0.00342888 | 0.00153998 | 0.00285407 |
+| 3 | `L3_25_50_100` | 0.00316745 | 0.00132747 | 0.00273929 |
 
-- control SPR 1: PASS;
-- control SPR 4: PASS;
-- seen heldout-v1 SPR 1: numerical analysis completed and artifact upload in progress/completing;
-- seen heldout-v1 SPR 4: still running.
+Selector artifact `9268277521`, SHA-256 `f17838f1196564e4e30a9b622d85bd0157ce1d17b92af1cff349bb2f1427897a`.
 
-The true unseen-v2 generation was precommitted before lattice results are accepted: six new boards, 8 combos/player, phases 0.31/0.79, SPR 1/2/4, checkpoints 300/1200/3600. Only the three preselected cardinality champions may enter it.
+The old `O3_25_50_100` hypothesis therefore survived the complete four-size proper-subset search as the winning three-size engineering subset. This is not a complexity freeze: 2-size vs 3-size differences remain close to exact-BR resolution on seen evidence.
 
-No opening family is accepted until the complete lattice -> selector -> unseen-v2 chain finishes and is inspected.
+Only after selection did the precommitted unseen-v2 generation launch. Current held-out-v2 jobs are running at SPR 1/2/4, using only `L1_100,L2_50_100,L3_25_50_100`, six new boards, 8 combos/player, phases 0.31/0.79 and checkpoints 300/1200/3600.
+
+Full seen-data selection evidence: `docs/R3_OPENING_LATTICE_SELECTION_ACCEPTED_20260816.md`.
 
 ## R3 — independent raise-size held-out — ACCEPTED AS ENGINEERING EVIDENCE
 
-Source run `31962687271` completed all three numerical cells successfully:
-
-- SPR 1 artifact `9267994573`;
-- SPR 2 artifact `9268089087`;
-- SPR 4 artifact `9268068340`.
-
-The source workflow's final summary job failed only because `tools/summarize_raise_size_heldout.py` did not exist at that historical commit. The numerical cells were not rerun. A fail-closed summarizer and tests were added, and dedicated postprocessor run `31964700344` downloaded the immutable source artifacts and passed. Summary artifact: `9268162754`, SHA-256 `a77790aefe7e255f0d4ec7a76cbdb2c8d7331432ab664583036888695734f9b5`. General CI `31964700348` also passed.
+Source run `31962687271` completed all three numerical cells successfully. A historical missing summarizer caused only the final postprocessing job to fail; the expensive cells were not rerun. Fail-closed postprocessor run `31964700344` downloaded the immutable artifacts and passed. General CI `31964700348` also passed.
 
 Accepted cross-SPR descriptive results at checkpoint 3600:
 
@@ -52,26 +49,19 @@ Accepted cross-SPR descriptive results at checkpoint 3600:
 | Q2_100_150 | 0.00189127 | 0.01123168 | 0.00763065 | 1568.38 | no |
 | Q3_50_100_150 | 0.00082204 | 0.00254006 | 0.00000000 | 1662.45 | no |
 
-Interpretation:
+At SPR 2/4, omitting the 50% raise produces material resolved loss. `Q2_50_100` remains essentially resolution-limited while cheaper than the full Q3 family, so it is the leading raise-size engineering candidate, not a production freeze.
 
-- SPR 1 clips all four nominal candidates to the same physical action tree;
-- at SPR 2/4, omitting the 50% raise produces material resolved loss;
-- 50%+100% remains essentially resolution-limited while being cheaper than 50%+100%+150%;
-- `Q2_50_100` is therefore the leading **raise-size engineering candidate**, not a production freeze.
-
-Full inspected evidence: `docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md`.
-
-R3 still requires opening unseen-v2, any necessary exact-BR tightening and physical Ryzen equal-compute evidence.
+Full evidence: `docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md`.
 
 ## R4 — deterministic representation development — RUNNING / UNACCEPTED
 
 Workflow run `31964142661` is active.
 
-Frozen development battery:
+Frozen battery:
 
-- boards: four already-seen control boards only;
-- candidates: `category`, `strength4`, `equity4`, `equity8`, `category_equity4`, `equity4_blocker2`, `equity8_blocker2`;
-- phase pairs: 0.00/0.27 and 0.11/0.54;
+- four already-seen development control boards;
+- candidates `category`, `strength4`, `equity4`, `equity8`, `category_equity4`, `equity4_blocker2`, `equity8_blocker2`;
+- phase pairs 0.00/0.27 and 0.11/0.54;
 - 6 exact combos/player;
 - SPR 1/2/4;
 - checkpoints 100/400/1200;
@@ -81,13 +71,54 @@ Latest inspection:
 
 - phase A / SPR 1: PASS;
 - phase A / SPR 2: running;
-- remaining four cells: pending.
+- remaining cells pending.
 
-The development selector was frozen before numerical inspection in `docs/R4_DEV_SELECTION_PRECOMMIT_20260816.md`. It uses conservative strategic-loss plus compression/cost Pareto logic and may carry at most three deterministic finalists.
+The development selection rule was frozen before numerical inspection and may carry at most three deterministic finalists. The independent R4 heldout-v1 generation remains firewalled and NOT RUN.
 
-R4 machinery already has passing regressions for exact-control equivalence, one-sided candidate-vs-exact restriction, deterministic checkpoint/resume, hole-card-order invariance and all 24 global suit permutations for every current candidate.
+R4 correctness machinery already has passing regressions for exact-control equivalence, one-sided candidate-vs-exact restriction, deterministic checkpoint/resume, hole-card-order invariance and all 24 global suit permutations.
 
-The independent R4 heldout-v1 set remains firewalled and **NOT RUN**. Its eight boards, two alternate range-phase pairs, 8 combos/player, SPR 1/2/4 and 300/1200/3600 checkpoints were frozen before any R4 numerical result.
+## R5 — exact tabular control — ACCEPTED; external sampling RUNNING
+
+R5 is now **IN PROGRESS**.
+
+### Exact synchronous control
+
+Precommit: `docs/R5_TABULAR_SOLVER_PRECOMMIT_20260816.md`.
+
+Correctness CI run `31964902028`: **PASS**.
+
+Benchmark run `31964902076`: **PASS**. Artifact `9268225276`, SHA-256 `53fca369a4856faafbd1a7427335a1bda0399e21c8d4835c99cb4a36598110e0`.
+
+At checkpoint 1200 across four exact river control boards:
+
+| variant | mean exploitability/pot | worst exploitability/pot | mean cumulative CI training s |
+|---|---:|---:|---:|
+| CFR uniform | 0.002648 | 0.003149 | 2.958 |
+| CFR linear | 0.006388 | 0.009714 | 2.956 |
+| CFR+ uniform | 0.001430 | 0.001809 | 2.986 |
+| CFR+ linear | **0.000398** | **0.000455** | 2.974 |
+
+`CFR_PLUS_LINEAR` is accepted as the leading exact tabular control. It is not the production solver because synchronous full-tree traversal does not scale to 6-max.
+
+Full evidence: `docs/R5_TABULAR_SOLVER_DEV_ACCEPTED_20260816.md`.
+
+### Deterministic external-sampling MCCFR
+
+Precommit: `docs/R5_EXTERNAL_SAMPLING_PRECOMMIT_20260816.md`.
+
+Implemented/gated:
+
+- `ES_CFR_LINEAR` and `ES_CFR_PLUS_LINEAR`;
+- chance and non-traverser action sampling;
+- traverser action enumeration;
+- common pre-update strategy snapshot for both traversers;
+- exact own-reach average strategy in this first small-game control;
+- deterministic PRNG state in checkpoints;
+- same-seed identity, staged-vs-monolithic identity, JSON future-path identity, wrong-variant and non-finite fail-closed tests.
+
+General CI run `31965167839`: **PASS**.
+
+Numerical workflow run `31965167770` is **IN PROGRESS** on the four control boards, two variants, four frozen seeds and checkpoints 1000/5000/20000. Results remain unaccepted until completion and inspection.
 
 ## Current project state
 
@@ -101,7 +132,9 @@ The independent R4 heldout-v1 set remains firewalled and **NOT RUN**. Its eight 
 
 `R4 = IN PROGRESS`
 
-`R5-R8 = PENDING`
+`R5 = IN PROGRESS`
+
+`R6-R8 = PENDING`
 
 `R9 = BLOCKED`
 
