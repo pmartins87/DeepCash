@@ -1,0 +1,46 @@
+name: DeepCash raise-size reference smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deepcash_core/river_benchmark_fixtures.py'
+      - 'deepcash_core/river_raise_reference_lab.py'
+      - 'deepcash_core/river_raise_reference_training.py'
+      - 'deepcash_core/reference_convergence_analysis.py'
+      - 'tools/benchmark_river_raise_size_reference_convergence.py'
+      - 'tools/analyze_river_reference_convergence.py'
+      - '.github/workflows/river-raise-size-reference-smoke.yml'
+
+jobs:
+  raise-size-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run raise-size common-reference convergence smoke
+        run: >-
+          python tools/benchmark_river_raise_size_reference_convergence.py
+          --checkpoints 100,400,1200
+          --range-combos 3
+          --pot 100
+          --stack 400
+          --boards A_high_dry
+          --candidates Q1_100,Q2_50_100,Q2_100_150,Q3_50_100_150
+          --out river_raise_size_reference_smoke.json
+      - name: Analyze convergence without post-hoc thresholds
+        run: >-
+          python tools/analyze_river_reference_convergence.py
+          river_raise_size_reference_smoke.json
+          --out river_raise_size_reference_smoke_analysis.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: river-raise-size-reference-smoke
+          path: |
+            river_raise_size_reference_smoke.json
+            river_raise_size_reference_smoke_analysis.json
