@@ -60,6 +60,8 @@ The first replay attempt run `31976177786` failed because one old unit test stil
 
 Corrected replay run `31976302604`: bucket-constrained BR oracle step **PASS**; full frozen development replay is currently running. General CI at commit `292fc68...`, run `31976302695`, is PASS.
 
+Legacy v1 run `31976111855` is also still running at the older head `9e5be55...`. It lacks the v2 canonical wrapper and explicit structural-gate step added later, so it is **SUPERSEDED / INELIGIBLE FOR PROMOTION** regardless of eventual workflow conclusion. Only v2 run `31976302604` may supply the corrected development artifact.
+
 ### Held-out firewall
 
 R4 held-out v1 remains **PRECOMMITTED_NOT_RUN**. It may not be consumed until the corrected development replay is inspected and at most three deterministic finalists are explicitly frozen.
@@ -100,13 +102,33 @@ Global 2000-iteration result over 4 boards × 5 seeds:
 
 Legal `INFOSET_EXACT` improves mean exploitability by about 3.36% but at ~4.71x hosted-CI training time. Privileged `PERFECT_HISTORY` improves it by about 13.34% and remains permanently production-ineligible. This shows meaningful reducible opponent-action variance exists, but exact hidden-support integration is too expensive for its observed gain. Full interpretation: `docs/R5_VR_MODE_BENCHMARK_V2_ACCEPTED_20260816.md`.
 
-### Cheap no-leak tabular baseline — STRUCTURAL GATE PASS; NUMERIC BENCHMARK RUNNING
+### Cheap no-leak tabular baseline — STRUCTURAL AND NUMERIC EVIDENCE ACCEPTED
 
 `deepcash_core/river_vr_tabular.py` implements `TABULAR_RUNNING`: running action-value baselines keyed only by traverser private combo + public opponent node + action. The baseline is frozen before the current sample is corrected and updated only afterward.
 
 Dedicated oracle run `31976450221`: **PASS**. It proves first-iteration identity with ZERO, same-seed determinism, staged=monolithic training, JSON checkpoint exact future-path equivalence, and no realized-opponent-hand component in baseline identity.
 
-The numerical comparison was frozen before execution in `docs/R5_TABULAR_VR_BENCHMARK_PLAN_20260816.md`. Run `31976572985` is currently comparing ZERO / TABULAR_RUNNING / INFOSET_EXACT at cumulative checkpoints 500/2000/10000 over the same four boards and five seeds. No result is accepted until completion and artifact inspection.
+The comparison was frozen before execution in `docs/R5_TABULAR_VR_BENCHMARK_PLAN_20260816.md`. Numerical run `31976572985`: **PASS**. Artifact `9271293501`, ZIP SHA-256 `83e04bf241f59d645d7be68c9f781042f4dfe85a970b4f5d17ab5c6b7c6d67d6`. The archive, schema/configuration, 180 raw rows and reported aggregates were independently re-audited on 2026-08-17.
+
+At 10k iterations over four boards × five seeds:
+
+| mode | mean exploitability/pot | sample stdev | mean train s | time vs ZERO |
+|---|---:|---:|---:|---:|
+| ZERO | 0.01619797 | 0.00188020 | 3.41965 | 1.000x |
+| TABULAR_RUNNING | **0.01577459** | **0.00098999** | 3.84933 | 1.126x |
+| INFOSET_EXACT | 0.01500396 | 0.00101858 | 14.25467 | 4.168x |
+
+`TABULAR_RUNNING` lowers mean exploitability by about 2.61% versus ZERO and wins 11/20 paired cells; its cross-seed dispersion is about 47% lower at low overhead. It is accepted as the leading cheap legal external-sampling VR primitive currently tested, **not** as a production solver winner.
+
+Full interpretation: `docs/R5_TABULAR_VR_BENCHMARK_V1_ACCEPTED_20260816.md`.
+
+### Equal-wall-clock/scaling comparison — PRECOMMIT PREPARED, NOT RUN
+
+The next gate is frozen in `docs/R5_EQUAL_WALLCLOCK_SCALING_PRECOMMIT_20260817.md`. It compares only already-accepted implementations as separate, semantically honest comparators: optimized external CFR+ with ZERO, optimized external CFR+ with TABULAR_RUNNING, correlated chance CFR+ and INFOSET_EXACT as an expensive legal reference.
+
+No hybrid CCS+external/tabular algorithm is claimed: correlated chance samples only the private-deal chance node while traversing the complete action tree; TABULAR_RUNNING corrects sampled opponent actions inside external sampling. Integration would require its own structural/unbiasedness gate before numerical consumption.
+
+Execution remains **NOT RUN** while the two R4 development workflows consume hosted CI. Hosted timing will remain engineering evidence; physical Ryzen equal-wall-clock comparison remains mandatory.
 
 ### Modern candidate funnel
 
