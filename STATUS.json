@@ -190,7 +190,7 @@
   "running_or_unaccepted_gates": {
     "R4_representation_dev_v2_bucket_br": {
       "run": 31976302604,
-      "status_last_checked": "in_progress: phase A / SPR4",
+      "status_last_checked": "in_progress: phase B / SPR1",
       "correction_doc": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
       "heldout_v1": "PRECOMMITTED_NOT_RUN",
       "rule": "corrected bucket-constrained BR development evidence must be inspected and at most three finalists frozen before heldout-v1 consumption"
