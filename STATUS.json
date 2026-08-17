@@ -200,6 +200,22 @@
       "status_last_checked": "in_progress: phase B / SPR1",
       "acceptance": "INELIGIBLE",
       "reason": "older workflow/head lacks the canonical v2 wrapper plus explicit bucket-constrained-BR structural gate; never promote this run over v2 run 31976302604"
+    },
+    "R1_ggpoker_universal_site_contract": {
+      "status_last_checked": "IMPLEMENTED_AWAITING_CI",
+      "branch": "agent/r1-site-rule-contract",
+      "status_doc": "docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md",
+      "confirmed_scope": [
+        "published classic 6-max NLHE 5% rake grid and player-count caps",
+        "preflop rake eligibility only for 3-bet-or-higher pots",
+        "optional GGPoker straddle feature exists"
+      ],
+      "unresolved_release_facts": [
+        "short-all-in reopen semantics",
+        "odd-chip order",
+        "rake rounding and exact main/side-pot timing"
+      ],
+      "rule": "unresolved facts fail closed and cannot materialize production BettingConfig/RakePolicy"
     }
   },
   "invalidated_evidence": {
@@ -232,10 +248,12 @@
     "exact_tabular_solver_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
     "chance_sampling_primitive": "correlated chance sampling via persistent randomized Weyl stream",
     "sampled_regret_update": "TABULAR_RUNNING is the leading cheap legal external-sampling VR primitive; no production solver/traversal winner yet",
-    "private_state_representation": "not selected; corrected bucket-constrained BR replay active"
+    "private_state_representation": "not selected; corrected bucket-constrained BR replay active",
+    "site_rule_contract": "GGPoker reference behind typed universal adapter; implementation awaiting CI and target facts remain unresolved"
   },
   "next_critical_work": [
     "finish corrected R4 bucket-constrained-BR development replay and freeze at most three finalists before heldout-v1",
+    "close GGPoker short-all-in reopen, odd-chip and rake rounding/timing with authoritative or deterministic observed fixtures before R1 PASS",
     "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators after current R4 CI pressure clears",
     "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",
     "tighten R3 exact-BR intervals only where final action-family decisions remain resolution-limited",

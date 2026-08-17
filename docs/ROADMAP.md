@@ -42,6 +42,12 @@ Reference/deployment contract:
 - [ ] straddle/ante/other forced-bet variants if present;
 - [ ] later native/cross-language evaluator parity before production performance freeze.
 
+Implementation checkpoint (2026-08-17): the typed universal site-rule contract and
+GGPoker 6-max reference profile are implemented on `agent/r1-site-rule-contract`.
+Published rake rows and eligibility are recorded exactly; unresolved reopen,
+odd-chip and rake-rounding/timing facts fail closed. This is engineering progress,
+not R1 acceptance. Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
+
 Current evidence: `docs/R1_VALIDATION_STATUS.md` and `STATUS.json`.
 
 ## R2 — Canonical state and invariances

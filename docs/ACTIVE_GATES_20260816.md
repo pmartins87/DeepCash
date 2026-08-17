@@ -12,6 +12,17 @@ Target-site reopen, odd-chip, rake and optional forced-bet semantics remain unre
 
 **Reference model decision — 2026-08-17:** GGPoker is the initial cash-game rules/economy reference. The engine and strategy architecture remain site-agnostic; per-site rake/caps/rounding, reopen/min-raise, odd chips, forced bets, currency/table metadata and scraper/tablemap differences belong in explicit adapters/configuration. Small differences are not permission to assume identity; they must be measured before a site is homologated.
 
+### Universal site-rule contract — IMPLEMENTED_AWAITING_CI
+
+Branch: `agent/r1-site-rule-contract`.
+
+The GGPoker 6-max published rake grid, preflop rake eligibility and optional
+straddle feature are encoded behind a typed site adapter. Production configuration
+fails closed while short-all-in reopen, odd-chip order and rake rounding/timing
+remain unresolved. This checkpoint does not change R1 from IN_PROGRESS.
+
+Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
+
 ## R3 — action abstraction
 
 ### Opening-size complete lattice — ACCEPTED
