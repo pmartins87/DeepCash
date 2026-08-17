@@ -151,14 +151,25 @@ Current deterministic candidates:
 
 `category`, `strength4`, `equity4`, `equity8`, `category_equity4`, `equity4_blocker2`, `equity8_blocker2`.
 
-Running development workflow: `31964142661`.
+Corrected bucket-constrained-BR development run `31976302604` completed successfully. Artifact `9274193444` was fully audited; ZIP SHA-256 `b1edea689f1d7417f80b2f77d8ec8241042cde81a75eb5f632eea8af38d8fd3e`.
+
+Frozen deterministic finalists:
+
+- `equity8`;
+- `equity4_blocker2`;
+- `category_equity4`.
+
+Freeze: `deepcash_core/data/r4_representation_finalists_v1.json` and `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
 
 Next R4 gates:
 
-- [ ] complete development battery and inspect Pareto frontier;
-- [ ] freeze at most three deterministic finalists;
-- [ ] only then run precommitted independent heldout-v1;
-- [ ] add counterfactual-value/clustering candidates if deterministic controls justify it;
+- [x] complete corrected development battery and inspect all 24 cells;
+- [x] freeze at most three deterministic finalists;
+- [x] validate the freeze tooling and full suite on branch CI `32001037641`;
+- [ ] merge the freeze into `main`;
+- [ ] manually run the precommitted independent heldout-v1 from merged `main`;
+- [ ] inspect every held-out cell and artifact before promotion;
+- [ ] add counterfactual-value/clustering candidates only as a separately frozen generation;
 - [ ] learned embeddings only if they beat deterministic baselines per real compute;
 - [ ] physical Ryzen equal-wall-clock comparison;
 - [ ] production representation freeze.
