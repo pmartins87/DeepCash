@@ -28,6 +28,14 @@ Generic engine already implemented/validated:
 
 Remaining R1 debt is target-dependent rather than generic-engine uncertainty:
 
+Reference/deployment contract:
+
+- **GGPoker is the initial rules/economy reference model**;
+- the exact NLHE 6-max engine and strategic core remain site-agnostic;
+- conventional-site differences are isolated behind explicit rules, economy and runtime adapters;
+- rake/caps/rounding, reopen/min-raise, odd chips, forced bets, currency/table metadata and scraper/tablemap behavior must be measured and parameterized rather than assumed identical;
+- supporting another site must not require a separate strategic core unless a measured rule difference changes the game itself.
+
 - [ ] authoritative target-site short-all-in/reopen semantics;
 - [ ] target-site odd-chip order;
 - [ ] rake eligibility/cap/rounding/timing;
@@ -102,7 +110,7 @@ Evidence: `docs/R3_RAISE_SIZE_HELDOUT_ACCEPTED_20260816.md`.
 ### R3 exit debt
 
 - [ ] tighten exact-BR intervals only where the final L2/L3 decision remains resolution-limited;
-- [ ] physical Ryzen equal-wall-clock comparison of serious finalists;
+- [ ] physical Ryzen equal-wall-clock comparison of serious finalists — **PENDING_NOT_STARTED; no R3 workload is currently running on the Ryzen and no physical R3 evidence exists yet**;
 - [ ] define street/SPR-dependent abstraction rather than extrapolating one river grid blindly to flop/turn/preflop;
 - [ ] preserve geometric action deduplication when nominal sizes clip to the same physical action.
 
@@ -251,6 +259,8 @@ Exit gate: stable held-out performance across positions, stack depths, boards an
 ## R8 — Physical Ryzen 9 calibration
 Status: **PENDING**
 
+No R3/R4/R5 physical selection workload is currently running on the Ryzen. Hosted GitHub Actions evidence does not satisfy this gate.
+
 Measure on the actual target machine:
 
 - worker count and contention;
@@ -349,7 +359,7 @@ Only R15 may set:
 
 ```text
 R0 PASS
--> R1 target-site debt (parallel)
+-> R1 GGPoker-reference rules/economy + universal site adapter contract (parallel)
 -> R2 PASS
 -> R3 strategic finalists -> physical Ryzen action comparison -> action freeze
 -> R4 development -> frozen finalists -> heldout -> Ryzen -> representation freeze
