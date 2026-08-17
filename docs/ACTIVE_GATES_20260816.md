@@ -84,7 +84,7 @@ The archive contains six JSON files and 504 rows covering every frozen phase, SP
 
 Legacy v1 run `31976111855` remains **SUPERSEDED / INELIGIBLE FOR PROMOTION**. Its successful completion does not change this boundary.
 
-### Deterministic finalist freeze — FROZEN, CI PENDING
+### Deterministic finalist freeze — FROZEN, ENGINEERING CI PASS
 
 Only these candidates may enter held-out-v1:
 
@@ -92,7 +92,7 @@ Only these candidates may enter held-out-v1:
 - `equity4_blocker2`;
 - `category_equity4`.
 
-Machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
+Machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`. Branch CI `32001037641` passed at `7b8358aa276370b330fe83d336b56d1d64e49d62`.
 
 ### Held-out firewall
 

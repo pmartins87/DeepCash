@@ -165,7 +165,8 @@ Next R4 gates:
 
 - [x] complete corrected development battery and inspect all 24 cells;
 - [x] freeze at most three deterministic finalists;
-- [ ] merge the freeze after CI;
+- [x] validate the freeze tooling and full suite on branch CI `32001037641`;
+- [ ] merge the freeze into `main`;
 - [ ] manually run the precommitted independent heldout-v1 from merged `main`;
 - [ ] inspect every held-out cell and artifact before promotion;
 - [ ] add counterfactual-value/clustering candidates only as a separately frozen generation;

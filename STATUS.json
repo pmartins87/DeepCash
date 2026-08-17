@@ -203,7 +203,10 @@
       "freeze_manifest": "deepcash_core/data/r4_representation_finalists_v1.json",
       "freeze_doc": "docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md",
       "methodology_correction": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
-      "interpretation": "corrected bucket-constrained-BR development replay completed and was fully audited; finalist freeze is engineering selection only, not a production representation winner"
+      "interpretation": "corrected bucket-constrained-BR development replay completed and was fully audited; finalist freeze is engineering selection only, not a production representation winner",
+      "freeze_validation_run": 32001037641,
+      "freeze_validation_head": "7b8358aa276370b330fe83d336b56d1d64e49d62",
+      "freeze_validation_status": "success"
     }
   },
   "running_or_unaccepted_gates": {
@@ -260,7 +263,7 @@
       "main_ci_head": "17cde5aa058b6407088432b5353800f6ae9bf4b1"
     },
     "R4_representation_heldout_v1": {
-      "status_last_checked": "PREPARED_NOT_RUN_PENDING_FREEZE_CI",
+      "status_last_checked": "PREPARED_NOT_RUN; FREEZE_ENGINEERING_CI_PASS",
       "finalists": [
         "equity8",
         "equity4_blocker2",
@@ -270,7 +273,9 @@
       "freeze_doc": "docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md",
       "workflow": ".github/workflows/river-representation-heldout-v1.yml",
       "trigger": "workflow_dispatch only",
-      "rule": "do not dispatch until the freeze branch passes CI and is merged to main; after execution inspect every cell and artifact before any finalist promotion or Ryzen comparison"
+      "rule": "do not dispatch until the freeze branch passes CI and is merged to main; after execution inspect every cell and artifact before any finalist promotion or Ryzen comparison",
+      "freeze_validation_run": 32001037641,
+      "freeze_validation_head": "7b8358aa276370b330fe83d336b56d1d64e49d62"
     }
   },
   "invalidated_evidence": {

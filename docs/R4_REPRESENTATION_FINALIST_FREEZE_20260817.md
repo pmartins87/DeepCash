@@ -2,6 +2,8 @@
 
 Status: **FROZEN / HELDOUT-V1 PREPARED_NOT_RUN**
 
+Validation: branch CI `32001037641` passed the install and complete test suite at `7b8358aa276370b330fe83d336b56d1d64e49d62`.
+
 This checkpoint freezes the only three deterministic candidates allowed to consume the precommitted R4 held-out-v1 generation. It does not select a production representation and does not authorize physical Ryzen comparison or R9.
 
 ## Canonical development evidence
