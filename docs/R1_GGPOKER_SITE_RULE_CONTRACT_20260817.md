@@ -1,6 +1,6 @@
 # R1 GGPoker reference and universal site-rule contract — 2026-08-17
 
-Status: **ENGINEERING IMPLEMENTATION — AWAITING CI; R1 REMAINS IN PROGRESS**
+Status: **ENGINEERING PASS (STRUCTURAL); R1 REMAINS IN PROGRESS**
 
 ## Scope
 
@@ -10,6 +10,8 @@ through explicit rules/economy/runtime adapters, and an absent fact never become
 a silent engine default.
 
 This checkpoint does **not** homologate GGPoker and does **not** authorize R1 PASS.
+
+Validation: CI run `31985349633` passed on code HEAD `c592f144d1d11e2041626e4367a4b949423cafd3`.
 
 ## Authoritative public facts frozen in the reference profile
 

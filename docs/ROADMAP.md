@@ -43,8 +43,9 @@ Reference/deployment contract:
 - [ ] later native/cross-language evaluator parity before production performance freeze.
 
 Implementation checkpoint (2026-08-17): the typed universal site-rule contract and
-GGPoker 6-max reference profile are implemented on `agent/r1-site-rule-contract`.
-Published rake rows and eligibility are recorded exactly; unresolved reopen,
+GGPoker 6-max reference profile are implemented on `agent/r1-site-rule-contract`
+and passed structural CI run `31985349633`. Published rake rows and eligibility
+are recorded exactly; unresolved cumulative reopen,
 odd-chip and rake-rounding/timing facts fail closed. This is engineering progress,
 not R1 acceptance. Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
 
