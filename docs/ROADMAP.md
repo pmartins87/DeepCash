@@ -49,6 +49,14 @@ are recorded exactly; unresolved cumulative reopen,
 odd-chip and rake-rounding/timing facts fail closed. This is engineering progress,
 not R1 acceptance. Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
 
+Implementation checkpoint (2026-08-17): a strict evidence-fixture harness is
+implemented on `agent/r1-evidence-fixtures` and passed CI run `31986987358`. It rejects retained
+personal identifiers, ambiguous short-all-in geometry, inconsistent odd-chip
+remainders, broken rake chip conservation and non-canonical source provenance.
+This enables deterministic evidence admission; it does not resolve any outstanding
+GGPoker fact by itself. Validated head: `9ff89f4f192148179dab8916d433680298ab5e19`. Evidence:
+`docs/R1_GGPOKER_EVIDENCE_CAPTURE_20260817.md`.
+
 Current evidence: `docs/R1_VALIDATION_STATUS.md` and `STATUS.json`.
 
 ## R2 — Canonical state and invariances

@@ -190,16 +190,21 @@
   "running_or_unaccepted_gates": {
     "R4_representation_dev_v2_bucket_br": {
       "run": 31976302604,
-      "status_last_checked": "in_progress: phase B / SPR1",
+      "status_last_checked": "in_progress: phase B / SPR4",
       "correction_doc": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
       "heldout_v1": "PRECOMMITTED_NOT_RUN",
       "rule": "corrected bucket-constrained BR development evidence must be inspected and at most three finalists frozen before heldout-v1 consumption"
     },
     "R4_legacy_representation_dev_v1_superseded": {
       "run": 31976111855,
-      "status_last_checked": "in_progress: phase B / SPR1",
+      "status_last_checked": "completed: success",
       "acceptance": "INELIGIBLE",
-      "reason": "older workflow/head lacks the canonical v2 wrapper plus explicit bucket-constrained-BR structural gate; never promote this run over v2 run 31976302604"
+      "reason": "older workflow/head lacks the canonical v2 wrapper plus explicit bucket-constrained-BR structural gate; never promote this run over v2 run 31976302604",
+      "final_step": "Complete job: success",
+      "artifact_id": 9273964902,
+      "artifact_name": "r4-representation-dev-v1",
+      "artifact_digest": "sha256:1cbf39173aa97569fc11bf3d6930eee453a461fac0776948c005cc32cc7c12ba",
+      "artifact_acceptance": "NOT_INSPECTED_FOR_SELECTION; SUPERSEDED AND INELIGIBLE"
     },
     "R1_ggpoker_universal_site_contract": {
       "status_last_checked": "ENGINEERING_PASS",
@@ -218,7 +223,25 @@
       ],
       "rule": "unresolved facts fail closed and cannot materialize production BettingConfig/RakePolicy",
       "validation_run": 31985349633,
-      "validation_head": "c592f144d1d11e2041626e4367a4b949423cafd3"
+      "validation_head": "c592f144d1d11e2041626e4367a4b949423cafd3",
+      "merged_to_main_commit": "87c529e82fa20d98dca563187116c5fe6f32bc0c",
+      "main_ci_run": 31986577074,
+      "main_ci_status": "success",
+      "main_ci_head": "87c529e82fa20d98dca563187116c5fe6f32bc0c"
+    },
+    "R1_ggpoker_evidence_fixture_harness": {
+      "status_last_checked": "ENGINEERING_PASS",
+      "branch": "agent/r1-evidence-fixtures",
+      "status_doc": "docs/R1_GGPOKER_EVIDENCE_CAPTURE_20260817.md",
+      "scenarios": [
+        "cumulative short-all-in reopen",
+        "odd-chip split order",
+        "rake rounding and main/side-pot settlement timing"
+      ],
+      "rule": "only anonymized, source-hashed and mathematically discriminating fixtures may resolve a site rule; R1 remains IN_PROGRESS",
+      "validation_run": 31986987358,
+      "validation_head": "9ff89f4f192148179dab8916d433680298ab5e19",
+      "validation_result": "278 tests PASS; strict fixture geometry, provenance, anonymization and chip-conservation checks accepted as engineering tooling"
     }
   },
   "invalidated_evidence": {
@@ -256,6 +279,7 @@
   },
   "next_critical_work": [
     "finish corrected R4 bucket-constrained-BR development replay and freeze at most three finalists before heldout-v1",
+    "validate and merge the R1 GGPoker evidence fixture harness, then collect only discriminating anonymized captures for cumulative reopen, odd chips and rake settlement",
     "close GGPoker short-all-in reopen, odd-chip and rake rounding/timing with authoritative or deterministic observed fixtures before R1 PASS",
     "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators after current R4 CI pressure clears",
     "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",
