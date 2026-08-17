@@ -225,7 +225,7 @@
       "main_ci_head": "87c529e82fa20d98dca563187116c5fe6f32bc0c"
     },
     "R1_ggpoker_evidence_fixture_harness": {
-      "status_last_checked": "IMPLEMENTED_AWAITING_CI",
+      "status_last_checked": "ENGINEERING_PASS",
       "branch": "agent/r1-evidence-fixtures",
       "status_doc": "docs/R1_GGPOKER_EVIDENCE_CAPTURE_20260817.md",
       "scenarios": [
@@ -233,7 +233,10 @@
         "odd-chip split order",
         "rake rounding and main/side-pot settlement timing"
       ],
-      "rule": "only anonymized, source-hashed and mathematically discriminating fixtures may resolve a site rule; R1 remains IN_PROGRESS"
+      "rule": "only anonymized, source-hashed and mathematically discriminating fixtures may resolve a site rule; R1 remains IN_PROGRESS",
+      "validation_run": 31986987358,
+      "validation_head": "9ff89f4f192148179dab8916d433680298ab5e19",
+      "validation_result": "278 tests PASS; strict fixture geometry, provenance, anonymization and chip-conservation checks accepted as engineering tooling"
     }
   },
   "invalidated_evidence": {

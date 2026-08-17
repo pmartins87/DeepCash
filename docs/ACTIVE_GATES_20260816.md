@@ -25,9 +25,9 @@ remain unresolved. This checkpoint does not change R1 from IN_PROGRESS.
 
 Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
 
-### Deterministic site-rule evidence harness — IMPLEMENTED_AWAITING_CI
+### Deterministic site-rule evidence harness — ENGINEERING_PASS
 
-Branch: `agent/r1-evidence-fixtures`.
+Branch: `agent/r1-evidence-fixtures`. CI run `31986987358` passed all 278 tests at `9ff89f4f192148179dab8916d433680298ab5e19`.
 
 A strict schema and validation CLI now admit only anonymized, source-hashed and
 mathematically discriminating fixtures for cumulative short-all-in reopen,

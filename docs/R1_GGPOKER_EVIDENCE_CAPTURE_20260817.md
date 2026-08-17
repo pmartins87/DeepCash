@@ -1,7 +1,10 @@
 # R1 GGPoker evidence capture contract — 2026-08-17
 
-Status: **IMPLEMENTED_AWAITING_CI**  
+Status: **ENGINEERING_PASS**  
 Scope: the three unresolved GGPoker facts that keep R1 fail-closed.
+
+Validation: CI run `31986987358` passed all 278 tests at
+`9ff89f4f192148179dab8916d433680298ab5e19`.
 
 This checkpoint adds a strict, deterministic and anonymization-enforcing fixture
 format. It does **not** turn an illustrative hand into authoritative evidence and
