@@ -218,7 +218,21 @@
       ],
       "rule": "unresolved facts fail closed and cannot materialize production BettingConfig/RakePolicy",
       "validation_run": 31985349633,
-      "validation_head": "c592f144d1d11e2041626e4367a4b949423cafd3"
+      "validation_head": "c592f144d1d11e2041626e4367a4b949423cafd3",
+      "merged_to_main_commit": "87c529e82fa20d98dca563187116c5fe6f32bc0c",
+      "main_ci_run": 31986577074,
+      "main_ci_status": "in_progress"
+    },
+    "R1_ggpoker_evidence_fixture_harness": {
+      "status_last_checked": "IMPLEMENTED_AWAITING_CI",
+      "branch": "agent/r1-evidence-fixtures",
+      "status_doc": "docs/R1_GGPOKER_EVIDENCE_CAPTURE_20260817.md",
+      "scenarios": [
+        "cumulative short-all-in reopen",
+        "odd-chip split order",
+        "rake rounding and main/side-pot settlement timing"
+      ],
+      "rule": "only anonymized, source-hashed and mathematically discriminating fixtures may resolve a site rule; R1 remains IN_PROGRESS"
     }
   },
   "invalidated_evidence": {
@@ -256,6 +270,7 @@
   },
   "next_critical_work": [
     "finish corrected R4 bucket-constrained-BR development replay and freeze at most three finalists before heldout-v1",
+    "validate and merge the R1 GGPoker evidence fixture harness, then collect only discriminating anonymized captures for cumulative reopen, odd chips and rake settlement",
     "close GGPoker short-all-in reopen, odd-chip and rake rounding/timing with authoritative or deterministic observed fixtures before R1 PASS",
     "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators after current R4 CI pressure clears",
     "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",

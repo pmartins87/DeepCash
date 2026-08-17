@@ -25,6 +25,17 @@ remain unresolved. This checkpoint does not change R1 from IN_PROGRESS.
 
 Evidence: `docs/R1_GGPOKER_SITE_RULE_CONTRACT_20260817.md`.
 
+### Deterministic site-rule evidence harness — IMPLEMENTED_AWAITING_CI
+
+Branch: `agent/r1-evidence-fixtures`.
+
+A strict schema and validation CLI now admit only anonymized, source-hashed and
+mathematically discriminating fixtures for cumulative short-all-in reopen,
+odd-chip splits and rake main/side-pot settlement. This tooling does not itself
+resolve a site rule and does not change R1 from IN_PROGRESS.
+
+Evidence: `docs/R1_GGPOKER_EVIDENCE_CAPTURE_20260817.md`.
+
 ## R3 — action abstraction
 
 ### Opening-size complete lattice — ACCEPTED
