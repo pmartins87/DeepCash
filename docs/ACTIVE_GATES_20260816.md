@@ -88,7 +88,7 @@ The first replay attempt run `31976177786` failed because one old unit test stil
 
 Corrected replay run `31976302604`: bucket-constrained BR oracle step **PASS**; full frozen development replay is currently running. General CI at commit `292fc68...`, run `31976302695`, is PASS.
 
-Legacy v1 run `31976111855` is also still running at the older head `9e5be55...`. It lacks the v2 canonical wrapper and explicit structural-gate step added later, so it is **SUPERSEDED / INELIGIBLE FOR PROMOTION** regardless of eventual workflow conclusion. Only v2 run `31976302604` may supply the corrected development artifact.
+Legacy v1 run `31976111855` completed successfully at the older head `9e5be55...`; final job step `Complete job` passed and artifact `9273964902` was published with GitHub digest `sha256:1cbf39173aa97569fc11bf3d6930eee453a461fac0776948c005cc32cc7c12ba`. It lacks the v2 canonical wrapper and explicit structural-gate step added later, so it remains **SUPERSEDED / INELIGIBLE FOR PROMOTION** and was not inspected for selection. Only v2 run `31976302604` may supply the corrected development artifact.
 
 ### Held-out firewall
 
