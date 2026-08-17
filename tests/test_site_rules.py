@@ -34,6 +34,9 @@ def test_ggpoker_reference_contains_published_6max_rake_grid():
     assert row.rate == Fraction(1, 20)
     assert row.cap_bb(2) == Fraction("1.25")
     assert row.cap_bb(6) == Fraction(5, 1)
+    assert contract.single_short_all_in_reopens.require(
+        "single_short_all_in_reopens"
+    ) is False
 
 
 def test_unresolved_rules_fail_closed():

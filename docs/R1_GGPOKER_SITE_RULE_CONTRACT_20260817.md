@@ -17,6 +17,7 @@ Sources checked on 2026-08-17:
 
 - [GGPoker 6-max No Limit Hold'em rake table](https://ggpoker.com/poker-games/texas-holdem/)
 - [GGPoker Cash Games FAQ](https://help.ggpoker.com/article/Cash-Games---Frequently-Asked-Questions)
+- [GGPoker no-limit betting structures](https://ggpoker.com/blog/the-beginners-guide-series-no-limit-vs-pot-limit-vs-fixed-limit/)
 - [GGPoker straddle rules](https://ggpoker.com/poker-games/straddle/)
 - [GGPoker House Rules](https://ggpoker.com/house-rules/)
 
@@ -31,13 +32,15 @@ Confirmed:
 - an optional pre-deal straddle auction exists and must be activated only from
   explicit table metadata;
 - the public Hold'em page defines a full raise as at least the previous bet/raise
-  increment and permits a smaller raise only when all-in.
+  increment and permits a smaller raise only when all-in;
+- GGPoker explicitly states that one sub-full all-in does not reopen betting
+  action. The cumulative-short-all-in case remains undocumented.
 
 ## Facts deliberately left unresolved
 
 | Fact | State | Why it blocks freeze |
 |---|---|---|
-| short-all-in reopen | UNRESOLVED | Public rules do not say whether one or cumulative sub-minimum all-ins reopen a prior actor's raise right. |
+| cumulative short-all-in reopen | UNRESOLVED | A single sub-full all-in is confirmed not to reopen action, but public rules do not say whether cumulative short all-ins reaching a full-raise increment reopen it. |
 | odd-chip order | UNRESOLVED | No authoritative public GGPoker rule was found for tied cash pots. |
 | rake rounding | UNRESOLVED | Public tables do not define chip rounding. |
 | rake application timing | UNRESOLVED | Public material does not fully specify main/side-pot timing and per-pot cap behavior. |

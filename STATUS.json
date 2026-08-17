@@ -208,10 +208,11 @@
       "confirmed_scope": [
         "published classic 6-max NLHE 5% rake grid and player-count caps",
         "preflop rake eligibility only for 3-bet-or-higher pots",
-        "optional GGPoker straddle feature exists"
+        "optional GGPoker straddle feature exists",
+        "a single sub-full all-in does not reopen betting action"
       ],
       "unresolved_release_facts": [
-        "short-all-in reopen semantics",
+        "cumulative short-all-in reopen semantics",
         "odd-chip order",
         "rake rounding and exact main/side-pot timing"
       ],

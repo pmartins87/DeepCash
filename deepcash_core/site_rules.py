@@ -100,6 +100,7 @@ class SiteRuleContract:
     rake_rounding: RuleFact[RakeRounding]
     rake_application_timing: RuleFact[RakeApplicationTiming]
     short_all_in_reopen: RuleFact[ShortAllInReopenPolicy]
+    single_short_all_in_reopens: RuleFact[bool]
     odd_chip_order: RuleFact[OddChipOrderPolicy]
     optional_straddle_supported: RuleFact[bool]
 
@@ -176,6 +177,9 @@ def _row(sb: str, bb: str, caps_bb: tuple[str, str, str, str]) -> RakeScheduleRo
 
 _GGPOKER_HOLDEM = "https://ggpoker.com/poker-games/texas-holdem/"
 _GGPOKER_CASH_FAQ = "https://help.ggpoker.com/article/Cash-Games---Frequently-Asked-Questions"
+_GGPOKER_NL_BLOG = (
+    "https://ggpoker.com/blog/the-beginners-guide-series-no-limit-vs-pot-limit-vs-fixed-limit/"
+)
 _GGPOKER_STRADDLE = "https://ggpoker.com/poker-games/straddle/"
 
 
@@ -225,6 +229,15 @@ GGPOKER_6MAX_REFERENCE = SiteRuleContract(
             "The official Hold'em page defines a minimum full raise and permits a smaller "
             "all-in, but does not define whether one or cumulative short all-ins reopen "
             "raise rights for a player who already acted."
+        ),
+    ),
+    single_short_all_in_reopens=RuleFact(
+        status=EvidenceStatus.CONFIRMED,
+        value=False,
+        source=_GGPOKER_NL_BLOG,
+        note=(
+            "GGPoker states that a sub-full all-in does not reopen betting action; "
+            "the cumulative-short-all-in case remains undocumented."
         ),
     ),
     odd_chip_order=RuleFact(
