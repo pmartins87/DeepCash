@@ -8,6 +8,7 @@ from deepcash_core.rake import RakeRounding
 from deepcash_core.site_rules import (
     EvidenceStatus,
     GGPOKER_6MAX_REFERENCE,
+    RakeApplicationTiming,
     RuleFact,
     SiteRuleContractError,
 )
@@ -39,6 +40,7 @@ def test_unresolved_rules_fail_closed():
     contract = GGPOKER_6MAX_REFERENCE
     assert contract.unresolved_critical_rules() == (
         "rake_rounding",
+        "rake_application_timing",
         "short_all_in_reopen",
         "odd_chip_order",
     )
@@ -59,6 +61,9 @@ def test_confirmed_adapter_facts_materialize_existing_engine_configs():
     contract = replace(
         GGPOKER_6MAX_REFERENCE,
         rake_rounding=confirmed(RakeRounding.FLOOR),
+        rake_application_timing=confirmed(
+            RakeApplicationTiming.CONTESTED_POTS_AFTER_UNCALLED_RETURN
+        ),
         short_all_in_reopen=confirmed(ShortAllInReopenPolicy.CUMULATIVE_FULL_RAISE),
     )
     betting = contract.betting_config()
@@ -79,6 +84,9 @@ def test_unknown_stake_and_fractional_engine_chip_cap_are_rejected():
     contract = replace(
         GGPOKER_6MAX_REFERENCE,
         rake_rounding=confirmed(RakeRounding.FLOOR),
+        rake_application_timing=confirmed(
+            RakeApplicationTiming.CONTESTED_POTS_AFTER_UNCALLED_RETURN
+        ),
     )
     with pytest.raises(SiteRuleContractError, match="no confirmed rake row"):
         contract.rake_policy(

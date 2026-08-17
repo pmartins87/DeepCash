@@ -22,6 +22,10 @@ class RakeEligibility(str, Enum):
     POSTFLOP_OR_PREFLOP_THREE_BET_PLUS = "POSTFLOP_OR_PREFLOP_THREE_BET_PLUS"
 
 
+class RakeApplicationTiming(str, Enum):
+    CONTESTED_POTS_AFTER_UNCALLED_RETURN = "CONTESTED_POTS_AFTER_UNCALLED_RETURN"
+
+
 class OddChipOrderPolicy(str, Enum):
     FIRST_ACTIVE_LEFT_OF_BUTTON = "FIRST_ACTIVE_LEFT_OF_BUTTON"
 
@@ -94,6 +98,7 @@ class SiteRuleContract:
     rake_rows: tuple[RakeScheduleRow, ...]
     rake_eligibility: RuleFact[RakeEligibility]
     rake_rounding: RuleFact[RakeRounding]
+    rake_application_timing: RuleFact[RakeApplicationTiming]
     short_all_in_reopen: RuleFact[ShortAllInReopenPolicy]
     odd_chip_order: RuleFact[OddChipOrderPolicy]
     optional_straddle_supported: RuleFact[bool]
@@ -108,6 +113,7 @@ class SiteRuleContract:
     def unresolved_critical_rules(self) -> tuple[str, ...]:
         checks = (
             ("rake_rounding", self.rake_rounding),
+            ("rake_application_timing", self.rake_application_timing),
             ("short_all_in_reopen", self.short_all_in_reopen),
             ("odd_chip_order", self.odd_chip_order),
         )
@@ -143,6 +149,7 @@ class SiteRuleContract:
             raise ValueError("big_blind_chips must be positive")
         rounding = self.rake_rounding.require("rake_rounding")
         self.rake_eligibility.require("rake_eligibility")
+        self.rake_application_timing.require("rake_application_timing")
         row = self.rake_row(
             small_blind_usd=small_blind_usd,
             big_blind_usd=big_blind_usd,
@@ -200,6 +207,15 @@ GGPOKER_6MAX_REFERENCE = SiteRuleContract(
         value=None,
         source=None,
         note="Official public pages do not specify the chip rounding rule or side-pot timing.",
+    ),
+    rake_application_timing=RuleFact(
+        status=EvidenceStatus.UNRESOLVED,
+        value=None,
+        source=None,
+        note=(
+            "Official public pages do not fully specify whether caps and rounding "
+            "apply per main/side pot after uncalled returns."
+        ),
     ),
     short_all_in_reopen=RuleFact(
         status=EvidenceStatus.UNRESOLVED,
