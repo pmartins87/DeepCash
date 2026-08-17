@@ -10,6 +10,8 @@ Latest hard generic gate: legal-action oracle v3 run `31963863819` — PASS, 120
 
 Target-site reopen, odd-chip, rake and optional forced-bet semantics remain unresolved release debt.
 
+**Reference model decision — 2026-08-17:** GGPoker is the initial cash-game rules/economy reference. The engine and strategy architecture remain site-agnostic; per-site rake/caps/rounding, reopen/min-raise, odd chips, forced bets, currency/table metadata and scraper/tablemap differences belong in explicit adapters/configuration. Small differences are not permission to assume identity; they must be measured before a site is homologated.
+
 ## R3 — action abstraction
 
 ### Opening-size complete lattice — ACCEPTED
@@ -39,6 +41,8 @@ At SPR 2, L3's extra 25% branch has a resolved advantage over L2. L3 is the lead
 ### R3 remaining gate
 
 R3 remains IN PROGRESS until difficult exact-BR intervals are tightened where they affect the L2/L3 decision, finalists receive physical Ryzen equal-wall-clock comparison, and river evidence is converted into a street/SPR-dependent action contract rather than copied blindly to flop/turn/preflop.
+
+**Physical Ryzen status:** `PENDING_NOT_STARTED`. No R3 workload is currently running on the Ryzen and no physical R3 evidence has been accepted. Hosted-CI results remain engineering evidence only.
 
 Current river finalists: openings 25/50/100 vs compute-efficient 50/100; raises 50/100.
 
