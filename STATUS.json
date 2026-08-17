@@ -221,7 +221,8 @@
       "validation_head": "c592f144d1d11e2041626e4367a4b949423cafd3",
       "merged_to_main_commit": "87c529e82fa20d98dca563187116c5fe6f32bc0c",
       "main_ci_run": 31986577074,
-      "main_ci_status": "in_progress"
+      "main_ci_status": "success",
+      "main_ci_head": "87c529e82fa20d98dca563187116c5fe6f32bc0c"
     },
     "R1_ggpoker_evidence_fixture_harness": {
       "status_last_checked": "IMPLEMENTED_AWAITING_CI",

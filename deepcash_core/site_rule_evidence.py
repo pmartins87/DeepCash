@@ -169,7 +169,7 @@ class SiteRuleEvidenceEnvelope:
             raise SiteRuleEvidenceError("source_sha256 must be lowercase SHA-256 hex")
         if not self.personal_data_removed:
             raise SiteRuleEvidenceError(
-                "evidence containing player names/account/table identifiers is rejected"
+                "personal data detected: player names/account/table identifiers are rejected"
             )
         try:
             captured = datetime.fromisoformat(self.captured_at_utc.replace("Z", "+00:00"))
