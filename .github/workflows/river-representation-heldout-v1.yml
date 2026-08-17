@@ -30,7 +30,7 @@ jobs:
       - name: Print frozen candidates
         run: >-
           python -m deepcash_core.r4_representation_freeze
-          configs/r4_representation_finalists_v1.json
+          deepcash_core/data/r4_representation_finalists_v1.json
 
   heldout:
     needs: structural-gate
@@ -80,7 +80,7 @@ jobs:
       - name: Run frozen held-out cell
         shell: bash
         run: |
-          finalists="$(python -m deepcash_core.r4_representation_freeze configs/r4_representation_finalists_v1.json --emit-candidates)"
+          finalists="$(python -m deepcash_core.r4_representation_freeze deepcash_core/data/r4_representation_finalists_v1.json --emit-candidates)"
           python tools/benchmark_river_representation_reference.py \
             --board-set heldout_v1 --boards all --candidates "$finalists" \
             --range-combos 8 --p0-phase "${{ matrix.p0_phase }}" --p1-phase "${{ matrix.p1_phase }}" \

@@ -200,7 +200,7 @@
         "equity4_blocker2",
         "category_equity4"
       ],
-      "freeze_manifest": "configs/r4_representation_finalists_v1.json",
+      "freeze_manifest": "deepcash_core/data/r4_representation_finalists_v1.json",
       "freeze_doc": "docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md",
       "methodology_correction": "docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md",
       "interpretation": "corrected bucket-constrained-BR development replay completed and was fully audited; finalist freeze is engineering selection only, not a production representation winner"
@@ -266,7 +266,7 @@
         "equity4_blocker2",
         "category_equity4"
       ],
-      "freeze_manifest": "configs/r4_representation_finalists_v1.json",
+      "freeze_manifest": "deepcash_core/data/r4_representation_finalists_v1.json",
       "freeze_doc": "docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md",
       "workflow": ".github/workflows/river-representation-heldout-v1.yml",
       "trigger": "workflow_dispatch only",

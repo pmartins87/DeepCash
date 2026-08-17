@@ -159,7 +159,7 @@ Frozen deterministic finalists:
 - `equity4_blocker2`;
 - `category_equity4`.
 
-Freeze: `configs/r4_representation_finalists_v1.json` and `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
+Freeze: `deepcash_core/data/r4_representation_finalists_v1.json` and `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
 
 Next R4 gates:
 

@@ -39,7 +39,7 @@ The first summary helper treated each JSON payload as one cell even though every
 
 The workflow `.github/workflows/river-representation-heldout-v1.yml` has only a manual `workflow_dispatch` trigger. It cannot run from this commit or from a push.
 
-It reads the finalists from `configs/r4_representation_finalists_v1.json` and fixes:
+It reads the finalists from `deepcash_core/data/r4_representation_finalists_v1.json` and fixes:
 
 - eight unseen `heldout_v1` boards;
 - 8 exact combos per player;
@@ -50,4 +50,4 @@ It reads the finalists from `configs/r4_representation_finalists_v1.json` and fi
 
 Dispatch is forbidden until this freeze passes CI and is merged to `main`. A successful workflow will still be unaccepted evidence until every cell and artifact is inspected. No threshold, finalist promotion or production representation is predeclared.
 
-Canonical machine-readable freeze: `configs/r4_representation_finalists_v1.json`.
+Canonical machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`.

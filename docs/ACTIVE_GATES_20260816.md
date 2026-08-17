@@ -92,7 +92,7 @@ Only these candidates may enter held-out-v1:
 - `equity4_blocker2`;
 - `category_equity4`.
 
-Machine-readable freeze: `configs/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
+Machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
 
 ### Held-out firewall
 

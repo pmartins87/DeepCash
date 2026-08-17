@@ -8,7 +8,7 @@ from deepcash_core.r4_representation_freeze import (
 )
 
 
-MANIFEST = "configs/r4_representation_finalists_v1.json"
+MANIFEST = "deepcash_core/data/r4_representation_finalists_v1.json"
 
 
 def test_canonical_r4_freeze_is_valid_and_exact():
