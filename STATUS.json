@@ -6,7 +6,7 @@
   "production_training_envelope": "approximately three months only after R1-R8 production gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
   "status_semantics": "docs/STATUS_SEMANTICS.md",
-  "current_gate": "R1 target-site debt + R3 physical action-finalist calibration + corrected R4 representation development + R5 solver/traversal/variance research",
+  "current_gate": "R1 GGPoker-reference universal site contract + R3 physical action-finalist calibration (PENDING_NOT_STARTED) + corrected R4 representation development + R5 solver/traversal/variance research",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -239,8 +239,8 @@
     "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators after current R4 CI pressure clears",
     "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",
     "tighten R3 exact-BR intervals only where final action-family decisions remain resolution-limited",
-    "run R3/R4/R5 equal-wall-clock comparisons on the physical Ryzen 9 before any production freeze",
-    "freeze target-site cash-game rules/economy before R1 PASS"
+    "start and certify R3/R4/R5 equal-wall-clock comparisons on the physical Ryzen 9 only after each finalist set is frozen; R3 physical execution is currently PENDING_NOT_STARTED",
+    "freeze the GGPoker reference cash-game rules/economy plus a universal per-site adapter contract before R1 PASS"
   ],
   "non_negotiable_invariants": [
     "hole-card order invariance",
@@ -253,5 +253,25 @@
     "development and held-out generations remain explicitly separated",
     "failed and invalidated experiments remain in the audit trail",
     "no long production training before R1-R8 production gates pass"
-  ]
+  ],
+  "deployment_model": {
+    "reference_site": "GGPoker",
+    "strategic_core": "site-agnostic Texas Hold'em 6-max cash engine and policy architecture",
+    "portability_goal": "support any conventional NLHE cash site through explicit adapters/configuration rather than site-specific strategy forks",
+    "site_specific_parameters": [
+      "rake eligibility, percentage, cap, rounding and timing",
+      "short-all-in/reopen and minimum-raise semantics",
+      "odd-chip order",
+      "ante/straddle/other forced-bet variants",
+      "currency, stakes and table metadata",
+      "scraper/tablemap/runtime integration"
+    ],
+    "rule": "small cross-site differences must be measured and parameterized; never assumed away"
+  },
+  "physical_ryzen_status": {
+    "hardware_target": "single Ryzen 9",
+    "R3_action_finalist_comparison": "PENDING_NOT_STARTED — no R3 workload is currently running on the Ryzen and no physical R3 evidence has been accepted",
+    "R4_representation_finalist_comparison": "PENDING — blocked until corrected development, finalist freeze and held-out gates",
+    "R5_solver_traversal_comparison": "PENDING — precommitted hosted scaling remains NOT_RUN and physical selection follows compatible finalist gates"
+  }
 }
