@@ -74,25 +74,29 @@ Current river finalists: openings 25/50/100 vs compute-efficient 50/100; raises 
 
 ### Development infrastructure — ACCEPTED; original selection intervals SUPERSEDED
 
-Run `31964142661`: PASS. Artifact `9270794930`, SHA-256 `2fcf9bac459126f6d2638421c5b06da5441ae14682ef0d999e80dba15473eb70`.
+Run `31964142661` remains accepted for deterministic bucket construction, training paths, compression, timing and invariance infrastructure. Its unrestricted-BR selection intervals remain invalidated by `docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md`.
 
-Its deterministic bucket construction, exact chance/payoff separation, CFR training paths, compression ratios, timing and invariance evidence remain valid. The original selection interval, however, used unrestricted exact best responses after expanding bucketed policies back to exact combos. That conservatively granted a bucket-restricted best responder information it did not possess and mixed representation loss into what was being treated as convergence uncertainty.
+### Corrected bucket-constrained-BR development replay — AUDITED
 
-The methodology correction is documented in `docs/R4_BUCKET_BR_METHODOLOGY_CORRECTION_20260816.md`.
+Canonical v2 run `31976302604` completed successfully, including the structural oracle, all six phase/SPR replay steps and artifact upload. Artifact `9274193444` (`r4-representation-dev-v2`) has ZIP SHA-256 `b1edea689f1d7417f80b2f77d8ec8241042cde81a75eb5f632eea8af38d8fd3e`.
 
-### Exact bucket-constrained BR — STRUCTURAL GATE PASS
+The archive contains six JSON files and 504 rows covering every frozen phase, SPR, board, candidate and checkpoint coordinate. The checkpoint-1200 selector consumes 24 logical board/geometry cells.
 
-`deepcash_core/river_representation_br.py` now optimizes one exact pure action pattern per private bucket while retaining exact compatible chance deals and exact opponent policy. Exact one-hand-per-bucket maps reproduce the unrestricted exact BR; merging private hands cannot improve the restricted player's BR.
+Legacy v1 run `31976111855` remains **SUPERSEDED / INELIGIBLE FOR PROMOTION**. Its successful completion does not change this boundary.
 
-The first replay attempt run `31976177786` failed because one old unit test still compared the new resumable evaluator against a legacy monolithic helper with the old BR semantics. Training states themselves were identical. A single canonical wrapper, `deepcash_core/river_representation_solver.py`, now routes monolithic calls through the resumable state and bucket-constrained evaluator.
+### Deterministic finalist freeze — FROZEN, CI PENDING
 
-Corrected replay run `31976302604`: bucket-constrained BR oracle step **PASS**; full frozen development replay is currently running. General CI at commit `292fc68...`, run `31976302695`, is PASS.
+Only these candidates may enter held-out-v1:
 
-Legacy v1 run `31976111855` completed successfully at the older head `9e5be55...`; final job step `Complete job` passed and artifact `9273964902` was published with GitHub digest `sha256:1cbf39173aa97569fc11bf3d6930eee453a461fac0776948c005cc32cc7c12ba`. It lacks the v2 canonical wrapper and explicit structural-gate step added later, so it remains **SUPERSEDED / INELIGIBLE FOR PROMOTION** and was not inspected for selection. Only v2 run `31976302604` may supply the corrected development artifact.
+- `equity8`;
+- `equity4_blocker2`;
+- `category_equity4`.
+
+Machine-readable freeze: `configs/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
 
 ### Held-out firewall
 
-R4 held-out v1 remains **PRECOMMITTED_NOT_RUN**. It may not be consumed until the corrected development replay is inspected and at most three deterministic finalists are explicitly frozen.
+`river-representation-heldout-v1.yml` is prepared with a manual `workflow_dispatch` trigger only. Status: **PREPARED_NOT_RUN**. Do not dispatch it until the freeze branch passes CI and is merged to `main`. After execution, a green workflow alone is insufficient: all six matrix cells and the combined artifact must be inspected before any promotion.
 
 ## R5 — solver / traversal research
 

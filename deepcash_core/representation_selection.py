@@ -40,71 +40,98 @@ def _validate_row(row: Mapping[str, object]) -> None:
         raise ValueError("reference_action_slots must be positive")
 
 
+_CELL_IDENTITY_FIELDS = (
+    "board_set",
+    "board",
+    "range_combos_per_player",
+    "p0_phase",
+    "p1_phase",
+    "pot",
+    "stack",
+    "spr",
+)
+
+
+def _cell_identity(row: Mapping[str, object]) -> tuple[tuple[str, object], ...]:
+    identity = []
+    for field in _CELL_IDENTITY_FIELDS:
+        if field not in row:
+            continue
+        value = row[field]
+        if isinstance(value, list):
+            value = tuple(value)
+        identity.append((field, value))
+    return tuple(identity) or (("__single_cell__", True),)
+
+
 def largest_shared_checkpoint(payloads: Sequence[Mapping[str, object]]) -> int:
-    """Largest checkpoint present for every candidate in every supplied cell."""
+    """Largest checkpoint present for every candidate in every logical cell."""
     if not payloads:
         raise ValueError("at least one development payload is required")
 
     shared: set[int] | None = None
     canonical_candidates: set[str] | None = None
-    for payload in payloads:
+    for payload_index, payload in enumerate(payloads):
         rows = list(payload.get("rows", []))
         if not rows:
             raise ValueError("development payload contains no rows")
-        by_candidate: dict[str, set[int]] = defaultdict(set)
+        by_cell: dict[tuple[object, ...], dict[str, set[int]]] = defaultdict(
+            lambda: defaultdict(set)
+        )
         for raw in rows:
             row = dict(raw)
             _validate_row(row)
-            by_candidate[str(row["candidate"])].add(int(row["checkpoint"]))
-        candidates = set(by_candidate)
-        if canonical_candidates is None:
-            canonical_candidates = candidates
-        elif candidates != canonical_candidates:
-            raise ValueError("candidate set differs across development payloads")
-        payload_shared = set.intersection(*(by_candidate[c] for c in sorted(candidates)))
-        if not payload_shared:
-            raise ValueError("no checkpoint is shared by every candidate in a payload")
-        shared = payload_shared if shared is None else shared & payload_shared
+            cell = (payload_index, _cell_identity(row))
+            by_cell[cell][str(row["candidate"])].add(int(row["checkpoint"]))
+        for by_candidate in by_cell.values():
+            candidates = set(by_candidate)
+            if canonical_candidates is None:
+                canonical_candidates = candidates
+            elif candidates != canonical_candidates:
+                raise ValueError("candidate set differs across development cells")
+            cell_shared = set.intersection(
+                *(by_candidate[candidate] for candidate in sorted(candidates))
+            )
+            if not cell_shared:
+                raise ValueError("no checkpoint is shared by every candidate in a cell")
+            shared = cell_shared if shared is None else shared & cell_shared
     if not shared:
-        raise ValueError("no checkpoint is shared by every candidate in every payload")
+        raise ValueError("no checkpoint is shared by every candidate in every cell")
     return max(shared)
-
 
 def aggregate_candidate_metrics(
     payloads: Sequence[Mapping[str, object]],
 ) -> dict[str, object]:
     checkpoint = largest_shared_checkpoint(payloads)
     rows_by_candidate: dict[str, list[Mapping[str, object]]] = defaultdict(list)
-    cell_count = 0
+    candidates_by_cell: dict[tuple[object, ...], set[str]] = defaultdict(set)
 
-    for payload in payloads:
-        cell_rows = [
-            row
-            for row in payload["rows"]
-            if int(row["checkpoint"]) == checkpoint
-        ]
-        seen: set[str] = set()
-        for row in cell_rows:
+    for payload_index, payload in enumerate(payloads):
+        for row in payload["rows"]:
+            if int(row["checkpoint"]) != checkpoint:
+                continue
             _validate_row(row)
             candidate = str(row["candidate"])
-            if candidate in seen:
+            cell = (payload_index, _cell_identity(row))
+            if candidate in candidates_by_cell[cell]:
                 raise ValueError(
-                    "payload contains duplicate candidate row at shared checkpoint"
+                    "logical cell contains duplicate candidate row at shared checkpoint"
                 )
-            seen.add(candidate)
+            candidates_by_cell[cell].add(candidate)
             rows_by_candidate[candidate].append(row)
-        cell_count += 1
 
     if not rows_by_candidate:
         raise ValueError("no rows at shared checkpoint")
     expected = set(rows_by_candidate)
+    for candidates in candidates_by_cell.values():
+        if candidates != expected:
+            raise ValueError("candidate set mismatch at shared checkpoint")
+    cell_count = len(candidates_by_cell)
     for candidate, rows in rows_by_candidate.items():
         if len(rows) != cell_count:
             raise ValueError(
                 f"candidate {candidate} missing from one or more development cells"
             )
-    if any(set(str(r["candidate"]) for r in [row for row in payload["rows"] if int(row["checkpoint"]) == checkpoint]) != expected for payload in payloads):
-        raise ValueError("candidate set mismatch at shared checkpoint")
 
     metrics: dict[str, dict[str, float | int | str]] = {}
     for candidate, rows in sorted(rows_by_candidate.items()):
@@ -139,6 +166,7 @@ def aggregate_candidate_metrics(
         "schema": "DEEPCASH_R4_DEV_SELECTION_SUMMARY_V1",
         "shared_checkpoint": checkpoint,
         "development_payloads": len(payloads),
+        "development_cells": cell_count,
         "candidate_count": len(metrics),
         "metrics": metrics,
         "pareto_frontier": frontier,
@@ -149,7 +177,6 @@ def aggregate_candidate_metrics(
             "inspecting convergence; do not invent a post-hoc scalar score."
         ),
     }
-
 
 def _dominates(a: Mapping[str, object], b: Mapping[str, object]) -> bool:
     fields = (

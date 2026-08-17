@@ -95,3 +95,35 @@ def test_candidate_set_mismatch_fails_closed():
     p2 = payload([row("a", 100, 0.1, 0.5, 50)])
     with pytest.raises(ValueError):
         largest_shared_checkpoint([p1, p2])
+
+
+def test_aggregate_treats_each_board_as_a_distinct_logical_cell():
+    p1 = payload(
+        [
+            {**row("small", 100, 0.04, 0.3, 30), "board": "b1"},
+            {**row("large", 100, 0.01, 0.8, 80), "board": "b1"},
+            {**row("small", 100, 0.05, 0.3, 30), "board": "b2"},
+            {**row("large", 100, 0.02, 0.8, 80), "board": "b2"},
+        ]
+    )
+    p2 = payload(
+        [
+            {**row("small", 100, 0.06, 0.3, 30), "board": "b3"},
+            {**row("large", 100, 0.03, 0.8, 80), "board": "b3"},
+        ]
+    )
+    summary = aggregate_candidate_metrics([p1, p2])
+    assert summary["development_cells"] == 3
+    assert summary["metrics"]["small"]["cells"] == 3
+    assert summary["metrics"]["large"]["mean_upper"] == pytest.approx(0.02)
+
+
+def test_duplicate_candidate_within_same_board_fails_closed():
+    repeated = payload(
+        [
+            {**row("a", 100, 0.1, 0.5, 50), "board": "b1"},
+            {**row("a", 100, 0.2, 0.5, 50), "board": "b1"},
+        ]
+    )
+    with pytest.raises(ValueError, match="duplicate candidate"):
+        aggregate_candidate_metrics([repeated])
