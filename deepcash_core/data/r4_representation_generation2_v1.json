@@ -1,0 +1,62 @@
+{
+  "schema": "DEEPCASH_R4_REPRESENTATION_GENERATION2_FREEZE_V1",
+  "generation": 2,
+  "status": "FROZEN_CANDIDATE_POOL_DEV_NOT_RUN_HELDOUT_V2_UNSEEN",
+  "purpose": "test deterministic legal-information matchup-profile clustering against the Generation-1 equity8 accuracy anchor",
+  "accuracy_anchor": "equity8",
+  "candidate_pool": [
+    "equity8",
+    "matchup_cluster4",
+    "matchup_cluster8",
+    "equity4_matchup2"
+  ],
+  "candidate_family_rule": "No candidate may be added after the first Generation-2 development result is consumed. Counterfactual-value candidates are deferred from this generation unless a separate future generation is frozen before numerical use.",
+  "information_boundary": "public board + player's own exact private combo + modelled opponent range and weights only; no realized opponent private hand, solved policy, future action or privileged state",
+  "clustering": {
+    "distance": "opponent-weighted exact showdown-profile disagreement plus exact card-removal incompatibility disagreement",
+    "algorithm": "deterministic weighted k-medoids; global weighted medoid initialization; deterministic farthest-first expansion; medoid refinement",
+    "nominal_cluster_counts": [2, 4, 8],
+    "materialization_rule": "fewer buckets are allowed when fewer distinct matchup profiles exist"
+  },
+  "development": {
+    "board_set": "dev",
+    "board_count": 8,
+    "range_combos_per_player": 8,
+    "phases": [
+      {"phase": "A", "p0_phase": 0.19, "p1_phase": 0.47},
+      {"phase": "B", "p0_phase": 0.58, "p1_phase": 0.83}
+    ],
+    "pot": 100,
+    "stacks": [100, 200, 400],
+    "sprs": [1, 2, 4],
+    "min_bet": 20,
+    "reference_fractions": ["1/4", "1/2", "1", "2", "4"],
+    "expected_materialized_bet_sizes": {
+      "1": [25, 50, 100],
+      "2": [25, 50, 100, 200],
+      "4": [25, 50, 100, 200, 400]
+    },
+    "checkpoints": [300, 1200, 3600]
+  },
+  "heldout_v2": {
+    "status": "FROZEN_UNSEEN_DO_NOT_RUN_BEFORE_DEVELOPMENT_AUDIT_AND_FINALIST_FREEZE",
+    "board_set": "heldout_v2",
+    "board_count": 8,
+    "coordinates": "same two phases, SPR 1/2/4, range-combos 8 and reference fractions as development",
+    "rule": "select at most three finalists from development before heldout-v2 consumption; equity8 may remain as the accuracy anchor"
+  },
+  "selection": {
+    "development_metrics": [
+      "worst_loss_upper_per_pot",
+      "mean_loss_upper_per_pot",
+      "p90_loss_upper_per_pot",
+      "value_interval_width_per_pot",
+      "bucket_compression_ratio",
+      "joint_action_slot_ratio",
+      "joint_train_seconds"
+    ],
+    "rule": "use conservative fidelity/compression/compute Pareto evidence; do not invent a post-hoc scalar objective",
+    "max_heldout_finalists": 3
+  },
+  "production_rule": "Generation-2 heldout success is still engineering evidence only. Physical Ryzen equal-wall-clock comparison on street/stack-compatible geometry remains mandatory before production representation freeze."
+}
