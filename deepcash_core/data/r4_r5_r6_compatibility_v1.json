@@ -1,0 +1,37 @@
+{
+  "schema": "DEEPCASH_R4_R5_R6_COMPATIBILITY_V1",
+  "status": "FROZEN_BEFORE_PHYSICAL_RESULT",
+  "purpose": "physical compatibility bridge for the leading R4 representation, leading exact R5 update semantics, and first R6 turn-to-river public-state transfer",
+  "solver_variant": "ALT_DCFR_150_0_2",
+  "solver_semantics": "historical/OpenSpiel-style post-update discounted alternating CFR: add instantaneous regret, then discount the updated cumulative regret; quadratic average weighting",
+  "candidates": [
+    "matchup_cluster8",
+    "equity8"
+  ],
+  "turn_boards": {
+    "ace_high_dry_turn": "Ah Kd 9c 4s",
+    "paired_turn": "Qs Qd 8h 3c",
+    "connected_turn": "Jh Td 8c 7s",
+    "three_flush_turn": "Kh 9h 5h 2c"
+  },
+  "phases": [
+    {"name": "A", "p0_phase": 0.19, "p1_phase": 0.47},
+    {"name": "B", "p0_phase": 0.58, "p1_phase": 0.83}
+  ],
+  "pot": 100,
+  "spr_to_stack": {"1": 100, "2": 200, "4": 400},
+  "range_combos_per_player": 8,
+  "min_bet": 20,
+  "river_children_per_turn_state": 2,
+  "river_child_selection": "highest exact marginal public chance mass after card removal; ties by encoded river card id",
+  "reference_iterations_per_river_child": 600,
+  "candidate_wall_budget_seconds_per_river_child": 3.0,
+  "candidate_chunk_iterations": 5,
+  "candidate_order_policy": "deterministic_rotation_by_river_child_cell",
+  "parallel_candidate_workers": 1,
+  "reference_rule": "exact-combo ALT_DCFR_150_0_2 reference is trained once per selected river child and excluded from each candidate wall-clock budget",
+  "candidate_rule": "each representation trains p0-restricted, p1-restricted and joint abstract ALT_DCFR_150_0_2 states in equal-iteration round-robin chunks until the same candidate-training wall-clock budget is reached",
+  "memory_rule": "each candidate/river-child executes in a fresh subprocess and records native/fallback peak working-set plus process affinity",
+  "decision_rule": "no post-hoc scalar score; matchup_cluster8 may be frozen only if its held-out fidelity advantage survives the turn-to-river bridge without a material equal-wall-clock throughput or memory penalty versus equity8",
+  "scope_warning": "this gate validates compatibility of representation, exact alternating discounted update semantics, and the first public turn-to-river chance-transfer contract. It does not by itself select the final sampled production traversal, complete turn betting/resolving, or mark R6 PASS."
+}
