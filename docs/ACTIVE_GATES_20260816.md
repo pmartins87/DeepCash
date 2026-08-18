@@ -84,19 +84,39 @@ The archive contains six JSON files and 504 rows covering every frozen phase, SP
 
 Legacy v1 run `31976111855` remains **SUPERSEDED / INELIGIBLE FOR PROMOTION**. Its successful completion does not change this boundary.
 
-### Deterministic finalist freeze — FROZEN, ENGINEERING CI PASS
+### Deterministic finalist freeze — FROZEN / CONSUMED BY HELDOUT-V1
 
-Only these candidates may enter held-out-v1:
+Only these candidates were permitted into held-out-v1:
 
 - `equity8`;
 - `equity4_blocker2`;
 - `category_equity4`.
 
-Machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`. Branch CI `32001037641` passed at `7b8358aa276370b330fe83d336b56d1d64e49d62`.
+Machine-readable freeze: `deepcash_core/data/r4_representation_finalists_v1.json`. Audit: `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`. Branch CI `32001037641` passed at `7b8358aa276370b330fe83d336b56d1d64e49d62`; PR #5 was merged to `main` at `2c1bf1ac1e04a834caaebc2d000bc05a9fdf0c17`, and post-merge main CI `32082197110` passed.
 
-### Held-out firewall
+### Held-out-v1 — ACCEPTED ENGINEERING EVIDENCE
 
-`river-representation-heldout-v1.yml` is prepared with a manual `workflow_dispatch` trigger only. Status: **PREPARED_NOT_RUN**. Do not dispatch it until the freeze branch passes CI and is merged to `main`. After execution, a green workflow alone is insufficient: all six matrix cells and the combined artifact must be inspected before any promotion.
+Manual run `32085317554` completed successfully from merged `main`. All six matrix jobs, the structural gate and the final completeness/summary job passed.
+
+Combined artifact: `9308636169` (`r4-representation-heldout-v1`), SHA-256 `6860be515a79532110c4c42ee901513db93f74b9d94b96deedfac626c5fd13f2`. The archive contains six cell JSONs plus the combined summary; 432 raw rows were inspected.
+
+Checkpoint-3600 aggregate conservative upper loss per pot:
+
+| candidate | mean | p90 | worst | mean compression |
+|---|---:|---:|---:|---:|
+| **equity8** | **0.00193346** | **0.00715726** | **0.01005899** | 0.816406 |
+| equity4_blocker2 | 0.00388414 | 0.00968563 | 0.01655804 | 0.660156 |
+| category_equity4 | 0.00663440 | 0.01350116 | 0.01784304 | **0.558594** |
+
+`equity8` is the deterministic fidelity leader, while all three remain on the mechanical fidelity/compression Pareto frontier. All 144 candidate × board × nominal-geometry paths decreased monotonically from checkpoints 300 -> 1200 -> 3600.
+
+Audit limitation: the nominal SPR2 and SPR4 jobs materialize the same `[25,33,50,75,100,150,200]` one-bet action set. Their strategic rows are duplicates for equal phase/board/candidate/checkpoint; the 48 nominal checkpoint cells per candidate represent 32 distinct strategic coordinates. This evidence is valid for the frozen one-bet laboratory and is **not** separate true SPR2-vs-SPR4 generalization evidence.
+
+Full evidence: `docs/R4_HELDOUT_V1_ACCEPTED_20260817.md`.
+
+### R4 next gate — separate Generation-2 clustering/counterfactual family
+
+Held-out-v1 is permanently consumed. Any clustering or counterfactual-value candidate must enter through a separately frozen generation with a new unseen held-out set. `equity8` remains the deterministic accuracy anchor. Production selection is still blocked pending Generation-2 assessment and physical Ryzen equal-wall-clock evidence on a stack/street tree that genuinely distinguishes the intended SPRs.
 
 ## R5 — solver / traversal research
 
@@ -160,7 +180,7 @@ The next gate is frozen in `docs/R5_EQUAL_WALLCLOCK_SCALING_PRECOMMIT_20260817.m
 
 No hybrid CCS+external/tabular algorithm is claimed: correlated chance samples only the private-deal chance node while traversing the complete action tree; TABULAR_RUNNING corrects sampled opponent actions inside external sampling. Integration would require its own structural/unbiasedness gate before numerical consumption.
 
-Execution remains **NOT RUN** while the two R4 development workflows consume hosted CI. Hosted timing will remain engineering evidence; physical Ryzen equal-wall-clock comparison remains mandatory.
+The heavy R4 held-out-v1 workflow is now complete, so hosted execution is no longer blocked by that CI pressure. The comparison remains **NOT RUN** until explicitly dispatched. Hosted timing will remain engineering evidence; physical Ryzen equal-wall-clock comparison remains mandatory.
 
 ### Modern candidate funnel
 

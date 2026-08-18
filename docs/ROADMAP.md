@@ -147,7 +147,7 @@ Implemented correctness infrastructure:
 - [x] deterministic feature candidates and exact card-removal equity/blocker features;
 - [x] precommitted development selector and independent heldout-v1 firewall.
 
-Current deterministic candidates:
+Deterministic Generation-1 candidates:
 
 `category`, `strength4`, `equity4`, `equity8`, `category_equity4`, `equity4_blocker2`, `equity8_blocker2`.
 
@@ -161,17 +161,33 @@ Frozen deterministic finalists:
 
 Freeze: `deepcash_core/data/r4_representation_finalists_v1.json` and `docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md`.
 
+Held-out-v1 run `32085317554` completed successfully from merged `main`; combined artifact `9308636169` has SHA-256 `6860be515a79532110c4c42ee901513db93f74b9d94b96deedfac626c5fd13f2`. All six matrix jobs and the completeness/summary job passed, and all 432 raw rows were inspected.
+
+Checkpoint-3600 held-out-v1 metrics:
+
+| candidate | mean upper/pot | p90 upper/pot | worst upper/pot | mean compression |
+|---|---:|---:|---:|---:|
+| **equity8** | **0.00193346** | **0.00715726** | **0.01005899** | 0.816406 |
+| equity4_blocker2 | 0.00388414 | 0.00968563 | 0.01655804 | 0.660156 |
+| category_equity4 | 0.00663440 | 0.01350116 | 0.01784304 | **0.558594** |
+
+`equity8` is the deterministic fidelity leader. All three remain on the fidelity/compression Pareto frontier, so held-out-v1 does not force a production winner.
+
+Audit limitation: nominal SPR2 and SPR4 both materialize the same `[25,33,50,75,100,150,200]` one-bet action set. The corresponding strategic rows are duplicates; 48 nominal checkpoint-3600 cells per candidate represent 32 distinct strategic coordinates. Held-out-v1 is therefore evidence for the frozen one-bet laboratory, not separate proof of true SPR2-vs-SPR4 generalization. Evidence: `docs/R4_HELDOUT_V1_ACCEPTED_20260817.md`.
+
 Next R4 gates:
 
 - [x] complete corrected development battery and inspect all 24 cells;
 - [x] freeze at most three deterministic finalists;
 - [x] validate the freeze tooling and full suite on branch CI `32001037641`;
-- [ ] merge the freeze into `main`;
-- [ ] manually run the precommitted independent heldout-v1 from merged `main`;
-- [ ] inspect every held-out cell and artifact before promotion;
-- [ ] add counterfactual-value/clustering candidates only as a separately frozen generation;
-- [ ] learned embeddings only if they beat deterministic baselines per real compute;
-- [ ] physical Ryzen equal-wall-clock comparison;
+- [x] merge the freeze into `main`;
+- [x] manually run the precommitted independent heldout-v1 from merged `main`;
+- [x] inspect every held-out cell and artifact before promotion;
+- [ ] freeze counterfactual-value/clustering candidates as a separately versioned Generation-2 **before** numerical consumption;
+- [ ] reserve and freeze a new unseen Generation-2 held-out set; heldout-v1 is permanently consumed;
+- [ ] run Generation-2 development and held-out comparison with `equity8` retained as deterministic accuracy anchor;
+- [ ] learned embeddings only if they beat deterministic/clustering baselines per real compute;
+- [ ] physical Ryzen equal-wall-clock comparison on stack/street geometry that genuinely distinguishes the intended SPRs;
 - [ ] production representation freeze.
 
 ## R5 — Solver correctness, traversal and algorithm selection
@@ -218,7 +234,7 @@ The negative result is retained; no post-hoc parameter tuning was used to force 
 
 Current leading sampling primitive: **correlated chance allocation**, not yet a production solver.
 
-### Sampling scaling audit — ACTIVE
+### Sampling scaling audit — ACCEPTED ENGINEERING EVIDENCE
 
 The first range-support crossover was invalidated for timing before acceptance because the sampled hot path rebuilt the entire compatible-deal support on every chance draw.
 
@@ -228,7 +244,7 @@ Corrected implementation:
 - O(log N) repeated draws;
 - 10,000-draw regression proves identical deal sequence and final PRNG state against the legacy sampler.
 
-Corrected crossover v2 run `31967392548` is active and must pass semantic replay before timing conclusions are accepted.
+Corrected crossover v2 run `31967392548` passed and is retained as hosted-CI scaling evidence, not a universal threshold or physical-Ryzen timing claim.
 
 ### Modern candidate funnel
 
@@ -388,7 +404,7 @@ R0 PASS
 -> R1 GGPoker-reference rules/economy + universal site adapter contract (parallel)
 -> R2 PASS
 -> R3 strategic finalists -> physical Ryzen action comparison -> action freeze
--> R4 development -> frozen finalists -> heldout -> Ryzen -> representation freeze
+-> R4 Generation-1 heldout accepted -> Generation-2 clustering/counterfactual freeze -> new heldout -> Ryzen -> representation freeze
 -> R5 corrected sampling scaling + variance reduction -> Ryzen -> solver/traversal freeze
 -> R6 resolving
 -> R7 full blueprint
