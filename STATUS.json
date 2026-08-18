@@ -6,7 +6,7 @@
   "production_training_envelope": "approximately three months only after R1-R8 production gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
   "status_semantics": "docs/STATUS_SEMANTICS.md",
-  "current_gate": "R1 GGPoker-reference universal site contract + R3 physical action-finalist calibration (PENDING_NOT_STARTED) + R4 frozen deterministic finalists / heldout-v1 PREPARED_NOT_RUN + R5 solver/traversal/variance research",
+  "current_gate": "R1 GGPoker-reference universal site contract + R3 physical action-finalist calibration (PENDING_NOT_STARTED) + R4 heldout-v1 ACCEPTED / separate clustering-counterfactual Generation-2 next + R5 solver/traversal/variance research",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -184,7 +184,7 @@
         "zero_sample_stdev": 0.0018802031,
         "tabular_running_paired_wins_vs_zero": "11/20"
       },
-      "interpretation": "TABULAR_RUNNING is the leading cheap legal external-sampling variance-reduction primitive currently tested, not a production winner; artifact hash, frozen schema/configuration and all 180 rows were re-audited on 2026-08-17"
+      "interpretation": "TABULAR_RUNNING is the leading cheap legal external-sampling VR primitive currently tested, not a production winner; artifact hash, frozen schema/configuration and all 180 rows were re-audited on 2026-08-17"
     },
     "R4_representation_dev_v2_bucket_br": {
       "run": 31976302604,
@@ -207,6 +207,47 @@
       "freeze_validation_run": 32001037641,
       "freeze_validation_head": "7b8358aa276370b330fe83d336b56d1d64e49d62",
       "freeze_validation_status": "success"
+    },
+    "R4_representation_heldout_v1": {
+      "run": 32085317554,
+      "head": "2c1bf1ac1e04a834caaebc2d000bc05a9fdf0c17",
+      "artifact": 9308636169,
+      "artifact_name": "r4-representation-heldout-v1",
+      "artifact_sha256": "6860be515a79532110c4c42ee901513db93f74b9d94b96deedfac626c5fd13f2",
+      "artifact_files": 7,
+      "artifact_rows": 432,
+      "nominal_checkpoint_3600_cells_per_candidate": 48,
+      "distinct_strategic_checkpoint_3600_cells_per_candidate": 32,
+      "fidelity_leader": "equity8",
+      "pareto_frontier": [
+        "equity8",
+        "equity4_blocker2",
+        "category_equity4"
+      ],
+      "checkpoint_3600": {
+        "equity8": {
+          "mean_upper_per_pot": 0.0019334581,
+          "p90_upper_per_pot": 0.0071572627,
+          "worst_upper_per_pot": 0.0100589878,
+          "mean_compression": 0.81640625
+        },
+        "equity4_blocker2": {
+          "mean_upper_per_pot": 0.0038841379,
+          "p90_upper_per_pot": 0.0096856263,
+          "worst_upper_per_pot": 0.0165580405,
+          "mean_compression": 0.66015625
+        },
+        "category_equity4": {
+          "mean_upper_per_pot": 0.0066343959,
+          "p90_upper_per_pot": 0.0135011581,
+          "worst_upper_per_pot": 0.0178430409,
+          "mean_compression": 0.55859375
+        }
+      },
+      "convergence": "144/144 candidate-board-nominal-geometry paths monotonically decreased in worst upper loss from 300 to 1200 to 3600",
+      "geometry_audit": "SPR2 and SPR4 labels materialize the same 25/33/50/75/100/150/200 one-bet action set; their strategic rows duplicate. Evidence is valid for the frozen lab but is not separate true SPR2-vs-SPR4 generalization evidence.",
+      "status_doc": "docs/R4_HELDOUT_V1_ACCEPTED_20260817.md",
+      "interpretation": "heldout-v1 accepted as engineering evidence; equity8 leads deterministic fidelity, all three remain on the compression/fidelity Pareto frontier, and no production representation is selected"
     }
   },
   "running_or_unaccepted_gates": {
@@ -262,20 +303,11 @@
       "main_ci_status": "success",
       "main_ci_head": "17cde5aa058b6407088432b5353800f6ae9bf4b1"
     },
-    "R4_representation_heldout_v1": {
-      "status_last_checked": "PREPARED_NOT_RUN; FREEZE_ENGINEERING_CI_PASS",
-      "finalists": [
-        "equity8",
-        "equity4_blocker2",
-        "category_equity4"
-      ],
-      "freeze_manifest": "deepcash_core/data/r4_representation_finalists_v1.json",
-      "freeze_doc": "docs/R4_REPRESENTATION_FINALIST_FREEZE_20260817.md",
-      "workflow": ".github/workflows/river-representation-heldout-v1.yml",
-      "trigger": "workflow_dispatch only",
-      "rule": "do not dispatch until the freeze branch passes CI and is merged to main; after execution inspect every cell and artifact before any finalist promotion or Ryzen comparison",
-      "freeze_validation_run": 32001037641,
-      "freeze_validation_head": "7b8358aa276370b330fe83d336b56d1d64e49d62"
+    "R4_generation2_clustering_counterfactual": {
+      "status_last_checked": "NEXT_NOT_FROZEN",
+      "rule": "any clustering/counterfactual-value family must be frozen as a separate candidate generation before numerical consumption and must use a new unseen held-out generation; heldout-v1 is permanently consumed",
+      "accuracy_anchor": "equity8",
+      "production_selection": "BLOCKED until Generation-2 decision and physical Ryzen equal-wall-clock evidence"
     }
   },
   "invalidated_evidence": {
@@ -308,14 +340,14 @@
     "exact_tabular_solver_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
     "chance_sampling_primitive": "correlated chance sampling via persistent randomized Weyl stream",
     "sampled_regret_update": "TABULAR_RUNNING is the leading cheap legal external-sampling VR primitive; no production solver/traversal winner yet",
-    "private_state_representation": "R4 deterministic finalist freeze: equity8, equity4_blocker2, category_equity4; heldout-v1 PREPARED_NOT_RUN; no production winner",
+    "private_state_representation": "R4 heldout-v1 accepted: equity8 deterministic fidelity leader; equity4_blocker2 and category_equity4 remain Pareto compression alternatives; Generation-2 clustering/counterfactual candidates next; no production winner",
     "site_rule_contract": "GGPoker reference behind typed universal adapter; structural CI PASS, target facts remain unresolved"
   },
   "next_critical_work": [
-    "validate and merge the immutable R4 three-finalist freeze, then manually dispatch heldout-v1 only from the merged main commit and audit the complete artifact before promotion",
+    "freeze a separate R4 Generation-2 clustering/counterfactual candidate protocol and a new unseen held-out generation without reusing heldout-v1; retain equity8 as deterministic accuracy anchor",
     "collect only discriminating anonymized GGPoker fixtures for cumulative reopen, odd chips and rake settlement",
     "close GGPoker short-all-in reopen, odd-chip and rake rounding/timing with authoritative or deterministic observed fixtures before R1 PASS",
-    "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators now that the heavy R4 development workflows are complete",
+    "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators now that the heavy R4 held-out workflow is complete",
     "combine the best sampled variance primitive with the strongest compatible regret update only after individual components are gated",
     "tighten R3 exact-BR intervals only where final action-family decisions remain resolution-limited",
     "start and certify R3/R4/R5 equal-wall-clock comparisons on the physical Ryzen 9 only after each finalist set is frozen; R3 physical execution is currently PENDING_NOT_STARTED",
@@ -350,7 +382,7 @@
   "physical_ryzen_status": {
     "hardware_target": "single Ryzen 9",
     "R3_action_finalist_comparison": "PENDING_NOT_STARTED — no R3 workload is currently running on the Ryzen and no physical R3 evidence has been accepted",
-    "R4_representation_finalist_comparison": "PENDING — deterministic finalists frozen in a proposed manifest; blocked until heldout-v1 is run, fully audited and accepted",
+    "R4_representation_finalist_comparison": "PENDING — heldout-v1 accepted with equity8 as deterministic fidelity leader; wait for separate Generation-2 clustering/counterfactual decision, then run equal-wall-clock on stack/street geometry that genuinely distinguishes intended SPRs",
     "R5_solver_traversal_comparison": "PENDING — precommitted hosted scaling remains NOT_RUN and physical selection follows compatible finalist gates"
   }
 }
