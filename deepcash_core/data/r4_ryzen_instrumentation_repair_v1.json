@@ -1,0 +1,25 @@
+{
+  "schema": "DEEPCASH_R4_RYZEN_INSTRUMENTATION_REPAIR_V1",
+  "status": "FROZEN_BEFORE_REPAIR_RESULT",
+  "purpose": "orthogonal repair for missing Windows peak-RSS and process-affinity evidence from R4 equal-wall-clock run 1",
+  "source_run_zip_sha256": "136810b601a01449fdfcf1725b25dd357f9309f3f0c3d25e0496d170097e4909",
+  "board_set": "heldout_v2",
+  "candidates": [
+    "matchup_cluster8",
+    "equity8",
+    "matchup_cluster4"
+  ],
+  "phases": [
+    {"name": "A", "p0_phase": 0.19, "p1_phase": 0.47},
+    {"name": "B", "p0_phase": 0.58, "p1_phase": 0.83}
+  ],
+  "pot": 100,
+  "spr_to_stack": {"1": 100, "2": 200, "4": 400},
+  "range_combos_per_player": 8,
+  "min_bet": 20,
+  "warmup_iterations_each_state": 100,
+  "candidate_order_policy": "deterministic_rotation_by_physical_cell",
+  "parallel_candidate_workers": 1,
+  "decision_boundary": "repair data may fill only memory/affinity evidence; it must not alter the strategic ranking established by the 20-second equal-wall-clock run",
+  "fail_closed": "on Windows, preflight and every candidate payload must have non-null positive peak_working_set_bytes and a non-empty affinity list"
+}
