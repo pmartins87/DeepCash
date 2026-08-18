@@ -11,6 +11,10 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 
+[tool.setuptools.packages.find]
+include = ["deepcash_core*"]
+exclude = ["r4_ryzen_runs*", "tests*", "tools*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
