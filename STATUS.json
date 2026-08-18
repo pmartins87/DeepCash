@@ -6,7 +6,7 @@
   "production_training_envelope": "approximately three months only after R1-R8 production gates pass",
   "canonical_roadmap": "docs/ROADMAP.md",
   "status_semantics": "docs/STATUS_SEMANTICS.md",
-  "current_gate": "R1 GGPoker-reference universal site contract + R3 physical action-finalist calibration (PENDING_NOT_STARTED) + R4 heldout-v1 ACCEPTED / separate clustering-counterfactual Generation-2 next + R5 solver/traversal/variance research",
+  "current_gate": "R1 GGPoker-reference universal site contract + R3 physical action-finalist calibration (PENDING_NOT_STARTED) + R4 Generation-2 clustering candidate pool / heldout-v2 FROZEN, development PREPARED_NOT_RUN + R5 solver/traversal/variance research",
   "status": {
     "R0": "PASS",
     "R1": "IN_PROGRESS",
@@ -303,10 +303,26 @@
       "main_ci_status": "success",
       "main_ci_head": "17cde5aa058b6407088432b5353800f6ae9bf4b1"
     },
-    "R4_generation2_clustering_counterfactual": {
-      "status_last_checked": "NEXT_NOT_FROZEN",
-      "rule": "any clustering/counterfactual-value family must be frozen as a separate candidate generation before numerical consumption and must use a new unseen held-out generation; heldout-v1 is permanently consumed",
-      "accuracy_anchor": "equity8",
+    "R4_generation2_clustering": {
+      "status_last_checked": "FROZEN_PREPARED_NOT_RUN; BRANCH_CI_PASS",
+      "branch": "agent/r4-generation2-clustering-freeze",
+      "pr": 7,
+      "validation_run": 32094473623,
+      "validation_head": "c047c5aaf04e031832a3a5e0364b60b384efb8c0",
+      "validation_status": "success",
+      "freeze_manifest": "deepcash_core/data/r4_representation_generation2_v1.json",
+      "precommit_doc": "docs/R4_GENERATION2_CLUSTERING_PRECOMMIT_20260817.md",
+      "candidate_pool": [
+        "equity8",
+        "matchup_cluster4",
+        "matchup_cluster8",
+        "equity4_matchup2"
+      ],
+      "heldout_v2": "FROZEN_UNSEEN_DO_NOT_RUN",
+      "development_workflow": ".github/workflows/river-representation-gen2-dev-v1.yml",
+      "development_trigger": "workflow_dispatch only",
+      "geometry": "distinct materialized one-bet grids: SPR1=25/50/100, SPR2=25/50/100/200, SPR4=25/50/100/200/400",
+      "rule": "merge only after CI; then run development from merged main, audit every cell, freeze at most three finalists, and only then permit heldout-v2 consumption",
       "production_selection": "BLOCKED until Generation-2 decision and physical Ryzen equal-wall-clock evidence"
     }
   },
@@ -340,11 +356,11 @@
     "exact_tabular_solver_control": "OPEN_SPIEL_STYLE_POST_DCFR_150_0_2",
     "chance_sampling_primitive": "correlated chance sampling via persistent randomized Weyl stream",
     "sampled_regret_update": "TABULAR_RUNNING is the leading cheap legal external-sampling VR primitive; no production solver/traversal winner yet",
-    "private_state_representation": "R4 heldout-v1 accepted: equity8 deterministic fidelity leader; equity4_blocker2 and category_equity4 remain Pareto compression alternatives; Generation-2 clustering/counterfactual candidates next; no production winner",
+    "private_state_representation": "R4 Generation-1 heldout accepted with equity8 as deterministic fidelity anchor; Generation-2 matchup clustering pool is frozen and development is prepared but not run; no production winner",
     "site_rule_contract": "GGPoker reference behind typed universal adapter; structural CI PASS, target facts remain unresolved"
   },
   "next_critical_work": [
-    "freeze a separate R4 Generation-2 clustering/counterfactual candidate protocol and a new unseen held-out generation without reusing heldout-v1; retain equity8 as deterministic accuracy anchor",
+    "merge PR #7 after its frozen Generation-2 structural CI, validate main, then manually dispatch the Generation-2 development workflow and audit all six cells before any finalist freeze",
     "collect only discriminating anonymized GGPoker fixtures for cumulative reopen, odd chips and rake settlement",
     "close GGPoker short-all-in reopen, odd-chip and rake rounding/timing with authoritative or deterministic observed fixtures before R1 PASS",
     "run the precommitted equal-wall-clock/scaling comparison of accepted ES-ZERO, ES+TABULAR_RUNNING, CCS and INFOSET_EXACT comparators now that the heavy R4 held-out workflow is complete",
@@ -382,7 +398,7 @@
   "physical_ryzen_status": {
     "hardware_target": "single Ryzen 9",
     "R3_action_finalist_comparison": "PENDING_NOT_STARTED — no R3 workload is currently running on the Ryzen and no physical R3 evidence has been accepted",
-    "R4_representation_finalist_comparison": "PENDING — heldout-v1 accepted with equity8 as deterministic fidelity leader; wait for separate Generation-2 clustering/counterfactual decision, then run equal-wall-clock on stack/street geometry that genuinely distinguishes intended SPRs",
+    "R4_representation_finalist_comparison": "PENDING — Generation-2 clustering pool/heldout-v2 geometry frozen and branch CI passed; development has not run; physical comparison waits for the Generation-2 finalist decision",
     "R5_solver_traversal_comparison": "PENDING — precommitted hosted scaling remains NOT_RUN and physical selection follows compatible finalist gates"
   }
 }
