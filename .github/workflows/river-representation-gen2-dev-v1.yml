@@ -23,6 +23,7 @@ jobs:
       - name: Validate Generation-2 freeze and representation invariances
         run: >-
           python -m pytest -q
+          tests/test_r4_generation2_freeze.py
           tests/test_r4_representation_gen2.py
           tests/test_river_representation_lab.py
           tests/test_representation_selection.py
