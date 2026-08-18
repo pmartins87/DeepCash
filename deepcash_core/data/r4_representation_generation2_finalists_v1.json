@@ -1,0 +1,86 @@
+{
+  "schema": "DEEPCASH_R4_REPRESENTATION_GENERATION2_FINALIST_FREEZE_V1",
+  "generation": 2,
+  "status": "FROZEN_HELDOUT_V2_NOT_RUN",
+  "source": {
+    "workflow_run": 32095713074,
+    "head_sha": "e01886850109fc8047cf92224f24f850ab87e2ee",
+    "artifact_id": 9310917903,
+    "artifact_name": "r4-representation-gen2-dev-v1",
+    "artifact_zip_sha256": "027cee5bb2d1074756f80f4e4e558646c1c92ed6565cdaeab9dcfb9d895681b5",
+    "shared_checkpoint": 3600,
+    "development_payloads": 6,
+    "development_cells": 48,
+    "precommit": "docs/R4_GENERATION2_CLUSTERING_PRECOMMIT_20260817.md",
+    "audit": "docs/R4_GENERATION2_DEVELOPMENT_AUDIT_20260818.md"
+  },
+  "selection": {
+    "candidate_pool": [
+      "equity8",
+      "matchup_cluster4",
+      "matchup_cluster8",
+      "equity4_matchup2"
+    ],
+    "finalists": [
+      "equity8",
+      "matchup_cluster8",
+      "matchup_cluster4"
+    ],
+    "eliminated": [
+      "equity4_matchup2"
+    ],
+    "metrics": {
+      "equity8": {
+        "worst_upper_per_pot": 0.009488688666857486,
+        "mean_upper_per_pot": 0.0019761247254908103,
+        "p90_upper_per_pot": 0.008867021131642483,
+        "worst_interval_per_pot": 0.0009863034924284086,
+        "mean_compression": 0.921875,
+        "mean_action_slot_ratio": 0.921875,
+        "mean_joint_train_seconds": 16.945577792458344
+      },
+      "matchup_cluster8": {
+        "worst_upper_per_pot": 0.0009863034924283464,
+        "mean_upper_per_pot": 0.000327762932653962,
+        "p90_upper_per_pot": 0.000590986882530471,
+        "worst_interval_per_pot": 0.0009863034924283464,
+        "mean_compression": 0.984375,
+        "mean_action_slot_ratio": 0.984375,
+        "mean_joint_train_seconds": 16.97248090391668
+      },
+      "matchup_cluster4": {
+        "worst_upper_per_pot": 0.08886804994014968,
+        "mean_upper_per_pot": 0.01933070233978712,
+        "p90_upper_per_pot": 0.043494437206365796,
+        "worst_interval_per_pot": 0.0009863034924283464,
+        "mean_compression": 0.5,
+        "mean_action_slot_ratio": 0.5,
+        "mean_joint_train_seconds": 16.582285892124954
+      }
+    },
+    "rule": "At most three finalists selected from frozen Generation-2 development using conservative fidelity/compression/compute evidence with no post-hoc scalar score."
+  },
+  "heldout_v2": {
+    "status": "PREPARED_NOT_RUN",
+    "workflow": ".github/workflows/river-representation-gen2-heldout-v2.yml",
+    "trigger": "workflow_dispatch",
+    "board_set": "heldout_v2",
+    "board_count": 8,
+    "range_combos_per_player": 8,
+    "phases": [
+      {"phase": "A", "p0_phase": 0.19, "p1_phase": 0.47},
+      {"phase": "B", "p0_phase": 0.58, "p1_phase": 0.83}
+    ],
+    "pot": 100,
+    "spr_to_stack": {"1": 100, "2": 200, "4": 400},
+    "min_bet": 20,
+    "reference_fractions": ["1/4", "1/2", "1", "2", "4"],
+    "expected_materialized_bet_sizes": {
+      "1": [25, 50, 100],
+      "2": [25, 50, 100, 200],
+      "4": [25, 50, 100, 200, 400]
+    },
+    "checkpoints": [300, 1200, 3600]
+  },
+  "production_boundary": "Held-out-v2 remains engineering evidence only. R4 cannot PASS until serious finalists receive physical Ryzen equal-wall-clock comparison on representative street/stack-compatible architecture and one production representation is explicitly frozen."
+}

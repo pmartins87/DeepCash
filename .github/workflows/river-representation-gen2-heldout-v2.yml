@@ -1,0 +1,128 @@
+name: DeepCash R4 representation Generation-2 held-out v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deepcash-r4-representation-gen2-heldout-v2
+  cancel-in-progress: false
+
+jobs:
+  structural-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Validate Generation-2 freeze and finalist firewall
+        run: >-
+          python -m pytest -q
+          tests/test_r4_generation2_freeze.py
+          tests/test_r4_representation_gen2.py
+          tests/test_r4_representation_gen2_finalist_freeze.py
+          tests/test_river_representation_lab.py
+          tests/test_representation_selection.py
+      - name: Print frozen held-out-v2 finalists
+        run: >-
+          python -m deepcash_core.r4_representation_gen2_freeze
+          deepcash_core/data/r4_representation_generation2_finalists_v1.json
+
+  heldout:
+    needs: structural-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - phase: A
+            p0_phase: '0.19'
+            p1_phase: '0.47'
+            spr: '1'
+            stack: '100'
+          - phase: A
+            p0_phase: '0.19'
+            p1_phase: '0.47'
+            spr: '2'
+            stack: '200'
+          - phase: A
+            p0_phase: '0.19'
+            p1_phase: '0.47'
+            spr: '4'
+            stack: '400'
+          - phase: B
+            p0_phase: '0.58'
+            p1_phase: '0.83'
+            spr: '1'
+            stack: '100'
+          - phase: B
+            p0_phase: '0.58'
+            p1_phase: '0.83'
+            spr: '2'
+            stack: '200'
+          - phase: B
+            p0_phase: '0.58'
+            p1_phase: '0.83'
+            spr: '4'
+            stack: '400'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run frozen Generation-2 held-out-v2 cell
+        shell: bash
+        run: |
+          finalists="$(python -m deepcash_core.r4_representation_gen2_freeze deepcash_core/data/r4_representation_generation2_finalists_v1.json --emit-candidates)"
+          python tools/benchmark_river_representation_gen2.py \
+            --board-set heldout_v2 --boards all --candidates "$finalists" \
+            --range-combos 8 \
+            --p0-phase "${{ matrix.p0_phase }}" --p1-phase "${{ matrix.p1_phase }}" \
+            --pot 100 --stack "${{ matrix.stack }}" --min-bet 20 \
+            --checkpoints 300,1200,3600 \
+            --out "r4_gen2_heldout_v2_${{ matrix.phase }}_spr${{ matrix.spr }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r4-gen2-heldout-v2-cell-${{ matrix.phase }}-spr${{ matrix.spr }}
+          path: r4_gen2_heldout_v2_*.json
+          if-no-files-found: error
+
+  summarize:
+    needs: heldout
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: r4-gen2-heldout-v2-cell-*
+          path: r4-gen2-heldout-v2-cells
+          merge-multiple: true
+      - name: Require all six frozen held-out-v2 cells
+        shell: bash
+        run: |
+          test "$(find r4-gen2-heldout-v2-cells -maxdepth 1 -name '*.json' | wc -l)" -eq 6
+      - name: Summarize without promoting a production winner
+        run: >-
+          python tools/summarize_river_representation_dev.py
+          r4-gen2-heldout-v2-cells/*.json
+          --out r4_gen2_heldout_v2_summary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r4-representation-gen2-heldout-v2
+          path: |
+            r4-gen2-heldout-v2-cells/*.json
+            r4_gen2_heldout_v2_summary.json
+          if-no-files-found: error
