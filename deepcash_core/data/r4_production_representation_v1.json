@@ -1,0 +1,72 @@
+{
+  "schema": "DEEPCASH_R4_PRODUCTION_REPRESENTATION_FREEZE_V1",
+  "status": "FROZEN",
+  "generation": 2,
+  "representation": "matchup_cluster8",
+  "accuracy_anchor": "equity8",
+  "compression_control": "matchup_cluster4",
+  "selection_rule": "Freeze the leading Generation-2 representation only if its held-out fidelity advantage survives the frozen R4/R5/R6 physical compatibility bridge without a material equal-wall-clock throughput or memory penalty versus equity8; nominal adverse differences inside the exact-reference/solver resolution interval are not resolved reversals.",
+  "evidence": {
+    "generation2_heldout_v2": {
+      "workflow_run": 32101218388,
+      "artifact_id": 9312441121,
+      "artifact_sha256": "92cc1825cbb4155b3cb3239469969cefdf0b1261724fb97182ee2c4d7b3dd4b7",
+      "audit": "docs/R4_GENERATION2_HELDOUT_V2_AUDIT_20260818.md"
+    },
+    "ryzen_equal_wallclock_run1": {
+      "artifact_filename": "r4_ryzen_equal_wallclock_20260818_111633.zip",
+      "artifact_sha256": "136810b601a01449fdfcf1725b25dd357f9309f3f0c3d25e0496d170097e4909",
+      "audit": "docs/R4_RYZEN_EQUAL_WALLCLOCK_RUN1_AUDIT_20260818.md"
+    },
+    "ryzen_instrumentation_repair": {
+      "artifact_filename": "r4_ryzen_instrumentation_repair_20260818_130319.zip",
+      "artifact_sha256": "5bbf592b2f53e76cb650d7a336cc016a23f227392a3fcc6008b114f4dffabaf7",
+      "audit": "docs/R4_RYZEN_INSTRUMENTATION_REPAIR_AUDIT_20260818.md"
+    },
+    "r4_r5_r6_physical_compatibility": {
+      "artifact_filename": "r4_r5_r6_compatibility_20260818_143025.zip",
+      "artifact_sha256": "58ef11362a0ca81b300f7120ddaaf35fe781562d81e8189fc4a664fee8e11cb5",
+      "source_git_head": "143f36f8ff60ef9b1db6cfe9ae23ac0caa491839",
+      "precommit": "docs/R4_R5_R6_COMPATIBILITY_PRECOMMIT_20260818.md",
+      "audit": "docs/R4_R5_R6_COMPATIBILITY_PHYSICAL_AUDIT_20260819.md",
+      "solver_variant": "ALT_DCFR_150_0_2",
+      "physical_child_cells": 48,
+      "candidate_runs": 96,
+      "affinity_width": 32,
+      "resolved_pairwise_losses": 0,
+      "metrics": {
+        "matchup_cluster8": {
+          "mean_loss_upper_per_pot": 0.00013070864726583075,
+          "p90_loss_upper_per_pot": 0.00027337910389536906,
+          "worst_loss_upper_per_pot": 0.0005310517023539152,
+          "mean_joint_iterations_per_second": 65.39569789188867,
+          "peak_working_set_bytes_mean": 26662826.666666668,
+          "mean_action_slot_ratio": 0.9453125,
+          "median_iterations_each_state": 195.0
+        },
+        "equity8": {
+          "mean_loss_upper_per_pot": 0.0015957647076309423,
+          "p90_loss_upper_per_pot": 0.0062732440284249446,
+          "worst_loss_upper_per_pot": 0.007470420601504895,
+          "mean_joint_iterations_per_second": 65.54512432556885,
+          "peak_working_set_bytes_mean": 26636544.0,
+          "mean_action_slot_ratio": 0.8828125,
+          "median_iterations_each_state": 195.0
+        }
+      }
+    }
+  },
+  "architecture_boundary": {
+    "compressed": "solver private information-state identity after exact public-card/card-removal conditioning",
+    "remains_exact": [
+      "public cards",
+      "private-card legality and card removal",
+      "chance mass",
+      "payoff",
+      "stack and pot geometry",
+      "legal action tree"
+    ],
+    "r6_scope": "The freeze is the production private-state representation primitive. R6 still owns turn betting/local resolving, flop+turn+river and preflop-to-river integration; it may not silently reinterpret this primitive.",
+    "r5_scope": "The physical bridge validates exact ALT_DCFR_150_0_2 compatibility only. It does not select the final sampled production traversal."
+  }
+}
