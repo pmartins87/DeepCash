@@ -148,15 +148,13 @@ def build_posterior_river_spec(
     bets = river_bet_sizes(game, history)
     if stack <= 0 or not bets:
         raise RuntimeError("frozen posterior bridge unexpectedly has no river decisions")
-    spec = RiverGameSpec(
+    return RiverGameSpec(
         board=(*game.turn_state.board, river_card),
         p0_range=p0_range,
         p1_range=p1_range,
         pot=pot,
         bet_sizes=bets,
     )
-    spec.validate()
-    return spec
 
 
 def solve_exact_reference(spec: RiverGameSpec, *, iterations: int = RIVER_ITERATIONS):
