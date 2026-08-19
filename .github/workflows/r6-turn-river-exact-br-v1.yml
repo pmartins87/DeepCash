@@ -1,0 +1,27 @@
+name: DeepCash R6 turn+river exact BR v1
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'deepcash_core/turn_river_exact_br.py'
+      - 'tests/test_turn_river_exact_br.py'
+      - 'docs/R6_TURN_RIVER_EXACT_BR_PRECOMMIT_20260819.md'
+      - '.github/workflows/r6-turn-river-exact-br-v1.yml'
+
+jobs:
+  exact-two-street-br:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Run frozen R6 exact-BR gate
+        run: >-
+          python -m pytest -q
+          tests/test_turn_river_exact_game.py
+          tests/test_turn_river_exact_br.py
