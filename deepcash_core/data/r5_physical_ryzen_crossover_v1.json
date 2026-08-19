@@ -1,0 +1,55 @@
+{
+  "schema": "DEEPCASH_R5_PHYSICAL_RYZEN_CROSSOVER_CONFIG_V1",
+  "status": "FROZEN_BEFORE_PHYSICAL_RESULT",
+  "purpose": "Equal-wall-clock physical target-machine crossover measurement among the accepted exact alternating control, CCS sampled challenger and ES_ZERO sampled control after R5 held-out PASS.",
+  "boards": {
+    "physical_ace_mid": "Ac 9s 6d 4h 2c",
+    "physical_king_dynamic": "Kh Jd 8c 5s 2d",
+    "physical_paired_queens": "Qs Qd 7h 4c 3s",
+    "physical_connected": "Td 9c 8h 5d 2s"
+  },
+  "phases": [
+    {
+      "name": "P_A",
+      "p0_phase": 0.11,
+      "p1_phase": 0.59,
+      "sampling_seed": 701
+    },
+    {
+      "name": "P_B",
+      "p0_phase": 0.37,
+      "p1_phase": 0.83,
+      "sampling_seed": 809
+    }
+  ],
+  "range_combos_per_player": [8, 24, 48],
+  "pot": 100,
+  "bet_sizes": [25, 50, 100],
+  "budget_seconds_per_cell": 30.0,
+  "algorithms": [
+    "ALT_DCFR_150_0_2",
+    "CCS_CFR_PLUS_LINEAR",
+    "ES_ZERO"
+  ],
+  "chunk_contract": {
+    "ALT_DCFR_150_0_2": {"initial": 1, "minimum": 1, "maximum": 64},
+    "CCS_CFR_PLUS_LINEAR": {"initial": 64, "minimum": 1, "maximum": 4096},
+    "ES_ZERO": {"initial": 64, "minimum": 1, "maximum": 4096},
+    "next_chunk": "ceil(cumulative_iterations / cumulative_train_seconds * remaining_seconds), clipped to the algorithm-specific bounds"
+  },
+  "timing_quality_limit": "max(0.50 seconds, 5 percent of requested cell budget)",
+  "execution": {
+    "parallel_workers": 1,
+    "cell_process_isolation": true,
+    "algorithm_order": "deterministic rotation by public cell index",
+    "tracked_repository_must_be_clean": true
+  },
+  "decision_rule": {
+    "cells_per_support_per_algorithm": 8,
+    "strict_paired_wins_required_against_each_other_algorithm": 5,
+    "support_leader_requires_lowest_mean_exploitability": true,
+    "unresolved_support_action": "repeat a separately frozen longer-budget gate; do not choose post-hoc",
+    "mixed_support_leaders": "record a support-dependent crossover architecture rather than forcing one universal solver"
+  },
+  "scope_warning": "This physical river-control crossover is required R5/R8 target-machine evidence. It does not by itself mark R5, R6, R8 or READY FOR TABLES as PASS."
+}
