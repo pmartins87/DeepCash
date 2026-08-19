@@ -2,6 +2,13 @@ name: DeepCash R5 equal-wallclock scaling v1
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/run_r5_equal_wallclock_scaling_v1.py'
+      - 'tests/test_r5_equal_wallclock_scaling_runner.py'
+      - 'docs/R5_EQUAL_WALLCLOCK_SCALING_PRECOMMIT_20260817.md'
+      - '.github/workflows/r5-equal-wallclock-scaling-v1.yml'
 
 jobs:
   r5-equal-wallclock-scaling:
