@@ -1,0 +1,40 @@
+name: DeepCash R5 equal-wallclock scaling v1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  r5-equal-wallclock-scaling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install DeepCash
+        run: python -m pip install -e '.[dev]'
+      - name: Gate frozen comparator structure before numerical run
+        run: >-
+          python -m pytest -q
+          tests/test_weighted_deal_sampler.py
+          tests/test_river_external_sampling.py
+          tests/test_river_correlated_chance_sampling.py
+          tests/test_river_vr_external_sampling.py
+          tests/test_river_vr_external_sampling_infoset.py
+          tests/test_river_vr_infoset_baseline_v2.py
+          tests/test_river_vr_tabular.py
+          tests/test_r5_equal_wallclock_scaling_runner.py
+      - name: Run frozen equal-wallclock scaling battery
+        run: >-
+          python tools/run_r5_equal_wallclock_scaling_v1.py
+          --out r5_equal_wallclock_scaling_v1.json
+      - name: Hash result artifact
+        run: sha256sum r5_equal_wallclock_scaling_v1.json > r5_equal_wallclock_scaling_v1.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r5-equal-wallclock-scaling-v1
+          path: |
+            r5_equal_wallclock_scaling_v1.json
+            r5_equal_wallclock_scaling_v1.sha256
+          if-no-files-found: error
