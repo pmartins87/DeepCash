@@ -1,0 +1,49 @@
+{
+  "schema": "DEEPCASH_R6_POSTERIOR_REPRESENTATION_HELDOUT_V2_CONFIG",
+  "status": "RESERVED_UNSEEN_BEFORE_REMEDIATION_DIAGNOSTIC",
+  "source_cases": {
+    "heldout_low_ace": {
+      "turn_board": "As 8c 5h 3d",
+      "river_cards": ["2c", "Jh"]
+    },
+    "heldout_broadway": {
+      "turn_board": "Kc Qh 8s 4d",
+      "river_cards": ["2s", "Td"]
+    },
+    "heldout_paired": {
+      "turn_board": "Qd Qc 7s 3h",
+      "river_cards": ["2d", "9c"]
+    },
+    "heldout_connected": {
+      "turn_board": "Th 9d 6c 4s",
+      "river_cards": ["2h", "8c"]
+    }
+  },
+  "histories": ["CHECK_CHECK", "P0_BET_50_CALL", "P1_BET_50_CALL"],
+  "source_range_combos": 12,
+  "source_p0_phase": 0.31,
+  "source_p1_phase": 0.79,
+  "source_pot": 100,
+  "source_stack": 200,
+  "source_min_bet": 20,
+  "source_turn_fractions": [0.5, 1.0],
+  "source_iterations": 12,
+  "river_iterations": 400,
+  "solver_variant": "ALT_DCFR_150_0_2",
+  "expected_posterior_cells": 24,
+  "finalist_count_maximum": 2,
+  "candidate_family_boundary": [
+    "matchup_cluster8",
+    "equity8",
+    "matchup_cluster4",
+    "equity4_matchup2"
+  ],
+  "finalist_freeze_required_before_run": true,
+  "acceptance_rule": {
+    "mean_conservative_loss_upper_must_be_minimal_among_frozen_finalists": true,
+    "resolved_pairwise_losses_against_other_finalist_must_equal": 0,
+    "resolved_loss_rule": "candidate loss_upper - comparator loss_upper > max(candidate resolution interval, comparator resolution interval)",
+    "unresolved_adverse_is_not_a_resolved_reversal": true
+  },
+  "scope_warning": "These coordinates are reserved unseen evidence. Do not execute them before a remediation finalist freeze is committed."
+}
